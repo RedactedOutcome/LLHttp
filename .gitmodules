@@ -1,0 +1,3 @@
+[submodule "libs/HBuffer"]
+	path = libs/HBuffer
+	url = https://github.com/RedactedOutcome/HBuffer

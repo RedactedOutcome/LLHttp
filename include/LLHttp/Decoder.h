@@ -1,6 +1,7 @@
 #pragma once
 
-#include "pch.h"
+#include "Core.h"
+#include "Includes.h"
 
 class Decoder{
 public:

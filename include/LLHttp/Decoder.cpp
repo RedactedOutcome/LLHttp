@@ -1,8 +1,5 @@
-#include "pch.h"
 #include "Decoder.h"
 #include "HttpData.h"
-
-#include "Core/Logger.h"
 
 int Decoder::DecodeGZip(HBuffer& data, std::vector<HBuffer>& output){
     z_stream stream;

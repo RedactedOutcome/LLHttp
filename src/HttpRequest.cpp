@@ -1,7 +1,7 @@
-#include "pch.h"
 #include "HttpRequest.h"
 #include "Core/Logger.h"
 #include "HttpData.h"
+#include "Core.h"
 
 HttpRequest::HttpRequest(){
 

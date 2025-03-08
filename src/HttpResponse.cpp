@@ -1,7 +1,7 @@
-#include "pch.h"
 #include "HttpResponse.h"
 #include "Core/Logger.h"
 #include "Decoder.h"
+#include "Core.h"
 
 HttpResponse::HttpResponse(){
     //memset(&m_Stream, 0, sizeof(z_stream));

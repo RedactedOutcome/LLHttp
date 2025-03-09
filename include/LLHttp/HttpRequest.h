@@ -2,7 +2,6 @@
 
 #include "Cookie.h"
 #include "HttpData.h"
-#include "HttpVerb.h"
 
 #ifndef HTTP_DEFAULT_HEAD_REQUEST_TO_BUFFER_SIZE
 #define HTTP_DEFAULT_HEAD_REQUEST_TO_BUFFER_SIZE 32000
@@ -17,7 +16,7 @@ public:
     /// @return returns 0 if successful
     int ParseCopy(HBuffer data);
 
-    void SetPath(std::string& path);
+    void SetPath(const HBuffer& path) noexcept;
 
     /// @brief sets the body to a copy of the string
     /// @param data the string to copy
@@ -26,7 +25,7 @@ public:
 
     void SetBody(HBuffer&& buffer)noexcept;
     void SetBody(char* data, size_t size, bool canFree, bool canModify) noexcept;
-
+    
     /// @brief Assigns the body to a Non owning/modifying HBuffer with data
     void SetBodyReference(const char* data)noexcept;
     /// @brief Assigns the body to a Non owning/modifying HBuffer with data and size
@@ -77,7 +76,7 @@ public:
     std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
     std::shared_ptr<Cookie> GetCookie(const HBuffer& name) noexcept;
 
-    std::string& GetPath() const noexcept{return (std::string&)m_Path;}
+    HBuffer& GetPath() const noexcept{return (HBuffer&)m_Path;}
     HttpVerb GetVerb() const noexcept{return m_Verb;}
     std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
 
@@ -88,7 +87,7 @@ private:
     int Parse() noexcept;
     HttpVersion m_Version = HttpVersion::Unsupported;
     HttpVerb m_Verb = HttpVerb::Unknown;
-    std::string m_Path;
+    HBuffer m_Path;
     std::unordered_map<HBuffer, HBuffer> m_Headers;
     std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
     bool m_IsBodyCompressed=false;

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Cookie.h"
 
 Cookie::Cookie(){}

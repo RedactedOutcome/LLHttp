@@ -1,7 +1,6 @@
+#include "LLHttp/pch.h"
 #include "HttpRequest.h"
-#include "Core/Logger.h"
 #include "HttpData.h"
-#include "Core.h"
 
 HttpRequest::HttpRequest(){
 
@@ -20,7 +19,7 @@ void HttpRequest::PrepareRead(){
     m_Join.Free();
     //m_Body.Free();
     m_Body.clear();
-    m_Path.clear();
+    m_Path.Free();
     m_Headers.clear();
     m_Cookies.clear();
 }
@@ -28,7 +27,7 @@ void HttpRequest::PrepareRead(){
 void HttpRequest::Clear(){
     m_Version = HttpVersion::Unsupported;
     m_Verb = HttpVerb::Unknown;
-    m_Path.clear();
+    m_Path.Free();
     m_Headers.clear();
     m_Cookies.clear();
     //m_Body.Free();
@@ -58,7 +57,7 @@ int HttpRequest::Parse() noexcept{
                     }
                     if(c == ':')break;
                     if(!std::isdigit(c) && !std::isalpha(c) && c!= '-' && c!='_'){
-                        CORE_DEBUG("BREAKING {0} {1}", (size_t)c, m_Join.SubString(headerEnd, 5).GetCStr());
+                        //CORE_DEBUG("BREAKING {0} {1}", (size_t)c, m_Join.SubString(headerEnd, 5).GetCStr());
                         return (int)HttpParseErrorCode::InvalidHeaderName;
                     }
                     headerEnd++;
@@ -123,7 +122,7 @@ int HttpRequest::Parse() noexcept{
                 return Parse();
             }
             if(strlen(transferEncoding) > 0){
-                CORE_ERROR("HTTP TRansfer encoding not supported yet {0}", transferEncoding);
+                //CORE_ERROR("HTTP TRansfer encoding not supported yet {0}", transferEncoding);
                 return (int)HttpParseErrorCode::UnsupportedTransferEncoding;
             }
             m_State = 3;
@@ -156,7 +155,6 @@ int HttpRequest::Parse() noexcept{
             return 0;
         }
         case 4:{//Get body from chunked transfer encoding
-            CORE_DEBUG("Getting request from chunked transfer encoding");
             size_t before = m_At;
             uint8_t state = 0;
 
@@ -260,7 +258,6 @@ int HttpRequest::Parse() noexcept{
             }else{
                 //Not HTTP 0.9,1.0,1.1 header
                 //NO HTTP@ SUPPORT
-                CORE_ERROR("UNSUPPORTED HTTP {0}", m_Join.SubString(0, 10).GetCStr());
                 return (int)HttpParseErrorCode::UnsupportedHttpProtocol;
             }
             m_State = 1;
@@ -281,7 +278,6 @@ int HttpRequest::Parse() noexcept{
                 //if(c!= ' ' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                 if((c < 0x21 || c > 0x7E) && c != ' '){
                     //Invalid URL Percent encoded character
-                    CORE_DEBUG("INVALID CHAR {0}, {1}", (size_t)c, c);
                     return (int)HttpParseErrorCode::InvalidHeaderName;
                 }
                 i++;
@@ -304,7 +300,7 @@ int HttpRequest::Parse() noexcept{
             }
             m_Version = HttpVersion::HTTP1_1;
             m_State = 1;
-            m_Path = m_Join.SubString(wasAt, i - wasAt).GetCStr();
+            m_Path.Assign(m_Join.SubString(wasAt, i - wasAt));
             m_At = i + 10 + 1;
             //CORE_DEBUG("NEW DATA IS {0}", m_Join.SubString(0, -1).GetCStr());
             return Parse();
@@ -370,8 +366,8 @@ void HttpRequest::SetBodyReference(const HBuffer& buffer)noexcept{
     m_Body.clear();
     m_Body.emplace_back(buffer);
 }
-void HttpRequest::SetPath(std::string& path){
-    m_Path = path;
+void HttpRequest::SetPath(const HBuffer& path) noexcept{
+    m_Path.Assign(path);
 }
 
 void HttpRequest::SetHeader(const char* name, const char* value) noexcept{
@@ -486,7 +482,7 @@ HBuffer HttpRequest::HeadToBuffer() const noexcept{
             return buffer;
         }
         }
-        if(m_Path.size() > 0)
+        if(m_Path.GetSize() > 0)
             buffer.Append(m_Path);
         else
             buffer.Append('/');
@@ -532,7 +528,7 @@ HBuffer HttpRequest::HeadToBuffer() const noexcept{
                 version = "3";
                 break;
         }
-        CORE_ERROR("Http Request doesnt support converting head of type Http{0} to buffer yet.", version);
+        //CORE_ERROR("Http Request doesnt support converting head of type Http{0} to buffer yet.", version);
         buffer.Free();
         return buffer;
     }
@@ -543,16 +539,15 @@ HBuffer HttpRequest::HeadToBuffer() const noexcept{
 std::vector<HBuffer> HttpRequest::GetBodyPartsCopy() noexcept{
     std::vector<HBuffer> bodyParts;
     
-    const char* transferEncoding = GetHeader("Transfer-Encoding").GetCStr();
-    const char* contentEncoding = GetHeader("Content-Encoding").GetCStr();
+    HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
 
-    if(strcmp(transferEncoding, "") == 0 || strcmp(transferEncoding, "identity") == 0){
+    if(transferEncoding == "" || transferEncoding == "identity"){
         for(size_t i = 0; i < m_Body.size(); i++){
             HBuffer part;
             part.Copy(m_Body[i]);
             bodyParts.emplace_back(std::move(part));
         }
-    }else if(strcmp(transferEncoding, "chunked") == 0){
+    }else if(transferEncoding == "chunked"){
         for(size_t i = 0; i < m_Body.size(); i++){
             const HBuffer& bodyPart = m_Body[i];
 
@@ -585,7 +580,7 @@ std::vector<HBuffer> HttpRequest::GetBodyPartsCopy() noexcept{
         }
         bodyParts.emplace_back("\0\r\n\r\n", 5, false, false);
     }else{
-        CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding);
+        //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
     }
 
     //HBuffer = operator creates a copy

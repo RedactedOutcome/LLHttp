@@ -1,7 +1,7 @@
+#include "LLHttp/pch.h"
 #include "HttpResponse.h"
 #include "Core/Logger.h"
 #include "Decoder.h"
-#include "Core.h"
 
 HttpResponse::HttpResponse(){
     //memset(&m_Stream, 0, sizeof(z_stream));
@@ -88,7 +88,7 @@ int HttpResponse::Parse()noexcept{
 
                 if(strcmp(headerName, "Set-Cookie") != 0){
                     //m_Headers[].Assign();
-                    CORE_DEBUG("SETTING HEADER {0}:{1}", headerName, headerValue);
+                    //CORE_DEBUG("SETTING HEADER {0}:{1}", headerName, headerValue);
                     m_Headers.insert(std::make_pair(std::move(HBuffer(headerName, headerLength, true, true)), std::move(HBuffer(headerValue, valueLength, true, true))));
                 }else{
                     //TODO: Set cookies map with key
@@ -191,16 +191,16 @@ int HttpResponse::Parse()noexcept{
         }
         case 5:{
             //GZIP
-            CORE_ERROR("Getting GZIP Transfer encoding");
+            //CORE_ERROR("Getting GZIP Transfer encoding");
             
         }
         case 6:{
             //Compress
-            CORE_ERROR("Getting Compress Transfer encoding");
+            //CORE_ERROR("Getting Compress Transfer encoding");
         }
         case 7:{
             //Deflate
-            CORE_ERROR("Getting Deflate Transfer encoding");
+            //CORE_ERROR("Getting Deflate Transfer encoding");
         }
         default:
             return (int)HttpParseErrorCode::UnsupportedHttpProtocol;
@@ -353,9 +353,13 @@ void HttpResponse::SetStatus(HttpStatus status)noexcept{
     m_Status = (uint16_t)status;
 }
 
-void HttpResponse::Redirect(const char* location){
+void HttpResponse::Redirect(const HBuffer& location) noexcept{
     m_Status = (uint16_t)HttpStatus::MovedPermanently;
     SetHeader("Location", location);
+}
+void HttpResponse::Redirect(HBuffer&& location) noexcept{
+    m_Status = (uint16_t)HttpStatus::MovedPermanently;
+    SetHeader("Location", std::move(location));
 }
 void HttpResponse::SetCookie(const char* name, Cookie& cookie){
     m_Cookies[name] = std::shared_ptr<Cookie>(&cookie);
@@ -582,7 +586,7 @@ HBuffer HttpResponse::HeadToBuffer() const noexcept{
         statusInfo = "Network Authentication Required";
         break;
     default:
-        CORE_DEBUG("WRITING NOT IMPLEMENTED {0}", m_Status);
+        //CORE_DEBUG("WRITING NOT IMPLEMENTED {0}", m_Status);
         statusInfo = "Not Implemented";
     }
 
@@ -613,13 +617,15 @@ HBuffer HttpResponse::HeadToBuffer() const noexcept{
 std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() noexcept{
     std::vector<HBuffer> bodyParts;
 
-    HBuffer transferEncoding = GetHeader("Transfer-Encoding");
-    if(transferEncoding == "" && transferEncoding == "identity"){
+    HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+
+    if(transferEncoding == "" || transferEncoding == "identity"){
         for(size_t i = 0; i < m_Body.size(); i++){
             HBuffer part;
             part.Copy(m_Body[i]);
             bodyParts.emplace_back(std::move(part));
         }
+        //CORE_DEBUG("Done");
     }else if(transferEncoding == "chunked"){
         for(size_t i = 0; i < m_Body.size(); i++){
             const HBuffer& bodyPart = m_Body[i];
@@ -651,7 +657,7 @@ std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() noexcept{
         }
         bodyParts.emplace_back("\0\r\n\r\n", 5, false, false);
     }else{
-        CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
+        //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
     }
 
     //HBuffer = operator creates a copy

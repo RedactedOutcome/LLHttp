@@ -110,7 +110,27 @@ enum class HttpParseErrorCode{
 
 enum class HttpEncodingErrorCode{
     Success=0,
+    InitializationFailure,
     UnsupportedContentEncoding,
     BrotliDecoderNeedsMoreInput,
     BrotliDecoderNeedsMoreOutput,
+};
+
+enum class URLProtocol{
+    Unsupported=0,
+    Http=1,
+    Https=2
+};
+
+enum class HttpVerb{
+    Unknown=0,
+    Get,
+    Post,
+    Head,
+    Delete,
+    Put,
+    Trace,
+    Connect,
+    Patch,
+    Options,
 };

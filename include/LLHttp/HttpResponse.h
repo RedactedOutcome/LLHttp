@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Cookie.h"
-#include "HttpVerb.h"
 #include "HttpData.h"
 
 #ifndef HTTP_DEFAULT_HEAD_RESPONSE_TO_BUFFER_SIZE
@@ -50,7 +49,8 @@ public:
     void SetStatus(HttpStatus status)noexcept;
     void PreparePayload()noexcept;
 
-    void Redirect(const char* location);
+    void Redirect(const HBuffer& location)noexcept;
+    void Redirect(HBuffer&& location)noexcept;
 
     //Completely resets response data
     void PrepareRead()noexcept;

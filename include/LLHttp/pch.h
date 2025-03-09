@@ -1,6 +1,11 @@
 #pragma once
 
 
+#include <string>
+#include <unordered_map>
+#include <memory>
+#include <vector>
+
 #include <HBuffer/HBuffer.hpp>
 #include <HBuffer/HBufferJoin.hpp>
 

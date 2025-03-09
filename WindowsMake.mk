@@ -3,7 +3,7 @@ RF      = rd /s /q
 CC = cl
 LK = lib
 CFlags = /c /Fo$(INT_DIR) /std:c++17 /MD /utf-8
-Defines = /DPLATFORM=Windows /DWINDOWS_IGNORE_PACKING_MISMATCH
+Defines = /DPLATFORM=Windows /DWINDOWS_IGNORE_PACKING_MISMATCH /DLLHTTP_USE_PCH /DLLHTTP_PCH_DIR="\"LLHttp/pch.h\""
 IncludeDirs = /I"$(HBUFFER_LIB_SRC)/include/" /I"libs/gzip-hpp/include/" /I"include/" /I"include/LLHttp/"
 LibDirs = 
 Libs = GDI32.lib Shell32.lib kernel32.lib User32.lib

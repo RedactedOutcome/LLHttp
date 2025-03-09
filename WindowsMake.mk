@@ -1,13 +1,13 @@
 MF 		= mkdir -p
 RF      = rd /s /q
 CC = cl
-LK = link
+LK = lib
 CFlags = /c /Fo$(INT_DIR) /std:c++17 /MD /utf-8
 Defines = /DPLATFORM=Windows /DWINDOWS_IGNORE_PACKING_MISMATCH
-IncludeDirs = /Isrc /I"$(HBUFFER_LIB_SRC)/include/" /I"libs/gzip-hpp/include/"
+IncludeDirs = /I"$(HBUFFER_LIB_SRC)/include/" /I"libs/gzip-hpp/include/" /I"include/" /I"include/LLHttp/"
 LibDirs = 
 Libs = GDI32.lib Shell32.lib kernel32.lib User32.lib
-LFlags = $(INT_DIR)*.obj /out:$(OUTPUT_DIR)$(TargetName).exe
+LFlags = $(INT_DIR)*.obj /out:$(OUTPUT_DIR)$(TargetName).lib
 ProgramArgs = 
 
 #Debugging
@@ -36,12 +36,11 @@ CORE_DIR = $(SRC_DIR)Core/
 #Files += $(SRC_DIR)libs/HBuffer.cpp
 #Files += $(SRC_DIR)libs/HBufferJoin.cpp
 
-Files+= $(SRC_DIR)Server/WebServer.cpp
-Files+= $(SRC_DIR)Server/Cookie.cpp
-Files+= $(SRC_DIR)Server/HttpRequest.cpp
-Files+= $(SRC_DIR)Server/HttpResponse.cpp
-Files+= $(SRC_DIR)Server/Decoder.cpp
-Files+= $(SRC_DIR)Server/ParsedURL.cpp
+Files+= $(SRC_DIR)Cookie.cpp
+Files+= $(SRC_DIR)HttpRequest.cpp
+Files+= $(SRC_DIR)HttpResponse.cpp
+Files+= $(SRC_DIR)Decoder.cpp
+Files+= $(SRC_DIR)ParsedURL.cpp
 
 ifneq (${VCPKG_ROOT},)
 IncludeDirs += /I"${VCPKG_ROOT}\installed\$(Architecture)-windows\include" /I"${VCPKG_ROOT}\installed\$(Architecture)-windows-static\include"

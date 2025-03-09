@@ -1,9 +1,11 @@
 #pragma once
 
-class WebSocketPacket{
-public:
-    WebSocketPacket();
-    ~WebSocketPacket();
+    namespace LLHttp{
+    class WebSocketPacket{
+    public:
+        WebSocketPacket();
+        ~WebSocketPacket();
 
-    
-};
+        
+    };
+}

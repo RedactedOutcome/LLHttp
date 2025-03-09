@@ -7,5 +7,4 @@
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 #include "ParsedURL.h"
-#include "URLMethod.h"
 #include "WebSocketPacket.h"

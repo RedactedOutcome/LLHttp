@@ -1,9 +1,11 @@
 #include "LLHttp/pch.h"
 #include "WebSocketPacket.h"
 
-WebSocketPacket::WebSocketPacket(){
+namespace LLHttp{
+    WebSocketPacket::WebSocketPacket(){
 
-}
-WebSocketPacket::~WebSocketPacket(){
-    
+    }
+    WebSocketPacket::~WebSocketPacket(){
+        
+    }
 }

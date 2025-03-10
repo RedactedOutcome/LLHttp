@@ -86,6 +86,7 @@
             delete port;
         }
 
+        std::cout << "T1"<<std::endl;
         if(c == '/'){
             std::cout << "Getting Path";
             size_t pathStart = at;
@@ -103,6 +104,8 @@
             memcpy(path, url.GetData() + pathStart, pathLength);
             memset(path + pathLength, '\0', 1);
             m_Path.Assign(path, pathLength, pathLength + 1, true, true);
+        }else{
+            std::cout << "char is " << c<<std::endl;
         }
         return 0;
     }

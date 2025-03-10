@@ -92,7 +92,7 @@
     }
 
 
-    int Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer output){
+    int Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer& output){
         size_t size = input.GetSize();
         output.Reserve(size);
 

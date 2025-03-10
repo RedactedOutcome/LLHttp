@@ -86,6 +86,8 @@
             delete port;
         }
 
+        c = url.At(at);
+
         std::cout << "T1"<<std::endl;
         if(c == '/'){
             std::cout << "Getting Path";

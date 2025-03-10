@@ -121,7 +121,7 @@
             c = input.At(i++);
 
             if(i >= size){
-                return (int)HttpEncodingErrorCode::IllegalPercentEncodingDelimiter;
+                return (int)HttpEncodingErrorCode::NeedsMoreData;
             }
 
             if((c < '0' || c > '9') && (c < 'A' || c > 'F')){

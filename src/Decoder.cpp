@@ -110,6 +110,7 @@
             }
 
             if(c != '%'){
+                std::cout << "Char is " << c<<std::endl;
                 return (int)HttpEncodingErrorCode::IllegalPercentEncodingDelimiter;
             }
 

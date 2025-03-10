@@ -105,7 +105,7 @@
             memset(path + pathLength, '\0', 1);
             m_Path.Assign(path, pathLength, pathLength + 1, true, true);
         }else{
-            std::cout << "char is " << c<<std::endl;
+            std::cout << "char is " << c << " " << (size_t)c <<std::endl;
         }
         return 0;
     }

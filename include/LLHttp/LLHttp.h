@@ -10,14 +10,11 @@
 #include "WebSocketPacket.h"
 
 namespace LLHttp{
-    class LLHttp{
-    public:
-        /// @brief Initializes the library to be able to quickly parse http data
-        static void Init() noexcept;
+    /// @brief Initializes the library to be able to quickly parse http data
+    static void InitLLHttp() noexcept;
 
-        /// @brief returns if a character is valid in a url resource path
-        static bool IsValidPathCharacter(char c);
-    private:
-        static std::bitset<128> s_PathAllowedCharacters;
-    };
+    /// @brief returns if a character is valid in a url resource path
+    extern bool IsValidPathCharacter(char c);
+
+    static std::bitset<128> s_LLHttpPathAllowedCharacters;
 }

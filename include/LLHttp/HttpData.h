@@ -1,6 +1,7 @@
 #pragma once
 
 namespace LLHttp{
+    /// @brief For Http Response status codes
     enum class HttpStatus{
         Continue=100,
         SwitchingProtocols=101,
@@ -68,6 +69,7 @@ namespace LLHttp{
 
     };
 
+    /// @brief For determining how a packet is parsed and sent
     enum class HttpVersion{
         Unsupported=0,
         HTTP0_9,
@@ -94,6 +96,8 @@ namespace LLHttp{
         Compress
     };
 
+
+    /// @brief Error Codes for parsing request/responses
     enum class HttpParseErrorCode{
         Success=0,
         NeedsMoreData=1,
@@ -109,20 +113,27 @@ namespace LLHttp{
         FailedEncodeGZip
     };
 
+    /// @brief Error codes for decoding/encoding http request/responses
     enum class HttpEncodingErrorCode{
         Success=0,
+        NeedsMoreData,
         InitializationFailure,
         UnsupportedContentEncoding,
         BrotliDecoderNeedsMoreInput,
         BrotliDecoderNeedsMoreOutput,
+        IllegalPercentEncodingDelimiter,
+        IllegalPercentEncodingCharacter,
+        IllegalPercentEncodingOpcode
     };
 
+    /// @brief for parsing urls
     enum class URLProtocol{
         Unsupported=0,
         Http=1,
         Https=2
     };
 
+    /// @brief For HttpRequest
     enum class HttpVerb{
         Unknown=0,
         Get,

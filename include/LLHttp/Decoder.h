@@ -18,8 +18,8 @@ namespace LLHttp{
         static int EncodeGZip(HBuffer& input, std::vector<HBuffer>& output);
 
         /// @brief returns a new buffer that is the decoded form of a percent encoded url. Only contains a subset of percent encoding without control characters.
-        /// @return returns a buffer with a size 0 if error or if input is empty.
-        static HBuffer GetFromPercentEncoding(const HBuffer& input);
+        /// @return type of HttpEncodingErrorCode
+        static int GetFromPercentEncoding(const HBuffer& input, HBuffer& output);
 
         /// @brief will decode input depending on the encoding and push to an output buffer. If identity encoding then we return;
         /// @param encoding enum type of HttpContentEncoding

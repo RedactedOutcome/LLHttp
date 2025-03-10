@@ -92,8 +92,7 @@
     }
 
 
-    HBuffer Decoder::GetFromPercentEncoding(const HBuffer& input){
-        HBuffer output;
+    int Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer output){
         size_t size = input.GetSize();
         output.Reserve(size);
 
@@ -111,33 +110,27 @@
             }
 
             if(c != '%'){
-                output.Free();
-                return output;
+                return (int)HttpEncodingErrorCode::IllegalPercentEncodingDelimiter;
             }
 
             i++;
             if(i >= size){
-                output.Free();
-                return output;
+                return (int)HttpEncodingErrorCode::NeedsMoreData;
             }
             size_t number = 0;
             c = input.At(i++);
 
             if(i >= size){
-                output.Free();
-                return output;
+                return (int)HttpEncodingErrorCode::IllegalPercentEncodingDelimiter;
             }
 
             if((c < '0' || c > '9') && (c < 'A' || c > 'F')){
-                //CORE_DEBUG("r 3 ({0})", (size_t)c);
-                output.Free();
-                return output;
+                return (int)HttpEncodingErrorCode::IllegalPercentEncodingCharacter;
             }
             number = (c - (c < 65 ? 48 : 55)) * 16;
             c = input.At(i);
             if((c < '0' || c > '9') && (c < 'A' || c > 'F')){
-                output.Free();
-                return output;
+                return (int)HttpEncodingErrorCode::IllegalPercentEncodingCharacter;
             }
             number += (c - (c < 65 ? 48 : 55));
 
@@ -207,12 +200,11 @@
                 break;
             default:
                 //CORE_DEBUG("r 5 ({0}) {1}",number, input.SubString(i - 2, 3).GetCStr());
-                output.Free();
-                return output;
+                return (int)HttpEncodingErrorCode::IllegalPercentEncodingOpcode;
             }
 
         }
 
-        return output;
+        return (int)HttpEncodingErrorCode::Success;
     }
 }

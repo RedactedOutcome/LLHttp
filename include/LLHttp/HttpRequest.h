@@ -27,6 +27,7 @@ namespace LLHttp{
         int ParseCopy(HBuffer data);
 
         void SetPath(const HBuffer& path) noexcept;
+        void SetPath(HBuffer&& path) noexcept;
 
         /// @brief sets the body to a copy of the string
         /// @param data the string to copy

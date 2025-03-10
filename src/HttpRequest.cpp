@@ -370,6 +370,9 @@ namespace LLHttp{
     void HttpRequest::SetPath(const HBuffer& path) noexcept{
         m_Path.Assign(path);
     }
+    void HttpRequest::SetPath(HBuffer&& path) noexcept{
+        m_Path.Assign(std::move(path));
+    }
 
     void HttpRequest::SetHeader(const char* name, const char* value) noexcept{
         m_Headers[name].Assign(value, false, false);

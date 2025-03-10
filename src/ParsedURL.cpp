@@ -115,6 +115,7 @@ namespace LLHttp{
                     continue;
                 }
 
+                std::cout << "Not valid character" << c << std::endl;
                 return (int)HttpEncodingErrorCode::InvalidPath;
             }
 

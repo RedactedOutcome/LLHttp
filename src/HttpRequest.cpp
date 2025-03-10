@@ -193,9 +193,7 @@ namespace LLHttp{
                     bytes <<= 4;
                     bytes+= c;
                 }
-
-                std::cout << "Digits are " << m_Join.SubString(before, m_At).GetCStr() <<std::endl;
-
+                
                 if(m_At + bytes + 2 < m_Join.GetSize())return(int)HttpParseErrorCode::NeedsMoreData;
                 m_Body.emplace_back(std::move(m_Join.SubBuffer(m_At, bytes)));
                 m_At += bytes;

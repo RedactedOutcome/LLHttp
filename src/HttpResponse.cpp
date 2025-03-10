@@ -179,7 +179,8 @@
                         //INVALID CHARACTER;
                         return (int)HttpParseErrorCode::InvalidChunkSize;
                     }
-                    bytes += c * std::pow(16, dist);
+                    bytes <<=4;
+                    bytes += c;
                     dist--;
                 }
                 if(bytes < 1)return 0;

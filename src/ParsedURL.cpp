@@ -1,7 +1,14 @@
 #include "LLHttp/pch.h"
 #include "ParsedURL.h"
+#include "LLHttp.h"
 
-    namespace LLHttp{
+namespace LLHttp{
+    constexpr std::bitset<128> GetAllowedURLChars(){
+        std::bitset<128> set;
+
+        return set;
+    }
+    constexpr std::bitset<128> s_AllowedURLBits = GetAllowedURLChars();
     int ParsedURL::ParseURL(const HBuffer& url)
     {
         //TODO: introduce url error codes
@@ -69,8 +76,10 @@
         if(c == ':'){
             size_t portStart = at;
             //if(!std::isdigit(url.Get(at)))return (int)HttpEncodingErrorCode::InvalidPort;
-            while(std::isdigit(url.Get(at))){
+            c = url.Get(at);
+            while(std::isdigit(c)){
                 at++;
+                c = url.Get(at);
             }
 
             size_t portLength = at - portStart;
@@ -86,19 +95,27 @@
             delete port;
         }
 
-        c = url.At(at);
-
-        std::cout << "T1"<<std::endl;
         if(c == '/'){
-            std::cout << "Getting Path";
             size_t pathStart = at;
-            char j = url.Get(at);
-            while(j != '\0'){
-                if(j == ' '){
+            c = url.Get(at);
+            while(c != '\0'){
+                //if(c == ' '){
                     //NO SPACES ALLOWED
-                    return (int)HttpEncodingErrorCode::InvalidPath;
+                //    return (int)HttpEncodingErrorCode::InvalidPath;
+                //}
+                /*
+                if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') 
+                || c == '!' || c == '#' || c == '$' || (c >= '&' && c <= ',') || c == '/' || (c >= ':' && c <= '=') || c == '?' || c == '@' || c == '[' || c == ']'){
+                    c = url.Get(++at);
+                    continue;
+                }*/
+                
+                if(LLHttp::IsValidPathCharacter(c)){
+                    c = url.Get(++at);
+                    continue;
                 }
-                j = url.Get(++at);
+
+                return (int)HttpEncodingErrorCode::InvalidPath;
             }
 
             size_t pathLength = at - pathStart;
@@ -106,9 +123,8 @@
             memcpy(path, url.GetData() + pathStart, pathLength);
             memset(path + pathLength, '\0', 1);
             m_Path.Assign(path, pathLength, pathLength + 1, true, true);
-        }else{
-            std::cout << "char is " << c << " " << (size_t)c <<std::endl;
         }
+
         return 0;
     }
 }

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <memory>
 #include <vector>
+#include <bitset>
 
 #include <HBuffer/HBuffer.hpp>
 #include <HBuffer/HBufferJoin.hpp>

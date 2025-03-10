@@ -36,6 +36,7 @@ CORE_DIR = $(SRC_DIR)Core/
 #Files += $(SRC_DIR)libs/HBuffer.cpp
 #Files += $(SRC_DIR)libs/HBufferJoin.cpp
 
+Files+= $(SRC_DIR)LLHttp.cpp
 Files+= $(SRC_DIR)Cookie.cpp
 Files+= $(SRC_DIR)HttpRequest.cpp
 Files+= $(SRC_DIR)HttpResponse.cpp

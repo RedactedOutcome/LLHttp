@@ -11,7 +11,7 @@
 
 namespace LLHttp{
     /// @brief Initializes the library to be able to quickly parse http data
-    static void InitLLHttp() noexcept;
+    extern void InitLLHttp() noexcept;
 
     /// @brief returns if a character is valid in a url resource path
     extern bool IsValidPathCharacter(char c);

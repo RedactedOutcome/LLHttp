@@ -123,7 +123,10 @@ namespace LLHttp{
         BrotliDecoderNeedsMoreOutput,
         IllegalPercentEncodingDelimiter,
         IllegalPercentEncodingCharacter,
-        IllegalPercentEncodingOpcode
+        IllegalPercentEncodingOpcode,
+        InvalidHostname,
+        InvalidPort,
+        InvalidPath,
     };
 
     /// @brief for parsing urls

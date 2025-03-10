@@ -49,7 +49,7 @@
 
         size_t hostLength = at - hostStart;
         if(!isValidHost && hostLength > 0){
-            return -4;
+            return (int)HttpEncodingErrorCode::InvalidHostname;
         }
 
         if(hostLength < 1){
@@ -64,20 +64,21 @@
 
         //Check if they dont want it implied
         c = url.Get(at++);
-        if(c == '\0')return -15;
+        if(c == '\0')return (int)HttpEncodingErrorCode::NeedsMoreData;
 
         if(c == ':'){
             size_t portStart = at;
-            if(!std::isdigit(url.Get(at)))return -1;
+            //if(!std::isdigit(url.Get(at)))return (int)HttpEncodingErrorCode::InvalidPort;
             while(std::isdigit(url.Get(at))){
                 at++;
             }
 
             size_t portLength = at - portStart;
-            if(portLength > 5){
+            if(portLength > 5 || portLength < 1){
                 //PORT TOO LONG
-                return -3;
+                return (int)HttpEncodingErrorCode::InvalidPort;
             }
+            ///TODO: replace with status = url.ToString(portStart, portLength, result);
             char* port = new char[portLength + 1];
             memcpy(port, url.GetData() + portStart, portLength);
             memset(port + portLength, '\0', 1);
@@ -86,12 +87,13 @@
         }
 
         if(c == '/'){
+            std::cout << "Getting Path";
             size_t pathStart = at;
             char j = url.Get(at);
             while(j != '\0'){
                 if(j == ' '){
                     //NO SPACES ALLOWED
-                    return -2;
+                    return (int)HttpEncodingErrorCode::InvalidPath;
                 }
                 j = url.Get(++at);
             }
@@ -100,8 +102,7 @@
             char* path = new char[pathLength + 1];
             memcpy(path, url.GetData() + pathStart, pathLength);
             memset(path + pathLength, '\0', 1);
-            m_Path = path;
-            delete path;
+            m_Path.Assign(path, pathLength, pathLength + 1, true, true);
         }
         return 0;
     }

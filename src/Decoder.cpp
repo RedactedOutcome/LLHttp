@@ -99,7 +99,7 @@
         for(size_t i = 0; i < size; i++){
             char c = input.At(i);
 
-            if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_'){
+            if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z') || c == '-' || c == '_' || c == '.'){
                 output.Append(c);
                 continue;
             }

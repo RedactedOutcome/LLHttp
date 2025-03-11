@@ -654,7 +654,6 @@
                     char digit = size % 16;
                     char c = digit >= 10 ? (55 + digit) : (digit + '0');
                     string.AppendString(c);
-                    std::cout << "Added char " << c << " from " << (size_t)digit <<std::endl;
                     size/=16;
                 }
 
@@ -672,11 +671,6 @@
 
                 buffer.Append('\r');
                 buffer.Append('\n');
-
-                for(size_t i = 0; i < buffer.GetSize(); i++){
-                    char c = buffer.At(i) ;
-                    std::cout << "I " << i << " Is " << (size_t)c << " " << c <<std::endl;
-                }
                 bodyParts.emplace_back(std::move(buffer));
             }
             bodyParts.emplace_back("\0\r\n\r\n", 5, false, false);

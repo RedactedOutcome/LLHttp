@@ -652,7 +652,9 @@
                 size_t size = partSize;
                 while(size > 0){
                     char digit = size % 16;
-                    string.AppendString(digit > 10 ? (5 + digit) : (digit + '0'));
+                    char c = digit > 10 ? (5 + digit) : (digit + '0');
+                    string.AppendString(c);
+                    std::cout << "Added char " << c<<std::endl;
                     size/=16;
                 }
 

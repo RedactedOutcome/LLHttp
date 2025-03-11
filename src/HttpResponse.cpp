@@ -660,7 +660,7 @@
 
                 string.Reverse();
 
-                std::cout << "Chunked Encoding converting " << partSize << " To (" << string.GetCStr() << ")" << std::endl;
+                std::cout << "Chunked Encoding converting " << partSize << " To (" << string.GetCStr() << ")" << string.GetSize() << std::endl;
                 
                 HBuffer buffer;
                 buffer.Reserve(partSize + 6);

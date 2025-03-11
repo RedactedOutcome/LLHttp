@@ -675,7 +675,7 @@
 
                 for(size_t i = 0; i < buffer.GetSize(); i++){
                     char c = buffer.At(i) ;
-                    std::cout << "I " << i << " Is " << c << " " << (size_t)c <<std::endl;
+                    std::cout << "I " << i << " Is " << (size_t)c << " " << c <<std::endl;
                 }
                 bodyParts.emplace_back(std::move(buffer));
             }

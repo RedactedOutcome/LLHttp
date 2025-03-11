@@ -643,28 +643,28 @@
             for(size_t i = 0; i < m_Body.size(); i++){
                 const HBuffer& bodyPart = m_Body[i];
 
-                size_t bodySize = bodyPart.GetSize();
+                size_t partSize = bodyPart.GetSize();
 
                 HBuffer string;
                 string.Reserve(5);
                 string.Memset(0, 5);
 
-                size_t size = bodySize;
+                size_t size = partSize;
                 while(size > 0){
                     char digit = size % 16;
                     string.AppendString(digit > 10 ? 55 + digit : digit + '0');
                     size/=16;
                 }
 
-                std::cout << "Chunked Encoding converting " << size << " To (" << string.GetCStr() << ")" << std::endl;
+                std::cout << "Chunked Encoding converting " << partSize << " To (" << string.GetCStr() << ")" << std::endl;
                 
                 HBuffer buffer;
-                buffer.Reserve(bodySize + 6);
+                buffer.Reserve(partSize + 6);
 
                 buffer.Append(string.GetData(), string.GetSize());
                 buffer.Append('\r');
                 buffer.Append('\n');
-                buffer.Append(bodyPart.GetData(), bodySize);
+                buffer.Append(bodyPart.GetData(), partSize);
 
                 buffer.Append('\r');
                 buffer.Append('\n');

@@ -672,6 +672,10 @@
 
                 buffer.Append('\r');
                 buffer.Append('\n');
+
+                for(size_t i = 0; i < buffer.GetSize(); i++){
+                    std::cout << "I " << i << " Is " << buffer.At(i) <<std::endl;
+                }
                 bodyParts.emplace_back(std::move(buffer));
             }
             bodyParts.emplace_back("\0\r\n\r\n", 5, false, false);

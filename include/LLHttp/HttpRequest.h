@@ -33,6 +33,7 @@ namespace LLHttp{
         /// @param data the string to copy
         void SetBodyAsCopy(const char* data) noexcept;
         void SetBodyAsCopy(char* data, size_t size) noexcept;
+        void SetBodyAsCopy(const HBuffer& buffer)noexcept;
 
         void SetBody(HBuffer&& buffer)noexcept;
         void SetBody(char* data, size_t size, bool canFree, bool canModify) noexcept;
@@ -43,6 +44,11 @@ namespace LLHttp{
         void SetBodyReference(char* data, size_t size)noexcept;
         /// @brief Assigns the body to a Non owning HBuffer with param buffers data
         void SetBodyReference(const HBuffer& buffer)noexcept;
+
+        /// @brief Appends a new buffer to the body list
+        void AddBodyReference(const HBuffer& buffer)noexcept;
+        /// @brief Appends a new buffer to the body list
+        void AddBody(HBuffer&& buffer)noexcept;
 
         //void SetHeader(const char* header, const std::string& value);
         //void SetHeader(const char* header, std::string&& value);

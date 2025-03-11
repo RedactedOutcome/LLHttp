@@ -30,6 +30,7 @@
         /// @param data the C string to copy.
         void SetBodyAsCopy(const char* data)noexcept;
         void SetBodyAsCopy(char* data, size_t size)noexcept;
+        void SetBodyAsCopy(const HBuffer& buffer)noexcept;
         
         void SetBody(HBuffer&& buffer)noexcept;
         void SetBody(char* data, size_t size, bool canFree, bool canModify) noexcept;
@@ -41,6 +42,12 @@
         /// @brief Sets body as a non owning reference to buffer. May modify if param buffer allows it
         /// @param buffer the data to reference
         void SetBodyReference(const HBuffer& buffer) noexcept;
+
+        /// @brief appends a new buffer to the body list
+        void AddBodyReference(const HBuffer& buffer) noexcept;
+        /// @brief appends a new buffer to the body list
+        void AddBody(HBuffer& buffer) noexcept;
+
 
         void SetHeader(const char* name, const char* value) noexcept;
         void SetHeader(const HBuffer& name, const char* value) noexcept;

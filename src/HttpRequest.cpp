@@ -342,6 +342,12 @@ namespace LLHttp{
         for(size_t i = 0; i < size; i++)
             bodyData[i] = data[i];
     }
+
+    void HttpRequest::SetBodyAsCopy(const HBuffer& buffer)noexcept{
+        m_Body.clear();
+        m_Body.emplace_back(buffer.GetCopy());
+    }
+
     void HttpRequest::SetBody(HBuffer&& buffer)noexcept{
         //m_Body.Assign(std::move(buffer));
         m_Body.clear();
@@ -366,6 +372,14 @@ namespace LLHttp{
         //m_Body.Assign(buffer);
         m_Body.clear();
         m_Body.emplace_back(buffer);
+    }
+
+    void HttpRequest::AddBodyReference(const HBuffer& path)noexcept{
+        m_Body.emplace_back(path);
+    }
+
+    void HttpRequest::AddBody(HBuffer&& path)noexcept{
+        m_Body.emplace_back(path);
     }
     void HttpRequest::SetPath(const HBuffer& path) noexcept{
         m_Path.Assign(path);
@@ -594,13 +608,7 @@ namespace LLHttp{
     }
 
     int HttpRequest::Decompress() noexcept{
-        HBuffer& contentEncoding = GetHeader("Content-Encoding");
-        std::vector<HBuffer> newBodies;
-
-        for(size_t i = 0; i < m_Body.size(); i++){
-            
-        }
-
+        //TODO: copy from response
         return 0;
     }
 

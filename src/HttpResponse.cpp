@@ -318,6 +318,14 @@
         m_Body.clear();
         m_Body.emplace_back(const_cast<char*>(bodyData), size, true, true);
     }
+    void HttpResponse::SetBodyAsCopy(const HBuffer& buffer)noexcept{
+        m_Body.clear();
+        m_Body.emplace_back(buffer.GetCopy());
+    }
+
+    void HttpResponse::SetBodyReference(const HBuffer& buffer)noexcept{
+        m_Body.emplace_back(buffer);
+    }
 
     void HttpResponse::SetBody(HBuffer&& buffer)noexcept{
         //m_Body.Assign(std::move(buffer));
@@ -342,11 +350,17 @@
     }
     void HttpResponse::SetBodyReference(const HBuffer& buffer)noexcept{
         //m_Body.Assign(buffer);
-
         m_Body.clear();
         m_Body.emplace_back(buffer);
     }
 
+    void HttpResponse::AddBodyReference(const HBuffer& buffer)noexcept{
+        m_Body.emplace_back(buffer);
+    }
+
+    void HttpResponse::AddBody(HBuffer&& buffer)noexcept{
+        m_Body.emplace_back(std::move(buffer));
+    }
     void HttpResponse::SetStatus(uint16_t status)noexcept{
         m_Status = status;
     }
@@ -700,7 +714,7 @@
         if(encodings.size() == 1)
             if(encodings[0] == (uint8_t)HttpContentEncoding::Identity)return (int)HttpEncodingErrorCode::Success;
         
-        for(size_t i = 0; i < encodings.size(); i++){
+        for(int i = encodings.size(); i > 0; --i){
             uint8_t encoding = encodings[i];
             //newBodies.emplace_back(HBuffer)
             //TODO: call a function to decode data and append to newBodies

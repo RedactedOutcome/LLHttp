@@ -640,7 +640,7 @@
                 size_t size = bodySize;
                 while(size > 0){
                     char digit = size % 16;
-                    string.AppendString(digit > 10 ? '\55' + digit : digit + '0');
+                    string.AppendString(digit > 10 ? 55 + digit : digit + '0');
                     size/=16;
                 }
                 

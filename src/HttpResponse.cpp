@@ -654,7 +654,7 @@
                     char digit = size % 16;
                     char c = digit > 10 ? (5 + digit) : (digit + '0');
                     string.AppendString(c);
-                    std::cout << "Added char " << c << " from " << size <<std::endl;
+                    std::cout << "Added char " << c << " from " << digit <<std::endl;
                     size/=16;
                 }
 

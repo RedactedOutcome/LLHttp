@@ -322,11 +322,6 @@
         m_Body.clear();
         m_Body.emplace_back(buffer.GetCopy());
     }
-
-    void HttpResponse::SetBodyReference(const HBuffer& buffer)noexcept{
-        m_Body.emplace_back(buffer);
-    }
-
     void HttpResponse::SetBody(HBuffer&& buffer)noexcept{
         //m_Body.Assign(std::move(buffer));
         m_Body.clear();
@@ -358,6 +353,9 @@
         m_Body.emplace_back(buffer);
     }
 
+    void HttpResponse::AddBody(const HBuffer& buffer)noexcept{
+        m_Body.emplace_back(std::move(buffer));
+    }
     void HttpResponse::AddBody(HBuffer&& buffer)noexcept{
         m_Body.emplace_back(std::move(buffer));
     }

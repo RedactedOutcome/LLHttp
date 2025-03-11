@@ -655,6 +655,8 @@
                     string.AppendString(digit > 10 ? 55 + digit : digit + '0');
                     size/=16;
                 }
+
+                std::cout << "Chunked Encoding converting " << size << " To (" << string.GetCStr() << ")" << std::endl;
                 
                 HBuffer buffer;
                 buffer.Reserve(bodySize + 6);

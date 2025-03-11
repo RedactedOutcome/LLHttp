@@ -581,7 +581,7 @@ namespace LLHttp{
                     string.AppendString(digit > 10 ? 55 + digit : digit + '0');
                     size/=16;
                 }
-
+                
                 //string.Reverse();
 
                 HBuffer buffer;

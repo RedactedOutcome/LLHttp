@@ -266,7 +266,7 @@ namespace LLHttp{
             case 1:
                 //Possible HTTP 0.9, 1.0, 1.1
 
-                //Check for valid url
+                //Check for valid path
                 size_t wasAt = m_At;
                 size_t i = m_At;
                 while(true){
@@ -279,7 +279,7 @@ namespace LLHttp{
                     //if(c!= ' ' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                     if((c < 0x21 || c > 0x7E) && c != ' '){
                         //Invalid URL Percent encoded character
-                        return (int)HttpParseErrorCode::InvalidHeaderName;
+                        return (int)HttpParseErrorCode::InvalidPath;
                     }
                     i++;
                 }

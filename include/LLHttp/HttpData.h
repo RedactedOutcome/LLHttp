@@ -103,6 +103,7 @@ namespace LLHttp{
         NeedsMoreData=1,
         UnsupportedHttpProtocol,
         UnsupportedTransferEncoding,
+        InvalidPath,
         InvalidHeaderName,
         InvalidHeaderSplit,
         InvalidHeaderValue,

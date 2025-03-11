@@ -674,7 +674,8 @@
                 buffer.Append('\n');
 
                 for(size_t i = 0; i < buffer.GetSize(); i++){
-                    std::cout << "I " << i << " Is " << buffer.At(i) <<std::endl;
+                    char c = buffer.At(i) ;
+                    std::cout << "I " << i << " Is " << c << " " << (size_t)c <<std::endl;
                 }
                 bodyParts.emplace_back(std::move(buffer));
             }

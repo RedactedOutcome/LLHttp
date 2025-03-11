@@ -643,7 +643,8 @@
                     string.AppendString(digit > 10 ? '\55' + digit : digit + '0');
                     size/=16;
                 }
-
+                
+                std::cout << "Adding chunk size " << size << " " << string.SubString(0, 2).GetCStr() <<std::endl;
                 HBuffer buffer;
                 buffer.Reserve(bodySize + 6);
 

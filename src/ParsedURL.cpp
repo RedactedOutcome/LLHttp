@@ -78,8 +78,7 @@ namespace LLHttp{
             //if(!std::isdigit(url.Get(at)))return (int)HttpEncodingErrorCode::InvalidPort;
             c = url.Get(at);
             while(std::isdigit(c)){
-                at++;
-                c = url.Get(at);
+                c = url.Get(at++);
             }
 
             size_t portLength = at - portStart;

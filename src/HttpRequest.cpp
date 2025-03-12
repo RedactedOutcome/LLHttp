@@ -123,10 +123,12 @@ namespace LLHttp{
             case 2:{
                 //Get body from transfer encoding
                 HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-                if(transferEncoding == nullptr || *transferEncoding != "chunked"){
-                    return (int)HttpParseErrorCode::UnsupportedTransferEncoding;
-                }else{
+                if(transferEncoding == nullptr || *transferEncoding == "" || *transferEncoding == "identity"){
+                    m_State = 3;
+                }else if(*transferEncoding == "chunked"){
                     m_State = 4;
+                }else{
+                    return (int)HttpParseErrorCode::UnsupportedTransferEncoding;
                 }
                 return Parse();
                 /*

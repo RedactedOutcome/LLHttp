@@ -119,6 +119,7 @@ namespace LLHttp{
                 return (int)HttpEncodingErrorCode::InvalidPath;
             }
 
+            pathStart--;
             size_t pathLength = at - pathStart;
             char* path = new char[pathLength + 1];
             memcpy(path, url.GetData() + pathStart, pathLength);

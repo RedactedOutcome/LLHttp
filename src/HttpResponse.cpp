@@ -647,20 +647,16 @@
 
                 HBuffer string;
                 string.Reserve(5);
-                string.Memset(0, 5);
 
                 size_t size = partSize;
                 while(size > 0){
                     char digit = size % 16;
-                    char c = digit >= 10 ? (55 + digit) : (digit + '0');
-                    string.AppendString(c);
+                    string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
                     size/=16;
                 }
 
                 string.Reverse();
 
-                std::cout << "Chunked Encoding converting " << partSize << " To (" << string.GetCStr() << ")" << string.GetSize() << std::endl;
-                
                 HBuffer buffer;
                 buffer.Reserve(partSize + 6);
 

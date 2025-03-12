@@ -573,16 +573,15 @@ namespace LLHttp{
                 
                 HBuffer string;
                 string.Reserve(5);
-                string.Memset(0, 5);
-
+                
                 size_t size = bodySize;
                 while(size > 0){
                     char digit = size % 16;
                     string.AppendString(digit >= 10 ? 55 + digit : digit + '0');
                     size/=16;
                 }
-
-                //string.Reverse();
+                
+                string.Reverse();
 
                 HBuffer buffer;
                 buffer.Reserve(bodySize + 6);
@@ -596,7 +595,7 @@ namespace LLHttp{
                 buffer.Append('\n');
                 bodyParts.emplace_back(std::move(buffer));
             }
-            bodyParts.emplace_back("\0\r\n\r\n", 5, false, false);
+            bodyParts.emplace_back("0\r\n\r\n", 5, false, false);
         }else{
             //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
         }

@@ -510,6 +510,7 @@ namespace LLHttp{
             //Headers
             for (const auto &myPair : m_Headers) {
                 std::cout << "Going to add " << myPair.first.GetCStr() << " " << myPair.second.GetCStr() << std::endl;
+                std::cout << "sizes are  " << myPair.first.GetSize() << " " << myPair.second.GetSize() << std::endl;
                 if(myPair.first.GetSize() < 1 || myPair.second.GetSize() < 1)continue;
                 std::cout << "add to add " << myPair.first.GetCStr() << " " << myPair.second.GetCStr() << std::endl;
                 buffer.Append(myPair.first.GetCStr());

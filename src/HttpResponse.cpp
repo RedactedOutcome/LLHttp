@@ -673,7 +673,7 @@
                 buffer.Append('\n');
                 bodyParts.emplace_back(std::move(buffer));
             }
-            bodyParts.emplace_back("\0\r\n\r\n", 5, false, false);
+            bodyParts.emplace_back("0\r\n\r\n", 5, false, false);
         }else{
             //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
         }

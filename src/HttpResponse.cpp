@@ -674,8 +674,12 @@
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
         std::cout << "Getting copy " << (transferEncoding == nullptr ? " from null encoding" : "from not null encoding");
         std::cout << " " << transferEncodingString << std::endl;
+
+        std::cout << "Body size " << m_Body.size() << std::endl;
         if(transferEncodingString == "" || transferEncodingString == "identity"){
+            std::cout << "Identity Encoding"<<std::endl;
             for(size_t i = 0; i < m_Body.size(); i++){
+                std::cout << "Adding from body " << i << " with size " << m_Body[i].GetSize() <<std::endl;
                 HBuffer part;
                 part.Copy(m_Body[i]);
                 bodyParts.emplace_back(std::move(part));
@@ -713,12 +717,10 @@
             }
             bodyParts.emplace_back("0\r\n\r\n", 5, false, false);
         }else{
+            std::cout << "Unsupported transfer encoding (" << transferEncodingString << ") "<<std::endl;
             //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
         }
 
-        //HBuffer = operator creates a copy
-        //HBuffer bodyPart = m_Body;
-        //bodyParts.emplace_back(std::move(bodyPart));
         return std::move(bodyParts);
     }
     int HttpResponse::Decompress() noexcept{

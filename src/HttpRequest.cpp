@@ -100,8 +100,13 @@ namespace LLHttp{
                     char* headerValue = new char[valueLength + 1];
                     m_Join.Memcpy(headerValue, valueStart, valueLength);
                     headerValue[valueLength] = '\0';
-                    
-                    SetHeader(std::move(HBuffer(headerName, headerSize, true, true)), HBuffer(headerValue, valueLength, true, true));
+
+                    if(strcmp(headerName, "Set-Cookie") != 0){
+                        SetHeader(std::move(HBuffer(headerName, headerSize, true, true)), HBuffer(headerValue, valueLength, true, true));
+                    }else{
+                        delete headerName;
+                        delete headerValue;
+                    }
                     //CORE_DEBUG("Setting header {0}:{1}", headerName, headerValue);
                     //delete headerValue;
                     //delete headerName;
@@ -117,16 +122,12 @@ namespace LLHttp{
                 break;
             case 2:{
                 //Get body from transfer encoding
-                const char* transferEncoding = GetHeader("Transfer-Encoding").GetCStr();
-                if(transferEncoding == "chunked"){
-                    m_State = 4;
-                    return Parse();
-                }
-                if(strlen(transferEncoding) > 0){
-                    //CORE_ERROR("HTTP TRansfer encoding not supported yet {0}", transferEncoding);
+                HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+                if(transferEncoding == nullptr || *transferEncoding != "chunked"){
                     return (int)HttpParseErrorCode::UnsupportedTransferEncoding;
+                }else{
+                    m_State = 4;
                 }
-                m_State = 3;
                 return Parse();
                 /*
                 //Getting body
@@ -149,10 +150,14 @@ namespace LLHttp{
                 */
             }
             case 3:{//Get the body from no transfer encoding
-                size_t contentLength = atoi(GetHeader("Content-Length").GetCStr());
-                if(m_Join.GetSize() - m_At < contentLength)return(int)HttpParseErrorCode::NeedsMoreData;
+                HBuffer* contentLength = GetHeader("Content-Length");
 
-                m_Body.emplace_back(std::move(m_Join.SubString(m_At, contentLength)));
+                if(contentLength == nullptr)return 0;
+
+                size_t size = atoi(contentLength->GetCStr());
+                if(m_Join.GetSize() - m_At < size)return(int)HttpParseErrorCode::NeedsMoreData;
+
+                m_Body.emplace_back(std::move(m_Join.SubString(m_At, size)));
                 return 0;
             }
             case 4:{//Get body from chunked transfer encoding
@@ -389,25 +394,40 @@ namespace LLHttp{
     }
 
     void HttpRequest::SetHeader(const char* name, const char* value) noexcept{
-        m_Headers[name].Assign(value, false, false);
+        //m_Headers[name].Assign(value, false, false);
+        std::vector<HBuffer>& values = m_Headers[name];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpRequest::SetHeader(const HBuffer& name, const char* value) noexcept{
-        m_Headers[name].Assign(value, false, false);
+        std::vector<HBuffer>& values = m_Headers[name];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpRequest::SetHeader(const HBuffer& name, const HBuffer& value) noexcept{
-        m_Headers[name].Assign(value);
+        std::vector<HBuffer>& values = m_Headers[name];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpRequest::SetHeader(const HBuffer& name, HBuffer&& value) noexcept{
-        m_Headers[name].Assign(std::move(value));
+        std::vector<HBuffer>& values = m_Headers[name];
+        values.clear();
+        values.emplace_back(std::move(value));
     }
     void HttpRequest::SetHeader(HBuffer&& name, const char* value) noexcept{
-        m_Headers[std::move(name)].Assign(value);
+        std::vector<HBuffer>& values = m_Headers[std::move(name)];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpRequest::SetHeader(HBuffer&& name, const HBuffer& value) noexcept{
-        m_Headers[std::move(name)].Assign(value);
+        std::vector<HBuffer>& values = m_Headers[std::move(name)];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpRequest::SetHeader(HBuffer&& name, HBuffer&& value) noexcept{
-        m_Headers[std::move(name)].Assign(std::move(value));
+        std::vector<HBuffer>& values = m_Headers[std::move(name)];
+        values.clear();
+        values.emplace_back(std::move(value));
     }
     void HttpRequest::RemoveHeader(const char* header)noexcept{
         m_Headers.erase(header);
@@ -423,11 +443,21 @@ namespace LLHttp{
         m_Cookies[name] = cookie;
     }
 
-    HBuffer& HttpRequest::GetHeader(const char* name) noexcept{
+    std::vector<HBuffer>& HttpRequest::GetHeaderValues(const char* name) noexcept{
         return m_Headers[name];
     }
-    HBuffer& HttpRequest::GetHeader(const HBuffer& name) noexcept{
+    std::vector<HBuffer>& HttpRequest::GetHeaderValues(const HBuffer& name) noexcept{
         return m_Headers[name];
+    }
+    HBuffer* HttpRequest::GetHeader(const char* name) noexcept{
+        std::vector<HBuffer>& value = m_Headers[name];
+        if(value.size() < 1)return nullptr;
+        return &value[0];
+    }
+    HBuffer* HttpRequest::GetHeader(const HBuffer& name) noexcept{
+        std::vector<HBuffer>& value = m_Headers[name];
+        if(value.size() < 1)return nullptr;
+        return &value[0];
     }
     std::shared_ptr<Cookie> HttpRequest::GetCookie(const char* name) noexcept{
         return m_Cookies[name];
@@ -440,8 +470,9 @@ namespace LLHttp{
         m_Verb = verb;
     }
     void HttpRequest::PreparePayload(){
-        const char* transferEncoding = GetHeader("Transfer-Encoding").GetCStr();
-        if(transferEncoding == "chunked"){
+        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+
+        if(transferEncoding != nullptr && *transferEncoding == "chunked"){
             RemoveHeader(HBuffer("Content-Length", 14, false, false));
             return;
         }
@@ -509,11 +540,11 @@ namespace LLHttp{
 
             //Headers
             for (const auto &myPair : m_Headers) {
-                if(myPair.first.GetSize() < 1 || myPair.second.GetSize() < 1)continue;
+                if(myPair.first.GetSize() < 1 || myPair.second.size() < 1)continue;
                 buffer.Append(myPair.first.GetCStr());
                 buffer.Append(": ", 2);
 
-                std::vector<HBuffer>& headerValues = myPair.second;
+                const std::vector<HBuffer>& headerValues = myPair.second;
                 for(size_t i = 0; i < headerValues.size(); i++){
                     buffer.Append(headerValues[i].GetCStr());
                     buffer.Append("\r\n", 2);
@@ -561,15 +592,15 @@ namespace LLHttp{
     std::vector<HBuffer> HttpRequest::GetBodyPartsCopy() noexcept{
         std::vector<HBuffer> bodyParts;
         
-        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
 
-        if(transferEncoding == "" || transferEncoding == "identity"){
+        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 HBuffer part;
                 part.Copy(m_Body[i]);
                 bodyParts.emplace_back(std::move(part));
             }
-        }else if(transferEncoding == "chunked"){
+        }else if(*transferEncoding == "chunked"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 const HBuffer& bodyPart = m_Body[i];
 

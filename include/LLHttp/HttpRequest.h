@@ -99,7 +99,7 @@ namespace LLHttp{
         /// @brief Returns the last value inside a header if any
         /// @return returns nullptr if no values else first value
         HBuffer* GetHeaderLastValue(const char* name) noexcept;
-
+        
         /// @brief Returns the last value inside a header if any
         /// @return returns nullptr if no values else first value
         HBuffer* GetHeaderLastValue(const HBuffer& name) noexcept;

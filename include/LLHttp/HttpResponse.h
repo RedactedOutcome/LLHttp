@@ -48,7 +48,7 @@
         /// @brief appends a new buffer to the body list
         void AddBody(const HBuffer& buffer) noexcept;
         void AddBody(HBuffer&& buffer)noexcept;
-        
+    
         void SetHeader(const char* name, const char* value) noexcept;
         void SetHeader(const HBuffer& name, const char* value) noexcept;
         void SetHeader(const HBuffer& name, const HBuffer& value) noexcept;

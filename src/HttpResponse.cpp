@@ -87,11 +87,13 @@
                     headerValue[valueLength] = '\0';
 
                     if(strcmp(headerName, "Set-Cookie") != 0){
-                        //m_Headers[].Assign();
-                        //CORE_DEBUG("SETTING HEADER {0}:{1}", headerName, headerValue);
-                        m_Headers.insert(std::make_pair(std::move(HBuffer(headerName, headerLength, true, true)), std::move(HBuffer(headerValue, valueLength, true, true))));
+                        std::vector<HBuffer> headerValues;
+                        headerValues.emplace_back(HBuffer(headerValue, valueLength, true, true));
+                        m_Headers.insert(std::make_pair(std::move(HBuffer(headerName, headerLength, true, true)), std::move(headerValues)));
                     }else{
                         //TODO: Set cookies map with key
+                        delete headerName;
+                        delete headerValue;
                     }
                     
                     //delete headerValue;
@@ -111,7 +113,9 @@
 
                 //Rest wont be evaluated since after the first it will just jump to true
                 if(transferEncoding == nullptr || *transferEncoding == "" || *transferEncoding == "identity"){
-                    if(GetHeader("Content-Length").GetSize() < 1)return 0;
+                    HBuffer* contentLength = GetHeader("Content-Length");
+
+                    if(contentLength == nullptr || contentLength->GetSize() < 1)return 0;
                     m_State = 3;
                 }
                 else if(*transferEncoding == "chunked"){
@@ -133,14 +137,18 @@
             }
             case 3:{
                 //Get Body from no encoding with Content-Length
-                size_t contentLength = std::atoi(GetHeader("Content-Length").GetCStr());
-                if(contentLength < 1)return 0;
+                HBuffer* contentLength = GetHeader("Content-Length");
 
-                if(m_Join.GetSize() - m_At < contentLength)return (int)HttpParseErrorCode::NeedsMoreData;
+                if(contentLength == nullptr)return (int)HttpParseErrorCode::Success;
+
+                size_t value = std::atoi(contentLength[0].GetCStr());
+                if(value < 1)return (int)HttpParseErrorCode::Success;;
+
+                if(m_Join.GetSize() - m_At < value)return (int)HttpParseErrorCode::NeedsMoreData;
                 
                 //TODO: Check for encoding and decode
                 //Gots all the body data we need
-                m_Body.emplace_back(std::move(m_Join.SubString(m_At, contentLength)));
+                m_Body.emplace_back(std::move(m_Join.SubString(m_At, value)));
                 m_State = 0;
                 return 0;
             }
@@ -261,25 +269,40 @@
         return m_LastState;
     }
     void HttpResponse::SetHeader(const char* name, const char* value) noexcept{
-        m_Headers[name].Assign(value, false, false);
+        //m_Headers[name].Assign(value, false, false);
+        std::vector<HBuffer>& values = m_Headers[name];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpResponse::SetHeader(const HBuffer& name, const char* value) noexcept{
-        m_Headers[name].Assign(value, false, false);
+        std::vector<HBuffer>& values = m_Headers[name];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpResponse::SetHeader(const HBuffer& name, const HBuffer& value) noexcept{
-        m_Headers[name].Assign(value);
+        std::vector<HBuffer>& values = m_Headers[name];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpResponse::SetHeader(const HBuffer& name, HBuffer&& value) noexcept{
-        m_Headers[name].Assign(std::move(value));
+        std::vector<HBuffer>& values = m_Headers[name];
+        values.clear();
+        values.emplace_back(std::move(value));
     }
     void HttpResponse::SetHeader(HBuffer&& name, const char* value) noexcept{
-        m_Headers[std::move(name)].Assign(value);
+        std::vector<HBuffer>& values = m_Headers[std::move(name)];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpResponse::SetHeader(HBuffer&& name, const HBuffer& value) noexcept{
-        m_Headers[std::move(name)].Assign(value);
+        std::vector<HBuffer>& values = m_Headers[std::move(name)];
+        values.clear();
+        values.emplace_back(value);
     }
     void HttpResponse::SetHeader(HBuffer&& name, HBuffer&& value) noexcept{
-        m_Headers[std::move(name)].Assign(std::move(value));
+        std::vector<HBuffer>& values = m_Headers[std::move(name)];
+        values.clear();
+        values.emplace_back(std::move(value));
     }
     void HttpResponse::RemoveHeader(const char* header)noexcept{
         m_Headers.erase(header);
@@ -621,11 +644,11 @@
 
         //Headers
         for (const auto &myPair : m_Headers) {
-            if(myPair.first.GetSize() < 1 || myPair.second.GetSize() < 1)continue;
+            if(myPair.first.GetSize() < 1 || myPair.second.size() < 1)continue;
             buffer.Append(myPair.first.GetCStr());
             buffer.Append(": ", 2);
 
-            std::vector<HBuffer>& headerValues = myPair.second;
+            const std::vector<HBuffer>& headerValues = myPair.second;
             for(size_t i = 0; i < headerValues.size(); i++){
                 buffer.Append(headerValues[i].GetCStr());
                 buffer.Append("\r\n", 2);

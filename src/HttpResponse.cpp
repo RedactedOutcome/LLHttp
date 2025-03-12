@@ -672,7 +672,8 @@
 
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
-
+        std::cout << "Getting copy " << (transferEncoding == nullptr ? " from null encoding" : "from not null encoding");
+        std::cout << " " << transferEncodingString << std::endl;
         if(transferEncodingString == "" || transferEncodingString == "identity"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 HBuffer part;

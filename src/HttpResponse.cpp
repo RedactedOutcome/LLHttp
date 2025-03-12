@@ -258,17 +258,6 @@
         m_LastState = Parse(); 
         return m_LastState;
     }
-    /*
-    void HttpResponse::SetHeader(const char* header, const char* value)noexcept{
-        m_Headers[header] = value;
-    }
-    void HttpResponse::SetHeader(const char* header, std::string& value)noexcept{
-        m_Headers[header] = value;
-    }
-    void HttpResponse::SetHeader(const char* header, std::string&& value)noexcept{
-        //Just incase there is a implicit conversion
-        m_Headers[header] = std::move(value);
-    }*/
     void HttpResponse::SetHeader(const char* name, const char* value) noexcept{
         m_Headers[name].Assign(value, false, false);
     }
@@ -296,11 +285,31 @@
     void HttpResponse::RemoveHeader(const HBuffer& header)noexcept{
         m_Headers.erase(header);
     }
-    HBuffer& HttpResponse::GetHeader(const char* name) noexcept{
+    std::vector<HBuffer>& HttpResponse::GetHeaderValues(const char* name) noexcept{
         return m_Headers[name];
     }
-    HBuffer& HttpResponse::GetHeader(const HBuffer& name) noexcept{
+    std::vector<HBuffer>& HttpResponse::GetHeaderValues(const HBuffer& name) noexcept{
         return m_Headers[name];
+    }
+    HBuffer* HttpResponse::GetHeader(const char* name) noexcept{
+        std::vector<HBuffer>& value = m_Headers[name];
+        if(value.size() < 1)return nullptr;
+        return &value[0];
+    }
+    HBuffer* HttpResponse::GetHeader(const HBuffer& name) noexcept{
+        std::vector<HBuffer>& value = m_Headers[name];
+        if(value.size() < 1)return nullptr;
+        return &value[0];
+    }
+    HBuffer* HttpResponse::GetHeaderLastValue(const char* name) noexcept{
+        std::vector<HBuffer>& value = m_Headers[name];
+        if(value.size() < 1)return nullptr;
+        return &value[value.size() - 1];
+    }
+    HBuffer* HttpResponse::GetHeaderLastValue(const HBuffer& name) noexcept{
+        std::vector<HBuffer>& value = m_Headers[name];
+        if(value.size() < 1)return nullptr;
+        return &value[value.size() - 1];
     }
     void HttpResponse::SetBodyAsCopy(const char* data)noexcept{
         size_t strLen = strlen(data);
@@ -611,8 +620,12 @@
             if(myPair.first.GetSize() < 1 || myPair.second.GetSize() < 1)continue;
             buffer.Append(myPair.first.GetCStr());
             buffer.Append(": ", 2);
-            buffer.Append(myPair.second.GetCStr());
-            buffer.Append("\r\n", 2);
+
+            std::vector<HBuffer>& headerValues = myPair.second;
+            for(size_t i = 0; i < headerValues.size(); i++){
+                buffer.Append(headerValues[i].GetCStr());
+                buffer.Append("\r\n", 2);
+            }
         }
 
         //Cookies

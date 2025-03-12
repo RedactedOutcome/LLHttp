@@ -98,14 +98,14 @@ namespace LLHttp{
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
 
         //const std::unordered_map<std::string, std::string> GetHeaders() const noexcept{return m_Headers;}
-        std::unordered_map<HBuffer, HBuffer>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer>&)m_Headers;}
+        std::unordered_map<HBuffer, std::vector<HBuffer>>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, std::vector<HBuffer>>&)m_Headers;}
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
     private:
         int Parse() noexcept;
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
         HBuffer m_Path;
-        std::unordered_map<HBuffer, HBuffer> m_Headers;
+        std::unordered_map<HBuffer, std::vector<HBuffer>> m_Headers;
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
         bool m_IsBodyCompressed=false;
         std::vector<HBuffer> m_Body;

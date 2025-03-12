@@ -76,6 +76,7 @@
         /// @brief Attempts to decompress the body data depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
         int Decompress() noexcept;
+        
         /// @brief Attempts to compress data in the bodies depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
         int Compress() noexcept;
@@ -86,15 +87,31 @@
         /// @brief returns a copy of a all the body parts. Body may be merged into a single part if transfer identity encoding. Else body is split up as needed depending on transfer encoding. Data inside the copy will not be decoded or encoded.
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
 
-        HBuffer& GetHeader(const char* name) noexcept;
-        HBuffer& GetHeader(const HBuffer& name) noexcept;
+        std::vector<HBuffer>& GetHeaderValues(const char* name) noexcept;
+        std::vector<HBuffer>& GetHeaderValues(const HBuffer& name) noexcept;
+        /// @brief Returns the first value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeader(const char* name) noexcept;
+
+        /// @brief Returns the first value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeader(const HBuffer& name) noexcept;
+
+        /// @brief Returns the last value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeaderLastValue(const char* name) noexcept;
+
+        /// @brief Returns the last value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeaderLastValue(const HBuffer& name) noexcept;
+
         std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
         
         uint16_t GetStatus() const noexcept{return m_Status;}
         HttpVersion GetVersion() const noexcept{return m_Version;}
         HttpVerb GetVerb() const noexcept{return m_Verb;}
         //const std::unordered_map<std::string, std::string>& GetHeaders() const noexcept{return m_Headers;}
-        std::unordered_map<HBuffer, HBuffer>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer>&)m_Headers;}
+        std::unordered_map<HBuffer, std::vector<HBuffer>>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, std::vector<HBuffer>>&)m_Headers;}
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
         //const std::unordered_map<std::string, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
@@ -104,14 +121,9 @@
         uint16_t m_Status = 0;
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
-        //std::unordered_map<std::string, std::string> m_Headers;
-        //std::unordered_map<std::string, std::shared_ptr<Cookie>> m_Cookies;
-        std::unordered_map<HBuffer, HBuffer> m_Headers;
+        std::unordered_map<HBuffer, std::vector<HBuffer>> m_Headers;
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
-        //std::unordered_map<HBuffer, HBuffer> m_NewHeaders;
         bool m_IsBodyCompressed=false;
-        //z_stream m_Stream = {};
-        //HBuffer m_Body;
         std::vector<HBuffer> m_Body;
     private:
         uint32_t m_ParsePosition = 0;

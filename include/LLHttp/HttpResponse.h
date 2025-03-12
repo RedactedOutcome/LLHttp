@@ -76,7 +76,7 @@
         /// @brief Attempts to decompress the body data depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
         int Decompress() noexcept;
-        
+
         /// @brief Attempts to compress data in the bodies depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
         int Compress() noexcept;
@@ -86,7 +86,7 @@
         std::vector<HBuffer>& GetBodyParts() const noexcept {return (std::vector<HBuffer>&)m_Body;}
         /// @brief returns a copy of a all the body parts. Body may be merged into a single part if transfer identity encoding. Else body is split up as needed depending on transfer encoding. Data inside the copy will not be decoded or encoded.
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
-
+    public:
         std::vector<HBuffer>& GetHeaderValues(const char* name) noexcept;
         std::vector<HBuffer>& GetHeaderValues(const HBuffer& name) noexcept;
         /// @brief Returns the first value inside a header if any
@@ -104,7 +104,7 @@
         /// @brief Returns the last value inside a header if any
         /// @return returns nullptr if no values else first value
         HBuffer* GetHeaderLastValue(const HBuffer& name) noexcept;
-
+    public:
         std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
         
         uint16_t GetStatus() const noexcept{return m_Status;}

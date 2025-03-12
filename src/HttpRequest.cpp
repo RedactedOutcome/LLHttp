@@ -512,8 +512,12 @@ namespace LLHttp{
                 if(myPair.first.GetSize() < 1 || myPair.second.GetSize() < 1)continue;
                 buffer.Append(myPair.first.GetCStr());
                 buffer.Append(": ", 2);
-                buffer.Append(myPair.second.GetCStr());
-                buffer.Append("\r\n", 2);
+
+                std::vector<HBuffer>& headerValues = myPair.second;
+                for(size_t i = 0; i < headerValues.size(); i++){
+                    buffer.Append(headerValues[i].GetCStr());
+                    buffer.Append("\r\n", 2);
+                }
             }
 
             //Cookies

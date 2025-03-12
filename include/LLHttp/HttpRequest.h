@@ -86,10 +86,24 @@ namespace LLHttp{
         //TODO: maybe have one that just force copies ect. Not sure but think about this in the future
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
     public:
-        //std::string& GetHeader(const char* name);
-        //std::shared_ptr<Cookie> GetCookie(const char* name);
-        HBuffer& GetHeader(const char* name) noexcept;
-        HBuffer& GetHeader(const HBuffer& name) noexcept;
+        std::vector<HBuffer>& GetHeaderValues(const char* name) noexcept;
+        std::vector<HBuffer>& GetHeaderValues(const HBuffer& name) noexcept;
+        /// @brief Returns the first value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeader(const char* name) noexcept;
+
+        /// @brief Returns the first value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeader(const HBuffer& name) noexcept;
+
+        /// @brief Returns the last value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeaderLastValue(const char* name) noexcept;
+
+        /// @brief Returns the last value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeaderLastValue(const HBuffer& name) noexcept;
+    public:
         std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
         std::shared_ptr<Cookie> GetCookie(const HBuffer& name) noexcept;
 

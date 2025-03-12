@@ -107,21 +107,23 @@
                 break;
             case 2:{
                 //Detect Transfer Mode
-                const char* transferEncoding = GetHeader("Transfer-Encoding").GetCStr();
-                if(strcmp(transferEncoding, "") == 0 || strcmp(transferEncoding, "identity") == 0){
+                HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+
+                //Rest wont be evaluated since after the first it will just jump to true
+                if(transferEncoding == nullptr || *transferEncoding == "" || *transferEncoding == "identity"){
                     if(GetHeader("Content-Length").GetSize() < 1)return 0;
                     m_State = 3;
                 }
-                else if(strcmp(transferEncoding, "chunked") == 0 ){
+                else if(*transferEncoding == "chunked"){
                     m_State = 4;
                 }
-                else if(strcmp(transferEncoding, "gzip") == 0 || strcmp(transferEncoding, "x-gzip") == 0 ){
+                else if(*transferEncoding == "gzip" || *transferEncoding == "x-gzip"){
                     m_State = 5;
                 }
-                else if(strcmp(transferEncoding, "compress") == 0 ){
+                else if(*transferEncoding == "compress"){
                     m_State = 6;
                 }
-                else if(strcmp(transferEncoding, "deflate") == 0 ){
+                else if(*transferEncoding == "deflate"){
                     m_State = 7;
                 }
                 else{
@@ -393,8 +395,10 @@
         return m_Cookies[name];
     }
     void HttpResponse::PreparePayload()noexcept{
-        const char* transferEncoding = GetHeader("Transfer-Encoding").GetCStr();
-        if(transferEncoding == "chunked"){
+        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
+
+        if(transferEncodingString == "chunked"){
             RemoveHeader("Content-Length");
             return;
         }
@@ -643,16 +647,17 @@
     std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() noexcept{
         std::vector<HBuffer> bodyParts;
 
-        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
 
-        if(transferEncoding == "" || transferEncoding == "identity"){
+        if(transferEncodingString == "" || transferEncodingString == "identity"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 HBuffer part;
                 part.Copy(m_Body[i]);
                 bodyParts.emplace_back(std::move(part));
             }
             //CORE_DEBUG("Done");
-        }else if(transferEncoding == "chunked"){
+        }else if(transferEncodingString == "chunked"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 const HBuffer& bodyPart = m_Body[i];
 
@@ -693,28 +698,30 @@
         return std::move(bodyParts);
     }
     int HttpResponse::Decompress() noexcept{
-        HBuffer& contentEncoding = GetHeader("Content-Encoding");
+        HBuffer* contentEncoding = GetHeader("Content-Encoding");
+
+        if(!contentEncoding)return (int)HttpContentEncoding::Identity;
         std::vector<uint8_t> encodings;
         size_t at = 0;
 
-        while(at < contentEncoding.GetSize()){
+        while(at < contentEncoding->GetSize()){
             bool valid = false;
-            if(contentEncoding.StartsWith(at, "identity", 8)){
+            if(contentEncoding->StartsWith(at, "identity", 8)){
                 encodings.push_back((uint8_t)HttpContentEncoding::Identity);
                 at+=8;
                 valid = true;
             }
-            else if(contentEncoding.StartsWith(at, "br", 2)){
+            else if(contentEncoding->StartsWith(at, "br", 2)){
                 encodings.push_back((uint8_t)HttpContentEncoding::Brotli);
                 at+=2;
                 valid = true;
             }
-            else if(contentEncoding.StartsWith(at, "gzip", 4)){
+            else if(contentEncoding->StartsWith(at, "gzip", 4)){
                 encodings.push_back((uint8_t)HttpContentEncoding::GZip);
                 at+=4;
                 valid = true;
             }
-            else if(contentEncoding.StartsWith(at, "compress", 8)){
+            else if(contentEncoding->StartsWith(at, "compress", 8)){
                 encodings.push_back((uint8_t)HttpContentEncoding::Compress);
                 at+=8;
                 valid = true;

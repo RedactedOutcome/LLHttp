@@ -672,20 +672,15 @@
 
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
-        std::cout << "Getting copy " << (transferEncoding == nullptr ? " from null encoding" : "from not null encoding");
-        std::cout << " " << transferEncodingString << std::endl;
 
-        std::cout << "Body size " << m_Body.size() << std::endl;
-        if(transferEncodingString == "" || transferEncodingString == "identity"){
-            std::cout << "Identity Encoding"<<std::endl;
+        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
             for(size_t i = 0; i < m_Body.size(); i++){
-                std::cout << "Adding from body " << i << " with size " << m_Body[i].GetSize() <<std::endl;
                 HBuffer part;
                 part.Copy(m_Body[i]);
                 bodyParts.emplace_back(std::move(part));
             }
             //CORE_DEBUG("Done");
-        }else if(transferEncodingString == "chunked"){
+        }else if(*transferEncoding == "chunked"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 const HBuffer& bodyPart = m_Body[i];
 

@@ -2,12 +2,12 @@ MF 		= mkdir -p
 RF      = rd /s /q
 CC = cl
 LK = lib
-CFlags = /c /Fo$(INT_DIR) /std:c++17 /MT /utf-8
+CFlags = /c /Fo$(IntDir) /std:c++17 /MT /utf-8
 Defines = /DPLATFORM=Windows /DWINDOWS_IGNORE_PACKING_MISMATCH /DLLHTTP_USE_PCH /DLLHTTP_PCH_DIR="\"LLHttp/pch.h\""
 IncludeDirs = /I"$(HBUFFER_LIB_SRC)/include/" /I"libs/gzip-hpp/include/" /I"include/" /I"include/LLHttp/"
 LibDirs = 
 Libs = GDI32.lib Shell32.lib kernel32.lib User32.lib
-LFlags = $(INT_DIR)*.obj /out:$(OUTPUT_DIR)$(TargetName).lib
+LFlags = $(IntDir)*.obj /out:$(OutputDir)$(TargetName).lib
 ProgramArgs = 
 
 #Debugging
@@ -25,7 +25,7 @@ CFlags += /Ot /Oi
 LFlags += /LTCG /INCREMENTAL:NO /NODEFAULTLIB /Gy
 else
 CFlags += /Ot /Oi /O2 /GL /Gw
-Defines += /DWEB_DIST
+Defines += /DWEB_DIS
 LFlags += /LTCG /INCREMENTAL:NO /NODEFAULTLIB /OPT:REF /OPT:ICF /Gy
 endif
 endif

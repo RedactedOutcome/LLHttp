@@ -1,2 +1,52 @@
-bin-int/
+# Build directories
+/build/
+/out/
+/bin/
+/lib/
+/obj/
+/CMakeFiles/
+/CMakeScripts/
+
+# CMake generated files
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+CMakeUserPresets.json
+compile_commands.json
+
+# IDE-specific files
 .vscode/
+.idea/
+*.iml
+
+# Executables and libraries
+*.exe
+*.out
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.o
+*.obj
+*.pdb
+*.exp
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.ncb
+*.idb
+*.DS_Store
+
+# vcpkg-related files (if using vcpkg)
+vcpkg_installed/
+vcpkg/
+
+# Ninja and other build system files
+.ninja_deps
+.ninja_log

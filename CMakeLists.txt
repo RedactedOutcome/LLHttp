@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.15)
 
-set(CMAKE_TOOLCHAIN_FILE "%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake"
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
     CACHE STRING "Vcpkg toolchain file")
 project("LLHTTP")
 
-find_package(unofficial-brotli CONFIG REQUIRED)
-
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
+
+find_package(unofficial-brotli CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlidec)
+target_link_directories(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlidec)
 
 target_include_directories(${PROJECT_NAME} PRIVATE libs/HBuffer/include)
 target_include_directories(${PROJECT_NAME} PRIVATE include/)

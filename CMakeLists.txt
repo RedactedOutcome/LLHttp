@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
     CACHE STRING "Vcpkg toolchain file")
-project("LLHTTP")
+project("LLHttp")
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 

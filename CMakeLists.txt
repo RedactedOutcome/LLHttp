@@ -17,8 +17,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlidec)
 target_include_directories(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlidec ${CMAKE_CURRENT_SOURCE_DIR}/include/LLHttp/ PUBLIC ${CMAKE_SOURCE_DIR}/libs/HBuffer/include/ ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 target_compile_definitions(${PROJECT_NAME} PRIVATE LLHTTP_USE_PCH LLHTTP_PCH_DIR=\"LLHttp/pch.h\")
 
+find_package(ZLIB REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE ZLIB::ZLIB)
+
 target_precompile_headers(${PROJECT_NAME} PRIVATE "include/LLHttp/pch.h")
 
 if (MSVC)
     target_sources(${PROJECT_NAME} PRIVATE src/pch.cpp)
-endif() 
+endif()

@@ -2,7 +2,7 @@
 #include "Decoder.h"
 #include "HttpData.h"
 
-    namespace LLHttp{
+namespace LLHttp{
     int Decoder::DecodeGZip(HBuffer& data, std::vector<HBuffer>& output){
         z_stream stream;
         memset(&stream, 0, sizeof(z_stream));

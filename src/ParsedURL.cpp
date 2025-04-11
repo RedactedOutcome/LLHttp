@@ -90,5 +90,6 @@ namespace LLHttp{
         std::cout << "AT " << (size_t)at << " SIZE : " << url.GetSize()<<std::endl;
         std::cout << "REST IS " << url.SubString(at, -1).GetCStr()<<std::endl;
         if(at < url.GetSize())return URLParseError::InvalidPath;
+        return URLParseError::None;
     }
 }

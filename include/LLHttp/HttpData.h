@@ -144,7 +144,7 @@ namespace LLHttp{
         NeedsMoreData,
         InvalidPort,
         InvalidPath
-    }
+    };
 
     /// @brief For HttpRequest
     enum class HttpVerb{

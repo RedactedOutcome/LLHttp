@@ -59,7 +59,6 @@ namespace LLHttp{
         
         if(c == ':'){
             size_t portStart = at;
-            std::cout << "N IS " << url.SubString(at, 6).GetCStr()<<std::endl;
             //if(!std::isdigit(url.Get(at)))return (int)HttpEncodingErrorCode::InvalidPort;
             do{
                 c = url.Get(at++);
@@ -84,11 +83,7 @@ namespace LLHttp{
             //Decrement start since start is assigned to after /
             pathStart--;
             m_Path = url.SubString(pathStart, at - pathStart);
-            std::cout << "PATH IS " << m_Path.GetCStr()<<std::endl;
         }
-
-        std::cout << "AT " << (size_t)at << " SIZE : " << url.GetSize()<<std::endl;
-        std::cout << "REST IS " << url.SubString(at, -1).GetCStr()<<std::endl;
         if(at < url.GetSize())return URLParseError::InvalidPath;
         return URLParseError::None;
     }

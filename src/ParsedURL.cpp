@@ -62,12 +62,11 @@ namespace LLHttp{
         if(c == ':'){
             size_t portStart = at;
             //if(!std::isdigit(url.Get(at)))return (int)HttpEncodingErrorCode::InvalidPort;
-            c = url.Get(at);
-            while(std::isdigit(c)){
+            do{
                 c = url.Get(at++);
-            }
+            }while(std::isdigit(c));
 
-            size_t portLength = at - portStart;
+            size_t portLength = (at - portStart) - 1;
             //Check for valid port size
             if(portLength > 5 || portLength < 1)return URLParseError::InvalidPort;
             ///TODO: replace with status = url.ToString(portStart, portLength, result);

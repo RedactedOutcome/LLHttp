@@ -54,11 +54,9 @@ namespace LLHttp{
 
         size_t hostLength = at - hostStart;
         m_Host = url.SubString(hostStart, hostLength);
-
-        //Check if they dont want it implied
-        c = url.Get(at++);
         if(c == '\0')return URLParseError::NeedsMoreData;
 
+        
         if(c == ':'){
             size_t portStart = at;
             std::cout << "N IS " << url.SubString(at, 6).GetCStr()<<std::endl;

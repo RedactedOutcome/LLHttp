@@ -47,7 +47,7 @@ namespace LLHttp{
             }
             break;
         }
-        if(c == '-')return URLParseError::InvalidHostname);
+        if(c == '-')return URLParseError::InvalidHostname;
         if(c == 0x00){
             //Reached EOF. Invalid URL URL Requires path hostname/path
             return URLParseError::NeedsMoreData;
@@ -55,7 +55,7 @@ namespace LLHttp{
 
         size_t hostLength = at - hostStart;
         m_Host = url.SubString(at, hostLength);
-        
+
         //Check if they dont want it implied
         c = url.Get(at++);
         if(c == '\0')return URLParseError::NeedsMoreData;

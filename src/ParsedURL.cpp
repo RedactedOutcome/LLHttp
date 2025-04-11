@@ -76,7 +76,7 @@ namespace LLHttp{
         }
 
         if(c == '/'){
-            size_t pathStart = at
+            size_t pathStart = at;
             c = url.Get(at);
             while(c != '\0'){
                 if(LLHttp::IsValidPathCharacter(c)){

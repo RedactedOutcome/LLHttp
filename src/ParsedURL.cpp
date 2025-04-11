@@ -89,6 +89,7 @@ namespace LLHttp{
             std::cout << "PATH IS " << m_Path.GetCStr()<<std::endl;
         }
 
+        std::cout << "AT " << (size_t)at << " SIZE : " << url.GetSize()<<std::endl;
         if(at != url.GetSize())return URLParseError::InvalidPath;
     }
 }

@@ -15,18 +15,17 @@ namespace LLHttp{
         size_t at = 0;
 
         //Imply ports
-        if(url.StartsWith("http://", 7))
-        {
+        if(url.StartsWith("http://", 7)){
             m_Protocol = URLProtocol::Http;
             m_Port = 80;
             at += 7;
         }
-        else if (url.StartsWith("https://", 8) == 0)
-        {
+        else if (url.StartsWith("https://", 8) == 0){
             m_Protocol = URLProtocol::Https;
             m_Port = 443;
             at += 8;
         }else{
+            //Assuming HTTP Protocol
             m_Protocol = URLProtocol::Http;
             m_Port = 80;
         }
@@ -54,7 +53,7 @@ namespace LLHttp{
         }
 
         size_t hostLength = at - hostStart;
-        m_Host = url.SubString(at, hostLength);
+        m_Host = url.SubString(hostStart, hostLength);
 
         //Check if they dont want it implied
         c = url.Get(at++);
@@ -69,20 +68,15 @@ namespace LLHttp{
             }
 
             size_t portLength = at - portStart;
-            if(portLength > 5 || portLength < 1){
-                //PORT TOO LONG
-                return URLParseError::InvalidPort;
-            }
+            //Check for valid port size
+            if(portLength > 5 || portLength < 1)return URLParseError::InvalidPort;
             ///TODO: replace with status = url.ToString(portStart, portLength, result);
-            char* port = new char[portLength + 1];
-            memcpy(port, url.GetData() + portStart, portLength);
-            memset(port + portLength, '\0', 1);
-            m_Port = std::atoi(port);
-            delete port;
+            HBuffer portString = url.SubString(portStart, portLength);
+            m_Port = std::atoi(portString.GetCStr());
         }
 
         if(c == '/'){
-            size_t pathStart = at;
+            size_t pathStart = at
             c = url.Get(at);
             while(c != '\0'){
                 if(LLHttp::IsValidPathCharacter(c)){
@@ -94,12 +88,9 @@ namespace LLHttp{
                 return URLParseError::InvalidPath;
             }
 
+            //Decrement start since start is assigned to after /
             pathStart--;
-            size_t pathLength = at - pathStart;
-            char* path = new char[pathLength + 1];
-            memcpy(path, url.GetData() + pathStart, pathLength);
-            memset(path + pathLength, '\0', 1);
-            m_Path.Assign(path, pathLength, pathLength + 1, true, true);
+            m_Path = url.SubString(pathStart, at - pathStart);
         }
 
         return URLParseError::None;

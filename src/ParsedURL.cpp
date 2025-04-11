@@ -61,6 +61,7 @@ namespace LLHttp{
 
         if(c == ':'){
             size_t portStart = at;
+            std::cout << "N IS " << url.SubString(at, 6).GetCStr()<<std::endl;
             //if(!std::isdigit(url.Get(at)))return (int)HttpEncodingErrorCode::InvalidPort;
             do{
                 c = url.Get(at++);

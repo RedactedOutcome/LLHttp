@@ -52,7 +52,7 @@ namespace LLHttp{
             return URLParseError::NeedsMoreData;
         }
 
-        size_t hostLength = at - hostStart;
+        size_t hostLength = (at - hostStart) - 1;
         m_Host = url.SubString(hostStart, hostLength);
         if(c == '\0')return URLParseError::NeedsMoreData;
 

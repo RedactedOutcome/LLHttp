@@ -20,6 +20,6 @@ namespace LLHttp{
         
         /// @param url the URL to parse
         /// @return returns 0 if success
-        int ParseURL(const HBuffer& url);
+        URLParseError ParseURL(const HBuffer& url) noexcept;
     };
 }

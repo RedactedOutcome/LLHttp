@@ -9,8 +9,7 @@ namespace LLHttp{
         return set;
     }
     constexpr std::bitset<128> s_AllowedURLBits = GetAllowedURLChars();
-    int ParsedURL::ParseURL(const HBuffer& url)
-    {
+    URLParseError ParsedURL::ParseURL(const HBuffer& url) noexcept{
         //TODO: introduce url error codes
         m_Protocol = URLProtocol::Unsupported;
         size_t at = 0;
@@ -33,18 +32,30 @@ namespace LLHttp{
         }
 
         size_t hostStart = at;
-        char c = url.Get(at);
-        while (c != '\00')
-        {
-            if(c == ' '){
-                return -2;
+        size_t lastLabelStart = at;
+        char c;
+        while(true){
+            c = url.Get(at++);
+            if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))continue;
+            if(c == '.'){
+                lastLabelStart = at;
+                continue;
             }
-            if (c == '/')break;
-            if(c == ':')break;
-            at++;
-            c = url.Get(at);
+            if(c == '-'){
+                if(at - lastLabelStart < 1)return URLParseError::InvalidHostname;
+                continue;
+            }
+            break;
         }
-        
+        if(c == '-')return URLParseError::InvalidHostname);
+        if(c == 0x00){
+            //Reached EOF. Invalid URL URL Requires path hostname/path
+            return URLParseError::NeedsMoreData;
+        }
+
+        size_t hostLength = at - hostStart;
+        m_Host = url.SubString(at, hostLength);
+        /*
         //Check if has . for example google.com
         bool isValidHost = false;
         for(size_t i = hostStart; i < at; i++){
@@ -58,6 +69,7 @@ namespace LLHttp{
         if(!isValidHost && hostLength > 0){
             return (int)HttpEncodingErrorCode::InvalidHostname;
         }
+        */
 
         if(hostLength < 1){
             //Just assume localhost
@@ -71,7 +83,7 @@ namespace LLHttp{
 
         //Check if they dont want it implied
         c = url.Get(at++);
-        if(c == '\0')return (int)HttpEncodingErrorCode::NeedsMoreData;
+        if(c == '\0')return URLParseError::NeedsMoreData;
 
         if(c == ':'){
             size_t portStart = at;
@@ -84,7 +96,7 @@ namespace LLHttp{
             size_t portLength = at - portStart;
             if(portLength > 5 || portLength < 1){
                 //PORT TOO LONG
-                return (int)HttpEncodingErrorCode::InvalidPort;
+                return URLParseError::InvalidPort;
             }
             ///TODO: replace with status = url.ToString(portStart, portLength, result);
             char* port = new char[portLength + 1];
@@ -98,24 +110,13 @@ namespace LLHttp{
             size_t pathStart = at;
             c = url.Get(at);
             while(c != '\0'){
-                //if(c == ' '){
-                    //NO SPACES ALLOWED
-                //    return (int)HttpEncodingErrorCode::InvalidPath;
-                //}
-                /*
-                if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') 
-                || c == '!' || c == '#' || c == '$' || (c >= '&' && c <= ',') || c == '/' || (c >= ':' && c <= '=') || c == '?' || c == '@' || c == '[' || c == ']'){
-                    c = url.Get(++at);
-                    continue;
-                }*/
-                
                 if(LLHttp::IsValidPathCharacter(c)){
                     c = url.Get(++at);
                     continue;
                 }
 
                 std::cout << "Not valid character" << c << std::endl;
-                return (int)HttpEncodingErrorCode::InvalidPath;
+                return URLParseError::InvalidPath;
             }
 
             pathStart--;
@@ -126,6 +127,6 @@ namespace LLHttp{
             m_Path.Assign(path, pathLength, pathLength + 1, true, true);
         }
 
-        return 0;
+        return URLParseError::None;
     }
 }

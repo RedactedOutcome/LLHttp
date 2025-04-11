@@ -138,6 +138,14 @@ namespace LLHttp{
         Https=2
     };
 
+    enum class URLParseError : uint8_t{
+        None=0,
+        InvalidHostname,
+        NeedsMoreData,
+        InvalidPort,
+        InvalidPath
+    }
+
     /// @brief For HttpRequest
     enum class HttpVerb{
         Unknown=0,

@@ -75,24 +75,20 @@ namespace LLHttp{
             m_Port = std::atoi(portString.GetCStr());
         }
 
+        if(c == 0x00)return URLParseError::None;
+
         if(c == '/'){
             size_t pathStart = at;
-            c = url.Get(at);
-            while(c != '\0'){
-                if(LLHttp::IsValidPathCharacter(c)){
-                    c = url.Get(++at);
-                    continue;
-                }
-
-                std::cout << "Not valid character" << c << std::endl;
-                return URLParseError::InvalidPath;
-            }
+            do{
+                c = url.Get(at++);
+            }while(LLHttp::IsValidPathCharacter(c));
 
             //Decrement start since start is assigned to after /
             pathStart--;
             m_Path = url.SubString(pathStart, at - pathStart);
+            std::cout << "PATH IS " << m_Path.GetCStr()<<std::endl;
         }
 
-        return URLParseError::None;
+        if(at != url.GetSize())return URLParseError::InvalidPath;
     }
 }

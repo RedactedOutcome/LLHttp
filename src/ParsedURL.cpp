@@ -55,32 +55,7 @@ namespace LLHttp{
 
         size_t hostLength = at - hostStart;
         m_Host = url.SubString(at, hostLength);
-        /*
-        //Check if has . for example google.com
-        bool isValidHost = false;
-        for(size_t i = hostStart; i < at; i++){
-            if(url.At(i) == '.'){
-                isValidHost=true;
-                break;
-            }
-        }
-
-        size_t hostLength = at - hostStart;
-        if(!isValidHost && hostLength > 0){
-            return (int)HttpEncodingErrorCode::InvalidHostname;
-        }
-        */
-
-        if(hostLength < 1){
-            //Just assume localhost
-            m_Host = "127.0.0.1";//FOR SERVER LOCALHOST
-        }else{
-            char* host = new char[hostLength + 1];
-            memcpy(host, url.GetData() + hostStart, hostLength);
-            memset(host + hostLength, '\0', 1);
-            m_Host = std::move(HBuffer(host, hostLength, hostLength + 1, true, true));
-        }
-
+        
         //Check if they dont want it implied
         c = url.Get(at++);
         if(c == '\0')return URLParseError::NeedsMoreData;

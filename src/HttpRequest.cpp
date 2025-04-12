@@ -320,6 +320,27 @@ namespace LLHttp{
     }
     int HttpRequest::ParseCopy(HBuffer data){
         HBuffer* buff = &m_Join.GetBuffer1();
+        
+        if(m_At >= buff.GetSize()){
+            std::cout << "Debug : using move assignment with http request parse copy"<<std::endl;
+            //No Need to consume data just move data from second to first and chance at position
+            m_At -= buff.GetSize();
+            buff->Assign(std::move(m_Join.GetBuffer2()));
+            buff->Assign(data);
+        }else{
+            buff->Consume(m_At, m_Join.GetBuffer2());
+            // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
+            if(buff->GetSize() > 0)
+                buff = &m_Join.GetBuffer2();
+            buff->Assign(data);
+            m_At = 0;
+        }
+
+        if(m_LastState != (int)HttpParseErrorCode::Success || m_LastState !=  (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        m_LastState = Parse(); 
+        return m_LastState;
+        /*
+        HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
@@ -327,7 +348,7 @@ namespace LLHttp{
         m_At = 0;
         if(m_LastState < 0)return m_LastState;
         m_LastState = Parse(); 
-        return m_LastState;
+        return m_LastState;*/
     }
     void HttpRequest::SetBodyAsCopy(const char* data)noexcept{
         size_t strLen = strlen(data);

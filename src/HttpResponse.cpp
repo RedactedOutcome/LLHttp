@@ -64,6 +64,7 @@
 
                     m_At+=2;
                     size_t startAt2 = m_At;
+                    size_t lastValueAt = m_At;
                     while(true){
                         int status = m_Join.StrXCmp(m_At, "\r\n");
                         if(status == 0)
@@ -80,10 +81,15 @@
                             return (int)HttpParseErrorCode::InvalidHeaderValue;
                         }
                         m_At++;
+                        if(c == ';' || c == ' '){
+                            //One of the headers values
+                            lastValueAt = m_At;
+                        }
                     }
-                    size_t valueLength = m_At - startAt2;
+                    //Last Value
+                    size_t valueLength = m_At - lastValueAt;
                     char* headerValue = new char[valueLength + 1];
-                    m_Join.Memcpy(headerValue, startAt2, valueLength);
+                    m_Join.Memcpy(headerValue, lastValueAt, valueLength);
                     headerValue[valueLength] = '\0';
 
                     if(strcmp(headerName, "Set-Cookie") != 0){
@@ -258,13 +264,23 @@
     /// @brief parses the http response and makes a copy of the body
     int HttpResponse::ParseCopy(HBuffer data){
         HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
-        m_At = 0;
+        
+        if(m_At >= buff.GetSize()){
+            std::cout << "Debug : using move assignment with http response parse copy"<<std::endl;
+            //No Need to consume data just move data from second to first and chance at position
+            m_At -= buff.GetSize();
+            buff->Assign(std::move(m_Join.GetBuffer2()));
+            buff->Assign(data);
+        }else{
+            buff->Consume(m_At, m_Join.GetBuffer2());
+            // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
+            if(buff->GetSize() > 0)
+                buff = &m_Join.GetBuffer2();
+            buff->Assign(data);
+            m_At = 0;
+        }
 
-        if(m_LastState < 0)return m_LastState;
+        if(m_LastState != (int)HttpParseErrorCode::Success || m_LastState !=  (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_LastState = Parse(); 
         return m_LastState;
     }
@@ -655,7 +671,7 @@
                 buffer.Append("; ", 2);
                 for(size_t i = 1; i < headerValues.size(); i++){
                     buffer.Append(headerValues[i].GetCStr());
-                    buffer.Append(';');
+                    buffer.Append("; ", 2);
                 }
             }
             buffer.Append("\r\n", 2);

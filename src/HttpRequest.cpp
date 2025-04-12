@@ -321,7 +321,7 @@ namespace LLHttp{
     int HttpRequest::ParseCopy(HBuffer data){
         HBuffer* buff = &m_Join.GetBuffer1();
         size_t buffSize = buff->GetSize();
-
+        /*
         if(m_At >= buffSize){
             ///Very Rare case. Might just remove
             //No Need to consume data just move data from second to first and chance at position
@@ -338,7 +338,14 @@ namespace LLHttp{
                 buff = &m_Join.GetBuffer2();
             buff->Assign(data);
             m_At = 0;
-        }
+        }*/
+       
+        buff->Consume(m_At, m_Join.GetBuffer2());
+        // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
+        if(buffSize > 0)
+            buff = &m_Join.GetBuffer2();
+        buff->Assign(data);
+        m_At = 0;
 
         if(m_LastState != (int)HttpParseErrorCode::Success || m_LastState !=  (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_LastState = Parse(); 

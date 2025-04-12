@@ -21,6 +21,10 @@ namespace LLHttp{
         /// @return type of HttpEncodingErrorCode
         static int GetFromPercentEncoding(const HBuffer& input, HBuffer& output);
 
+        /// @brief returns a new buffer that is the encoded form of a url. Only contains a subset of percent encoding without control characters.
+        /// @return type of HttpEncodingErrorCode
+        static int ToPercentEncoding(const HBuffer& input, HBuffer& output);
+
         /// @brief will decode input depending on the encoding and push to an output buffer. If identity encoding then we return;
         /// @param encoding enum type of HttpContentEncoding
         /// @param input the input that gets decoded

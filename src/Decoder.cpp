@@ -145,7 +145,7 @@ namespace LLHttp{
                 output.Append('#');
                 break;
             case 0x23:
-                output.Append('#');
+                output.Append('?');
                 break;
             case 0x5B:
                 output.Append('[');
@@ -203,6 +203,90 @@ namespace LLHttp{
                 return (int)HttpEncodingErrorCode::IllegalPercentEncodingOpcode;
             }
 
+        }
+
+        return (int)HttpEncodingErrorCode::Success;
+    }
+
+    
+    int Decoder::ToPercentEncoding(const HBuffer& input, HBuffer& output){
+        size_t size = input.GetSize();
+        output.Reserve(size);
+
+        for(size_t i = 0; i < size; i++){
+            char c = input.At(i);
+
+            if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.'){
+                output.Append(c);
+                continue;
+            }
+            switch(c){
+                case ':':
+                    output.Append("%3A");
+                    break;
+                case '/':
+                    output.Append("%2F");
+                    break;
+                case '#':
+                    output.Append("%2F");
+                    break;
+                case '?':
+                    output.Append("%2F");
+                    break;
+                case '[':
+                    output.Append("%5B");
+                    break;
+                case ']':
+                    output.Append("%5D");
+                    break;
+                case '@':
+                    output.Append("%40");
+                    break;
+                case '!':
+                    output.Append("%21");
+                    break;
+                case '$':
+                    output.Append("%24");
+                    break;
+                case '&':
+                    output.Append("%26");
+                    break;
+                case '\'':;
+                    output.Append("%27");
+                    break;
+                case '(':
+                    output.Append("%28");
+                    break;
+                case ')':
+                    output.Append("%29");
+                    break;
+                case '*':
+                    output.Append("%2A");
+                    break;
+                case '+':
+                    output.Append("%2B");
+                    break;
+                case ',':
+                    output.Append("%2C");
+                    break;
+                case ';':
+                    output.Append("%3B");
+                    break;
+                case '=':
+                    output.Append("%3D");
+                    break;
+                case '%':
+                    output.Append("%25");
+                    break;
+                case ' ':
+                    output.Append("%20");
+                    break;
+                case '.':
+                    output.Append("%2E");
+                    break;
+                default:
+                    return (int)HttpEncodingErrorCode::InvalidPercentEncodingCharacter;
+                }
         }
 
         return (int)HttpEncodingErrorCode::Success;

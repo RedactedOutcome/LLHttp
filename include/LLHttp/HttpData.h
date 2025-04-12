@@ -128,7 +128,8 @@ namespace LLHttp{
         InvalidHostname,
         InvalidPort,
         InvalidPath,
-        InvalidMimeType
+        InvalidMimeType,
+        InvalidPercentEncodingCharacter
     };
 
     /// @brief for parsing urls

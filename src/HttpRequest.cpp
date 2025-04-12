@@ -327,7 +327,7 @@ namespace LLHttp{
             //No Need to consume data just move data from second to first and chance at position
             m_At -= buffSize;
             buff->Assign(std::move(m_Join.GetBuffer2()));
-            buff->Assign(data);
+            m_Join.GetBuffer2().Assign(data);
         }else{
             buff->Consume(m_At, m_Join.GetBuffer2());
             // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times

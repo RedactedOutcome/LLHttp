@@ -264,17 +264,18 @@
     /// @brief parses the http response and makes a copy of the body
     int HttpResponse::ParseCopy(HBuffer data){
         HBuffer* buff = &m_Join.GetBuffer1();
-        
-        if(m_At >= buff.GetSize()){
-            std::cout << "Debug : using move assignment with http response parse copy"<<std::endl;
+        size_t buffSize = buff->GetSize();
+
+        if(m_At >= buffSize){
+            std::cout << "Debug : using move assignment with http request parse copy"<<std::endl;
             //No Need to consume data just move data from second to first and chance at position
-            m_At -= buff.GetSize();
+            m_At -= buffSize;
             buff->Assign(std::move(m_Join.GetBuffer2()));
             buff->Assign(data);
         }else{
             buff->Consume(m_At, m_Join.GetBuffer2());
             // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
-            if(buff->GetSize() > 0)
+            if(buffSize > 0)
                 buff = &m_Join.GetBuffer2();
             buff->Assign(data);
             m_At = 0;

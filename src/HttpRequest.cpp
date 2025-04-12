@@ -13,7 +13,7 @@ namespace LLHttp{
     }
     void HttpRequest::PrepareRead(){
         m_Version = HttpVersion::Unsupported;
-        m_LastState = 0;
+        m_LastState = (int)HttpParseErrorCode::NeedsMoreData;
         m_State = 0;
         m_At = 0;
         m_MidwayParsing = false;
@@ -347,7 +347,7 @@ namespace LLHttp{
         buff->Assign(data);
         m_At = 0;
 
-        if(m_LastState != (int)HttpParseErrorCode::Success || m_LastState !=  (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        if(m_LastState != (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_LastState = Parse(); 
         return m_LastState;
         /*

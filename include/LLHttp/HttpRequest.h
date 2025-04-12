@@ -134,7 +134,7 @@ namespace LLHttp{
         */
 
         /// @brief State of what we are doing in parsing
-        int m_LastState=0;
+        int m_LastState=(int)HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
         uint8_t m_State=0;
 

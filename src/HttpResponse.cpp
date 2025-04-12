@@ -19,7 +19,7 @@
         m_Headers.clear();
         m_Cookies.clear();
         m_State = 0;
-        m_LastState = 0;
+        m_LastState = (int)HttpParseErrorCode::NeedsMoreData;
         m_At = 0;
         m_Body.clear();
         m_Join.Free();
@@ -292,7 +292,7 @@
         buff->Assign(data);
         m_At = 0;
 
-        if(m_LastState != (int)HttpParseErrorCode::Success || m_LastState != (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        if(m_LastState != (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_LastState = Parse(); 
         return m_LastState;
     }

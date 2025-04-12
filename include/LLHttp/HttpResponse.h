@@ -131,7 +131,7 @@
         bool m_MidwayParsing = false;
 
         /// @brief State of last parse. Wether it was a success, needed data, or an error
-        int m_LastState=0;
+        int m_LastState=(int)HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
         uint8_t m_State=0;
 

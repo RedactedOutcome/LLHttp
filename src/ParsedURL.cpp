@@ -82,7 +82,7 @@ namespace LLHttp{
 
             //Decrement start since start is assigned to after /
             pathStart--;
-            m_Path = url.SubString(pathStart, at - pathStart);
+            m_Path = url.SubString(pathStart, (at - pathStart) - 1);
         }
         if(at < url.GetSize())return URLParseError::InvalidPath;
         return URLParseError::None;

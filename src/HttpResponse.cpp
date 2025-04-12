@@ -649,10 +649,16 @@
             buffer.Append(": ", 2);
 
             const std::vector<HBuffer>& headerValues = myPair.second;
-            for(size_t i = 0; i < headerValues.size(); i++){
-                buffer.Append(headerValues[i].GetCStr());
-                buffer.Append("\r\n", 2);
+            buffer.Append(headerValues[0].GetCStr());
+
+            if(headerValues.size() > 1){
+                buffer.Append("; ", 2);
+                for(size_t i = 1; i < headerValues.size(); i++){
+                    buffer.Append(headerValues[i].GetCStr());
+                    buffer.Append(';');
+                }
             }
+            buffer.Append("\r\n", 2);
         }
 
         //Cookies

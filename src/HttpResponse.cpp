@@ -265,13 +265,16 @@
     int HttpResponse::ParseCopy(HBuffer data){
         HBuffer* buff = &m_Join.GetBuffer1();
         size_t buffSize = buff->GetSize();
-        
+
         if(m_At >= buffSize){
             std::cout << "Debug : using move assignment with http request parse copy"<<std::endl;
             //No Need to consume data just move data from second to first and chance at position
             m_At -= buffSize;
-            buff->Assign(std::move(m_Join.GetBuffer2()));
-            m_Join.GetBuffer2().Assign(data);
+            HBuffer* buff2 = &m_Join.GetBuffer2();
+            buff->Assign(std::move(*buff2));
+            if(buff->GetSize() > 0)
+                buff = buff2;
+            buff->Assign(std::move(data));
         }else{
             buff->Consume(m_At, m_Join.GetBuffer2());
             // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times

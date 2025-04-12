@@ -16,7 +16,7 @@ namespace LLHttp{
         HBuffer m_Host = "";
         HBuffer m_Path = "";
         uint16_t m_Port = 0;
-        URLProtocol m_Protocol = URLProtocol::Unsupported;
+        URLProtocol m_Protocol = URLProtocol::Http;
         
         /// @param url the URL to parse
         /// @return returns 0 if success

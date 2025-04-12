@@ -134,9 +134,8 @@ namespace LLHttp{
 
     /// @brief for parsing urls
     enum class URLProtocol{
-        Unsupported=0,
-        Http=1,
-        Https=2
+        Http=0,
+        Https=1
     };
 
     enum class URLParseError : uint8_t{

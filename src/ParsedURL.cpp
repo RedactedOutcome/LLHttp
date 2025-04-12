@@ -11,7 +11,7 @@ namespace LLHttp{
     constexpr std::bitset<128> s_AllowedURLBits = GetAllowedURLChars();
     URLParseError ParsedURL::ParseURL(const HBuffer& url) noexcept{
         //TODO: introduce url error codes
-        m_Protocol = URLProtocol::Unsupported;
+        m_Protocol = URLProtocol::Http;
         size_t at = 0;
 
         //Imply ports

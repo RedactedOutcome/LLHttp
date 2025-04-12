@@ -324,7 +324,6 @@ namespace LLHttp{
 
         if(m_At >= buffSize){
             ///Very Rare case. Might just remove
-            std::cout << "Debug : using move assignment with http request parse copy"<<std::endl;
             //No Need to consume data just move data from second to first and chance at position
             m_At -= buffSize;
             HBuffer* buff2 = &m_Join.GetBuffer2();

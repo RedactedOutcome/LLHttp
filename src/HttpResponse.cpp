@@ -267,6 +267,7 @@
         size_t buffSize = buff->GetSize();
 
         if(m_At >= buffSize){
+            ///Very Rare case. Might just remove
             std::cout << "Debug : using move assignment with http request parse copy"<<std::endl;
             //No Need to consume data just move data from second to first and chance at position
             m_At -= buffSize;
@@ -284,7 +285,7 @@
             m_At = 0;
         }
 
-        if(m_LastState != (int)HttpParseErrorCode::Success || m_LastState !=  (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        if(m_LastState != (int)HttpParseErrorCode::Success || m_LastState != (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_LastState = Parse(); 
         return m_LastState;
     }

@@ -21,12 +21,12 @@
         m_Cookies.clear();
         m_Body.clear();
         m_Join.Free();
-        m_LastState = (int)HttpParseErrorCode::NeedsMoreData;
+        m_LastState = HttpParseErrorCode::NeedsMoreData;
         m_State = 0;
         m_At = 0;
     }
 
-    int HttpResponse::Parse()noexcept{
+    HttpParseErrorCode HttpResponse::Parse()noexcept{
         switch(m_Version){
             case HttpVersion::HTTP1_0:
             case HttpVersion::HTTP1_1:
@@ -39,16 +39,16 @@
                     while(true){
                         int status = m_Join.StrXCmp(m_At, "\r\n");
                         if(status == 0)
-                            return (int)HttpParseErrorCode::InvalidHeaderName;
+                            return HttpParseErrorCode::InvalidHeaderName;
                         if(status == -1){
                             m_At = startAt;
-                            return (int)HttpParseErrorCode::NeedsMoreData;
+                            return HttpParseErrorCode::NeedsMoreData;
                         }
                         char c= m_Join.Get(m_At);
                         if(c == ':')break;
                         if(!std::isdigit(c) && !std::isalpha(c) && c!= '-' && c!='_'){
                             //CORE_DEBUG("BREAKING {0}", c);
-                            return -(int)HttpParseErrorCode::InvalidHeaderName;
+                            return HttpParseErrorCode::InvalidHeaderName;
                         }
                         m_At++;
                     }
@@ -60,7 +60,7 @@
 
                     if(m_Join.Get(m_At + 1) != ' '){
                         delete headerName;
-                        return (int)HttpParseErrorCode::InvalidHeaderSplit;
+                        return HttpParseErrorCode::InvalidHeaderSplit;
                     }
 
                     m_At+=2;
@@ -73,13 +73,13 @@
                         if(status == -1){
                             delete headerName;
                             m_At = startAt;
-                            return (int)HttpParseErrorCode::NeedsMoreData;
+                            return HttpParseErrorCode::NeedsMoreData;
                         }
                         char c= m_Join.Get(m_At);
                         //if(c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                         if((c < 0x21 || c > 0x7E) && c != ' '){
                             delete headerName;
-                            return (int)HttpParseErrorCode::InvalidHeaderValue;
+                            return HttpParseErrorCode::InvalidHeaderValue;
                         }
                         m_At++;
                         if(c == ';' || c == ' '){
@@ -135,7 +135,7 @@
                     m_State = 7;
                 }
                 else{
-                    return (int)HttpParseErrorCode::UnsupportedTransferEncoding;
+                    return HttpParseErrorCode::UnsupportedTransferEncoding;
                 }
                 return Parse();
             }
@@ -144,17 +144,17 @@
                 HBuffer* contentLength = GetHeader("Content-Length");
                 std::cout << "Content length : " << (contentLength ? contentLength->GetCStr() : "0")<<std::endl;
                 std::cout << "last 10 characters from body start are " << m_Join.SubString(std::min(m_At - 10, m_At), 15).GetCStr()<<std::endl;
-                if(contentLength == nullptr)return (int)HttpParseErrorCode::Success;
+                if(contentLength == nullptr)return HttpParseErrorCode::None;
                 std::cout << "Data at " << m_At << " m_At is " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
                 size_t value = std::atoi(contentLength[0].GetCStr());
                 if(value < 1){
                     std::cout << "Needs no data"<<std::endl;
-                    return (int)HttpParseErrorCode::Success;
+                    return HttpParseErrorCode::None;
                 }
 
                 if(m_Join.GetSize() - m_At < value){
                     std::cout << "body needs more data"<<std::endl;
-                    return (int)HttpParseErrorCode::NeedsMoreData;
+                    return HttpParseErrorCode::NeedsMoreData;
                 }
                 
                 //TODO: Check for encoding and decode
@@ -162,7 +162,7 @@
                 m_Body.emplace_back(std::move(m_Join.SubString(m_At, value)));
                 m_State = 0;
                 std::cout << "Success identity body"<<std::endl;
-                return (int)HttpParseErrorCode::Success;
+                return HttpParseErrorCode::None;
             }
             case 4:{
                 //Transfer Chunked Encoding
@@ -181,7 +181,7 @@
                     }
                     if(current == '\0'){
                         m_At = before;
-                        return (int)HttpParseErrorCode::NeedsMoreData;
+                        return HttpParseErrorCode::NeedsMoreData;
                     }
                     state = 0;
                 }
@@ -199,14 +199,14 @@
                         c-=87;
                     else{
                         //INVALID CHARACTER;
-                        return (int)HttpParseErrorCode::InvalidChunkSize;
+                        return HttpParseErrorCode::InvalidChunkSize;
                     }
                     bytes <<=4;
                     bytes += c;
                     dist--;
                 }
-                if(bytes < 1)return 0;
-                if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false)return (int)HttpParseErrorCode::NeedsMoreData;
+                if(bytes < 1)return HttpParseErrorCode::None;
+                if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false)return HttpParseErrorCode::NeedsMoreData;
                 HBuffer data(std::move(m_Join.SubBuffer(m_At, bytes)));
                 m_Body.emplace_back(std::move(data));
                 m_At+=bytes + 2;
@@ -226,33 +226,33 @@
                 //CORE_ERROR("Getting Deflate Transfer encoding");
             }
             default:
-                return (int)HttpParseErrorCode::UnsupportedHttpProtocol;
+                return HttpParseErrorCode::UnsupportedHttpProtocol;
             }
         }
         switch(m_State){
         case 0:{
             //Get State
-            if(m_Join.GetSize() < 15)return (int)HttpParseErrorCode::NeedsMoreData;
+            if(m_Join.GetSize() < 15)return HttpParseErrorCode::NeedsMoreData;
             bool http1_0 = m_Join.StartsWith("HTTP/1.0", 8);
             bool http1_1 = m_Join.StartsWith("HTTP/1.1", 8);
             if(http1_1 || http1_0){
-                if(m_Join.Get(8)!=' ')return -15;
+                if(m_Join.Get(8)!=' ')return HttpParseErrorCode::InvalidHttpResponse;
                 
                 for(uint8_t i = 0; i < 3; i++){
                     char c = m_Join.Get(i + 9);
                     if(c == '/0'){
-                        return (int)HttpParseErrorCode::NeedsMoreData;
+                        return HttpParseErrorCode::NeedsMoreData;
                     }
 
-                    if(std::isdigit(c) == false)return (int)HttpParseErrorCode::UnsupportedHttpProtocol;
+                    if(std::isdigit(c) == false)return HttpParseErrorCode::UnsupportedHttpProtocol;
                 }
 
                 m_Status = std::stoi(m_Join.SubString(9, 3).GetCStr());
 
-                if(m_Join.Get(12) != ' ')return (int)HttpParseErrorCode::UnsupportedHttpProtocol;
+                if(m_Join.Get(12) != ' ')return HttpParseErrorCode::UnsupportedHttpProtocol;
                 m_At = 13;
                 while(!m_Join.StartsWith(m_At, "\r\n")){
-                    if(m_Join.Get(m_At) == '\0')return (int)HttpParseErrorCode::NeedsMoreData;
+                    if(m_Join.Get(m_At) == '\0')return HttpParseErrorCode::NeedsMoreData;
                     m_At++;
                 }
                 m_At+=2;
@@ -262,13 +262,13 @@
             }
         }
         default:
-            return (int)HttpParseErrorCode::UnsupportedHttpProtocol;
+            return HttpParseErrorCode::UnsupportedHttpProtocol;
         }
-        return (int)HttpParseErrorCode::NeedsMoreData;
+        return HttpParseErrorCode::NeedsMoreData;
     }
 
     /// @brief parses the http response and makes a copy of the body
-    int HttpResponse::ParseCopy(HBuffer&& data){
+    HttpParseErrorCode HttpResponse::ParseCopy(HBuffer&& data){
         HBuffer* buff = &m_Join.GetBuffer1();
         size_t buffSize = buff->GetSize();
 
@@ -298,11 +298,13 @@
         // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
         if(buffSize > 0)
             buff = &m_Join.GetBuffer2();
-        buff->Assign(std::move(data));
-        std::cout << "New buff is " << (buff == &m_Join.GetBuffer1() ? "Buff1" : "Buff2") << " At : " << (size_t)data.GetData() << " size: " << buff->GetSize() << ", data : " << buff->SubString(0,-1).GetCStr()<<std::endl;
+        std::cout << "Buff before assign data is " << (size_t)buff->GetData() << " SIZE : " << buff->GetSize()<<std::endl;
+        //buff->Assign(std::move(data));
+        *buff = std::move(data);
+        std::cout << "New buff is " << (buff == &m_Join.GetBuffer1() ? "Buff1" : "Buff2") << " At : " << (size_t)buff->GetData() << " size: " << buff->GetSize() << ", data : " << buff->SubString(0,100).GetCStr()<<std::endl;
         m_At = 0;
 
-        if(m_LastState != (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_LastState = Parse(); 
         return m_LastState;
     }

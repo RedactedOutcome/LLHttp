@@ -24,7 +24,7 @@
         ~HttpResponse();
 
         /// @brief parses the http response and makes a copy of the body
-        int ParseCopy(HBuffer&& data);
+        HttpParseErrorCode ParseCopy(HBuffer&& data);
 
         /// @brief sets the body to a copy of the strings internals excluding null terminator
         /// @param data the C string to copy.
@@ -114,7 +114,7 @@
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
     private:
-        int Parse() noexcept;
+        HttpParseErrorCode Parse() noexcept;
     private:
         uint16_t m_Status = 0;
         HttpVersion m_Version = HttpVersion::Unsupported;
@@ -127,7 +127,7 @@
         bool m_MidwayParsing = false;
 
         /// @brief State of last parse. Wether it was a success, needed data, or an error
-        int m_LastState=(int)HttpParseErrorCode::NeedsMoreData;
+        HttpParseErrorCode m_LastState = HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
         uint8_t m_State=0;
 

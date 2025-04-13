@@ -99,8 +99,9 @@ namespace LLHttp{
 
     /// @brief Error Codes for parsing request/responses
     enum class HttpParseErrorCode{
-        Success=0,
+        None=0,
         NeedsMoreData=1,
+        InvalidHttpResponse,
         UnsupportedHttpProtocol,
         UnsupportedTransferEncoding,
         InvalidPath,

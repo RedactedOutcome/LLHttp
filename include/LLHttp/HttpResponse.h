@@ -15,17 +15,23 @@
 #ifndef HTTP_DEFAULT_HEAD_RESPONSE_TO_BUFFER_SIZE
 #define HTTP_DEFAULT_HEAD_RESPONSE_TO_BUFFER_SIZE 32000
 #endif
-
-    namespace LLHttp{
+namespace LLHttp{
     class HttpResponse{
     public:
         HttpResponse();
         HttpResponse(uint16_t status);
         ~HttpResponse();
 
-        /// @brief parses the http response and makes a copy of the body
-        HttpParseErrorCode ParseCopy(HBuffer&& data);
+        /// @brief Starts to parse the head portion of the http response with a copy of data.
+        /// @param data the data to steal and parse into the head
+        /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
+        HttpParseErrorCode ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept;
 
+        /// @brief Starts to parse the next body part of the response
+        /// @param data the data to steal and parse into the body
+        /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified
+        HttpParseErrorCode ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept;
+        
         /// @brief sets the body to a copy of the strings internals excluding null terminator
         /// @param data the C string to copy.
         void SetBodyAsCopy(const char* data)noexcept;
@@ -114,7 +120,8 @@
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
     private:
-        HttpParseErrorCode Parse() noexcept;
+        HttpParseErrorCode ParseHead() noexcept;
+        HttpParseErrorCode ParseBody(HBuffer& output, uint32_t* finishedAt) noexcept;
     private:
         uint16_t m_Status = 0;
         HttpVersion m_Version = HttpVersion::Unsupported;

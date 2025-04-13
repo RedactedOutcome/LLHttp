@@ -38,7 +38,7 @@
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
+        buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         HttpParseErrorCode error = ParseHead(finishedAt);
@@ -53,7 +53,7 @@
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
+        buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         HttpParseErrorCode error = ParseBody(output, finishedAt);
@@ -137,7 +137,6 @@
                     HBuffer headerValueBuffer = HBuffer(headerValue, valueLength, true, true);
 
                     if(strcmp(headerName, "Set-Cookie") != 0){
-                        std::cout << "Setting : " << headerNameBuffer.SubString(0,-1).GetCStr()<<std::endl;
                         headerValues.emplace_back(std::move(headerValueBuffer));
                         m_Headers.insert(std::make_pair(std::move(headerNameBuffer), std::move(headerValues)));
                     }else{
@@ -233,6 +232,7 @@
                 std::cout << "last 10 characters from body start are " << m_Join.SubString(std::min(m_At - 10, m_At), 15).GetCStr()<<std::endl;
                 if(contentLength == nullptr)return HttpParseErrorCode::None;
                 std::cout << "Data at " << m_At << " m_At is " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
+                std::cout << "Current buffer size " << m_Join.GetSize()<<std::endl;
                 size_t contentLengthValue = std::atoi(contentLength[0].GetCStr());
                 if(contentLengthValue < 1){
                     std::cout << "Needs no data"<<std::endl;
@@ -243,6 +243,8 @@
                     std::cout << "body needs more data"<<std::endl;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
+
+                std::cout << "made body"<<std::endl;
                 
                 //TODO: Check for encoding and decode
                 //Gots all the body data we need

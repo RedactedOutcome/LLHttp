@@ -26,6 +26,13 @@
         m_At = 0;
     }
 
+    void HttpResponse::PrepareBodyRead() noexcept{
+        m_State = 2;
+        m_At = 0;
+        m_Join.Free();
+        m_LastState = HttpParseErrorCode::NeedsMoreData;
+    }
+
     HttpParseErrorCode HttpResponse::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
@@ -74,10 +81,9 @@
                             m_At = startAt;
                             return HttpParseErrorCode::NeedsMoreData;
                         }
-                        char c= m_Join.Get(m_At);
+                        char c = m_Join.Get(m_At);
                         if(c == ':')break;
                         if(!std::isdigit(c) && !std::isalpha(c) && c!= '-' && c!='_'){
-                            //CORE_DEBUG("BREAKING {0}", c);
                             return HttpParseErrorCode::InvalidHeaderName;
                         }
                         m_At++;
@@ -96,6 +102,7 @@
                     m_At+=2;
                     size_t startAt2 = m_At;
                     size_t lastValueAt = m_At;
+                    std::vector<HBuffer> headerValues;
                     while(true){
                         int status = m_Join.StrXCmp(m_At, "\r\n");
                         if(status == 0)
@@ -112,10 +119,13 @@
                             return HttpParseErrorCode::InvalidHeaderValue;
                         }
                         m_At++;
+                        /*
                         if(c == ';' || c == ' '){
                             //One of the headers values
+                            HBuffer headerValueBuffer = m_Join.SubString(lastValueAt, m_At - lastValueAt);
                             lastValueAt = m_At;
-                        }
+                            //headerValues.emplace_back(std::move(headerValueBuffer));
+                        }*/
                     }
                     //Last Value
                     size_t valueLength = m_At - lastValueAt;
@@ -123,27 +133,27 @@
                     m_Join.Memcpy(headerValue, lastValueAt, valueLength);
                     headerValue[valueLength] = '\0';
 
+                    HBuffer headerNameBuffer = HBuffer(headerName, headerLength, true, true);
+                    HBuffer headerValueBuffer = HBuffer(headerValue, valueLength, true, true);
+
                     if(strcmp(headerName, "Set-Cookie") != 0){
-                        std::vector<HBuffer> headerValues;
-                        headerValues.emplace_back(HBuffer(headerValue, valueLength, true, true));
-                        m_Headers.insert(std::make_pair(std::move(HBuffer(headerName, headerLength, true, true)), std::move(headerValues)));
+                        std::cout << "Setting : " << headerNameBuffer.SubString(0,-1).GetCStr()<<std::endl;
+                        headerValues.emplace_back(std::move(headerValueBuffer));
+                        m_Headers.insert(std::make_pair(std::move(headerNameBuffer), std::move(headerValues)));
                     }else{
                         //TODO: Set cookies map with key
-                        delete headerName;
-                        delete headerValue;
                     }
-                    
-                    //delete headerValue;
-                    //delete headerName;
+
+                    //Jump past \r\n
                     m_At+=2;
                     if(m_Join.StartsWith(m_At, "\r\n", 2)){
+                        //Check for body start
                         m_At+=2;
                         break;
                     }
                 }
                 *finishedAt = m_At;
                 return HttpParseErrorCode::None;
-                break;
             default:
                 return HttpParseErrorCode::UnsupportedHttpProtocol;
             }
@@ -211,6 +221,7 @@
                     m_State = 7;
                 }
                 else{
+                    std::cout << "unsupported Transfer Encoding"<<std::endl;
                     return HttpParseErrorCode::UnsupportedTransferEncoding;
                 }
                 return ParseBody(output, finishedAt);
@@ -281,14 +292,15 @@
                     bytes += c;
                     dist--;
                 }
-                if(bytes < 1)return HttpParseErrorCode::None;
                 if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false)return HttpParseErrorCode::NeedsMoreData;
-                HBuffer data(std::move(m_Join.SubBuffer(m_At, bytes)));
-                //m_Body.emplace_back(std::move(data));
-                output = std::move(data);
+                if(bytes < 1){
+                    m_State = 8;
+                    return HttpParseErrorCode::NoMoreBodies;
+                }
+                output = std::move(m_Join.SubBuffer(m_At, bytes));
                 m_At+=bytes + 2;
                 *finishedAt = m_At;
-                return ParseBody(output, finishedAt);
+                return HttpParseErrorCode::None;
             }
             case 5:{
                 //GZIP

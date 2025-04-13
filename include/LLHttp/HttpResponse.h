@@ -22,6 +22,9 @@ namespace LLHttp{
         HttpResponse(uint16_t status);
         ~HttpResponse();
 
+        /// @brief clears the join buffer and prepares the response to be able to read and parse body parts while keeping necessary information for head, content type, transfer encoding, ect
+        void PrepareBodyRead() noexcept;
+
         /// @brief Starts to parse the head portion of the http response with a copy of data.
         /// @param data the data to steal and parse into the head
         /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
@@ -37,7 +40,7 @@ namespace LLHttp{
         void SetBodyAsCopy(const char* data)noexcept;
         void SetBodyAsCopy(char* data, size_t size)noexcept;
         void SetBodyAsCopy(const HBuffer& buffer)noexcept;
-        
+
         void SetBody(HBuffer&& buffer)noexcept;
         void SetBody(char* data, size_t size, bool canFree, bool canModify) noexcept;
 
@@ -111,6 +114,9 @@ namespace LLHttp{
         /// @brief Returns the last value inside a header if any
         /// @return returns nullptr if no values else first value
         HBuffer* GetHeaderLastValue(const HBuffer& name) noexcept;
+        
+        HttpParseErrorCode ParseHead(uint32_t* finishedAt) noexcept;
+        HttpParseErrorCode ParseBody(HBuffer& output, uint32_t* finishedAt) noexcept;
     public:
         std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
         
@@ -120,9 +126,11 @@ namespace LLHttp{
         std::unordered_map<HBuffer, std::vector<HBuffer>>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, std::vector<HBuffer>>&)m_Headers;}
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
-    private:
-        HttpParseErrorCode ParseHead(uint32_t* finishedAt) noexcept;
-        HttpParseErrorCode ParseBody(HBuffer& output, uint32_t* finishedAt) noexcept;
+    public:
+        /// @brief returns the current position in the joined buffer that we are using to pase data for the current state
+        int32_t GetCurrentAt() const noexcept{return m_At;}
+        uint8_t GetState() const noexcept{return m_State;}
+        const HBufferJoin& GetBufferJoin() const noexcept{return m_Join;}
     private:
         uint16_t m_Status = 0;
         HttpVersion m_Version = HttpVersion::Unsupported;

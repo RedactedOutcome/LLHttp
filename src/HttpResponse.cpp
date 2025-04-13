@@ -27,14 +27,36 @@
     }
 
     HttpParseErrorCode HttpResponse::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept{
+        HBuffer* buff = &m_Join.GetBuffer1();
+        buff->Consume(m_At, m_Join.GetBuffer2());
+        if(buff->GetSize() > 0)
+            buff = &m_Join.GetBuffer2();
+        buff->Assign(data);
+        /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
-        HttpParseErrorCode error = ParseHead();
+        HttpParseErrorCode error = ParseHead(finishedAt);
         m_LastState = error;
         *finishedAt = m_At;
-        return HttpParseErrorCode::None;
+        m_At = 0;
+        return error;
     }
 
-    HttpParseErrorCode HttpResponse::ParseHead()noexcept{
+    HttpParseErrorCode HttpResponse::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept{
+        HBuffer* buff = &m_Join.GetBuffer1();
+        buff->Consume(m_At, m_Join.GetBuffer2());
+        if(buff->GetSize() > 0)
+            buff = &m_Join.GetBuffer2();
+        buff->Assign(data);
+        /// TODO: fix potential bugs with reassigning m_At
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        HttpParseErrorCode error = ParseBody(output, finishedAt);
+        m_LastState = error;
+        *finishedAt = m_At;
+        m_At = 0;
+        return error;
+    }
+
+    HttpParseErrorCode HttpResponse::ParseHead(uint32_t* finishedAt)noexcept{
         switch(m_Version){
             case HttpVersion::HTTP1_0:
             case HttpVersion::HTTP1_1:
@@ -119,6 +141,7 @@
                         break;
                     }
                 }
+                *finishedAt = m_At;
                 return HttpParseErrorCode::None;
                 break;
             default:
@@ -154,101 +177,19 @@
                 m_At+=2;
                 m_State = 1;
                 m_Version = http1_1 ? HttpVersion::HTTP1_1 : HttpVersion::HTTP1_0;
-                return Parse();
+                return ParseHead(finishedAt);
             }
         }
         default:
             return HttpParseErrorCode::UnsupportedHttpProtocol;
         }
     }
+    
     HttpParseErrorCode HttpResponse::ParseBody(HBuffer& output, uint32_t* finishedAt)noexcept{
         switch(m_Version){
             case HttpVersion::HTTP1_0:
             case HttpVersion::HTTP1_1:
             switch(m_State){
-            case 1:
-                //Get Headers
-                while(true){
-                    size_t startAt = m_At;
-
-                    while(true){
-                        int status = m_Join.StrXCmp(m_At, "\r\n");
-                        if(status == 0)
-                            return HttpParseErrorCode::InvalidHeaderName;
-                        if(status == -1){
-                            m_At = startAt;
-                            return HttpParseErrorCode::NeedsMoreData;
-                        }
-                        char c= m_Join.Get(m_At);
-                        if(c == ':')break;
-                        if(!std::isdigit(c) && !std::isalpha(c) && c!= '-' && c!='_'){
-                            //CORE_DEBUG("BREAKING {0}", c);
-                            return HttpParseErrorCode::InvalidHeaderName;
-                        }
-                        m_At++;
-                    }
-
-                    size_t headerLength = m_At - startAt;
-                    char* headerName = new char[headerLength + 1];
-                    m_Join.Memcpy(headerName, startAt, headerLength);
-                    headerName[headerLength] = '\0';
-
-                    if(m_Join.Get(m_At + 1) != ' '){
-                        delete headerName;
-                        return HttpParseErrorCode::InvalidHeaderSplit;
-                    }
-
-                    m_At+=2;
-                    size_t startAt2 = m_At;
-                    size_t lastValueAt = m_At;
-                    while(true){
-                        int status = m_Join.StrXCmp(m_At, "\r\n");
-                        if(status == 0)
-                            break;
-                        if(status == -1){
-                            delete headerName;
-                            m_At = startAt;
-                            return HttpParseErrorCode::NeedsMoreData;
-                        }
-                        char c= m_Join.Get(m_At);
-                        //if(c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
-                        if((c < 0x21 || c > 0x7E) && c != ' '){
-                            delete headerName;
-                            return HttpParseErrorCode::InvalidHeaderValue;
-                        }
-                        m_At++;
-                        if(c == ';' || c == ' '){
-                            //One of the headers values
-                            lastValueAt = m_At;
-                        }
-                    }
-                    //Last Value
-                    size_t valueLength = m_At - lastValueAt;
-                    char* headerValue = new char[valueLength + 1];
-                    m_Join.Memcpy(headerValue, lastValueAt, valueLength);
-                    headerValue[valueLength] = '\0';
-
-                    if(strcmp(headerName, "Set-Cookie") != 0){
-                        std::vector<HBuffer> headerValues;
-                        headerValues.emplace_back(HBuffer(headerValue, valueLength, true, true));
-                        m_Headers.insert(std::make_pair(std::move(HBuffer(headerName, headerLength, true, true)), std::move(headerValues)));
-                    }else{
-                        //TODO: Set cookies map with key
-                        delete headerName;
-                        delete headerValue;
-                    }
-                    
-                    //delete headerValue;
-                    //delete headerName;
-                    m_At+=2;
-                    if(m_Join.StartsWith(m_At, "\r\n", 2)){
-                        m_At+=2;
-                        m_State = 2;
-                        break;
-                    }
-                }
-                return ParseBody(output, finishedAt);
-                break;
             case 2:{
                 //Detect Transfer Mode
                 HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
@@ -370,48 +311,6 @@
             }
         }
         return HttpParseErrorCode::UnsupportedHttpProtocol;
-    }
-
-    /// @brief parses the http response and makes a copy of the body
-    HttpParseErrorCode HttpResponse::ParseCopy(HBuffer&& data){
-        HBuffer* buff = &m_Join.GetBuffer1();
-        size_t buffSize = buff->GetSize();
-
-        /*
-        if(m_At >= buffSize){
-            ///Very Rare case. Might just remove
-            //No Need to consume data just move data from second to first and chance at position
-            m_At -= buffSize;
-            HBuffer* buff2 = &m_Join.GetBuffer2();
-            buff->Assign(std::move(*buff2));
-            if(buff->GetSize() > 0)
-                buff = buff2;
-            buff->Assign(std::move(data));
-        }else{
-            buff->Consume(m_At, m_Join.GetBuffer2());
-            // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
-            if(buffSize > 0)
-                buff = &m_Join.GetBuffer2();
-            buff->Assign(data);
-            m_At = 0;
-        }*/
-        std::cout << "Consuming to " << m_At<<std::endl;
-        std::cout << "Buffer 1 " << (size_t)m_Join.GetBuffer1().GetData() << ", " << m_Join.GetBuffer1().GetSize() << " data : " << m_Join.GetBuffer1().SubString(0,100).GetCStr()<<std::endl;
-        std::cout << "Buffer 2 " << (size_t)m_Join.GetBuffer2().GetData() << ", " << m_Join.GetBuffer2().GetSize() << " data : " << m_Join.GetBuffer2().SubString(0,100).GetCStr()<<std::endl;
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        std::cout << "Buffer result : " << buff->SubString(0,100).GetCStr()<<std::endl;
-        // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
-        if(buffSize > 0)
-            buff = &m_Join.GetBuffer2();
-        std::cout << "Buff before assign data is " << (size_t)buff->GetData() << " SIZE : " << buff->GetSize()<<std::endl;
-        //buff->Assign(std::move(data));
-        *buff = std::move(data);
-        std::cout << "New buff is " << (buff == &m_Join.GetBuffer1() ? "Buff1" : "Buff2") << " At : " << (size_t)buff->GetData() << " size: " << buff->GetSize() << ", data : " << buff->SubString(0,100).GetCStr()<<std::endl;
-        m_At = 0;
-
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
-        m_LastState = Parse(); 
-        return m_LastState;
     }
     void HttpResponse::SetHeader(const char* name, const char* value) noexcept{
         //m_Headers[name].Assign(value, false, false);
@@ -819,21 +718,25 @@
     }
 
     std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() noexcept{
+        return std::move(BuffersToValidBodyPart(m_Body));
+    }
+
+    std::vector<HBuffer> HttpResponse::BuffersToValidBodyPart(std::vector<HBuffer>& buffers)noexcept{
         std::vector<HBuffer> bodyParts;
 
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
 
         if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
-            for(size_t i = 0; i < m_Body.size(); i++){
+            for(size_t i = 0; i < buffers.size(); i++){
                 HBuffer part;
-                part.Copy(m_Body[i]);
+                part.Copy(buffers[i]);
                 bodyParts.emplace_back(std::move(part));
             }
             //CORE_DEBUG("Done");
         }else if(*transferEncoding == "chunked"){
-            for(size_t i = 0; i < m_Body.size(); i++){
-                const HBuffer& bodyPart = m_Body[i];
+            for(size_t i = 0; i < buffers.size(); i++){
+                const HBuffer& bodyPart = buffers[i];
 
                 size_t partSize = bodyPart.GetSize();
 

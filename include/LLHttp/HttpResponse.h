@@ -31,7 +31,7 @@ namespace LLHttp{
         /// @param data the data to steal and parse into the body
         /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified
         HttpParseErrorCode ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept;
-        
+
         /// @brief sets the body to a copy of the strings internals excluding null terminator
         /// @param data the C string to copy.
         void SetBodyAsCopy(const char* data)noexcept;
@@ -92,6 +92,7 @@ namespace LLHttp{
         std::vector<HBuffer>& GetBodyParts() const noexcept {return (std::vector<HBuffer>&)m_Body;}
         /// @brief returns a copy of a all the body parts. Body may be merged into a single part if transfer identity encoding. Else body is split up as needed depending on transfer encoding. Data inside the copy will not be decoded or encoded.
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
+        std::vector<HBuffer> BuffersToValidBodyPart(std::vector<HBuffer>& buffers)noexcept;
     public:
         std::vector<HBuffer>& GetHeaderValues(const char* name) noexcept;
         std::vector<HBuffer>& GetHeaderValues(const HBuffer& name) noexcept;
@@ -120,7 +121,7 @@ namespace LLHttp{
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
     private:
-        HttpParseErrorCode ParseHead() noexcept;
+        HttpParseErrorCode ParseHead(uint32_t* finishedAt) noexcept;
         HttpParseErrorCode ParseBody(HBuffer& output, uint32_t* finishedAt) noexcept;
     private:
         uint16_t m_Status = 0;

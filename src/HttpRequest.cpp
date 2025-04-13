@@ -627,7 +627,7 @@ namespace LLHttp{
         std::vector<HBuffer> bodyParts;
         
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-
+        
         if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 HBuffer part;

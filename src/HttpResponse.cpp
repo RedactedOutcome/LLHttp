@@ -16,13 +16,14 @@
     void HttpResponse::PrepareRead() noexcept{
         //memset(&m_Stream, 0, sizeof(z_stream));
         m_Version = HttpVersion::Unsupported;
+        m_Verb = HttpVerb::Unknown;
         m_Headers.clear();
         m_Cookies.clear();
-        m_State = 0;
-        m_LastState = (int)HttpParseErrorCode::NeedsMoreData;
-        m_At = 0;
         m_Body.clear();
         m_Join.Free();
+        m_LastState = (int)HttpParseErrorCode::NeedsMoreData;
+        m_State = 0;
+        m_At = 0;
     }
 
     int HttpResponse::Parse()noexcept{
@@ -116,12 +117,9 @@
             case 2:{
                 //Detect Transfer Mode
                 HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-
+                std::cout << "Transfer encoding : " << (transferEncoding ? transferEncoding->GetCStr() : "identity") << std::endl;
                 //Rest wont be evaluated since after the first it will just jump to true
                 if(transferEncoding == nullptr || *transferEncoding == "" || *transferEncoding == "identity"){
-                    HBuffer* contentLength = GetHeader("Content-Length");
-
-                    if(contentLength == nullptr || contentLength->GetSize() < 1)return 0;
                     m_State = 3;
                 }
                 else if(*transferEncoding == "chunked"){
@@ -144,19 +142,27 @@
             case 3:{
                 //Get Body from no encoding with Content-Length
                 HBuffer* contentLength = GetHeader("Content-Length");
-
+                std::cout << "Content length : " << (contentLength ? contentLength->GetCStr() : "0")<<std::endl;
+                std::cout << "last 10 characters from body start are " << m_Join.SubString(std::min(m_At - 10, m_At), 15).GetCStr()<<std::endl;
                 if(contentLength == nullptr)return (int)HttpParseErrorCode::Success;
-
+                std::cout << "Data at " << m_At << " m_At is " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
                 size_t value = std::atoi(contentLength[0].GetCStr());
-                if(value < 1)return (int)HttpParseErrorCode::Success;;
+                if(value < 1){
+                    std::cout << "Needs no data"<<std::endl;
+                    return (int)HttpParseErrorCode::Success;
+                }
 
-                if(m_Join.GetSize() - m_At < value)return (int)HttpParseErrorCode::NeedsMoreData;
+                if(m_Join.GetSize() - m_At < value){
+                    std::cout << "body needs more data"<<std::endl;
+                    return (int)HttpParseErrorCode::NeedsMoreData;
+                }
                 
                 //TODO: Check for encoding and decode
                 //Gots all the body data we need
                 m_Body.emplace_back(std::move(m_Join.SubString(m_At, value)));
                 m_State = 0;
-                return 0;
+                std::cout << "Success identity body"<<std::endl;
+                return (int)HttpParseErrorCode::Success;
             }
             case 4:{
                 //Transfer Chunked Encoding
@@ -262,7 +268,7 @@
     }
 
     /// @brief parses the http response and makes a copy of the body
-    int HttpResponse::ParseCopy(HBuffer data){
+    int HttpResponse::ParseCopy(HBuffer&& data){
         HBuffer* buff = &m_Join.GetBuffer1();
         size_t buffSize = buff->GetSize();
 
@@ -284,12 +290,16 @@
             buff->Assign(data);
             m_At = 0;
         }*/
-       
+        std::cout << "Consuming to " << m_At<<std::endl;
+        std::cout << "Buffer 1 " << (size_t)m_Join.GetBuffer1().GetData() << ", " << m_Join.GetBuffer1().GetSize() << " data : " << m_Join.GetBuffer1().SubString(0,100).GetCStr()<<std::endl;
+        std::cout << "Buffer 2 " << (size_t)m_Join.GetBuffer2().GetData() << ", " << m_Join.GetBuffer2().GetSize() << " data : " << m_Join.GetBuffer2().SubString(0,100).GetCStr()<<std::endl;
         buff->Consume(m_At, m_Join.GetBuffer2());
+        std::cout << "Buffer result : " << buff->SubString(0,100).GetCStr()<<std::endl;
         // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
         if(buffSize > 0)
             buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
+        buff->Assign(std::move(data));
+        std::cout << "New buff is " << (buff == &m_Join.GetBuffer1() ? "Buff1" : "Buff2") << " At : " << (size_t)data.GetData() << " size: " << buff->GetSize() << ", data : " << buff->SubString(0,-1).GetCStr()<<std::endl;
         m_At = 0;
 
         if(m_LastState != (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;

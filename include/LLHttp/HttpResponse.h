@@ -24,7 +24,7 @@
         ~HttpResponse();
 
         /// @brief parses the http response and makes a copy of the body
-        int ParseCopy(HBuffer data);
+        int ParseCopy(HBuffer&& data);
 
         /// @brief sets the body to a copy of the strings internals excluding null terminator
         /// @param data the C string to copy.
@@ -110,10 +110,8 @@
         uint16_t GetStatus() const noexcept{return m_Status;}
         HttpVersion GetVersion() const noexcept{return m_Version;}
         HttpVerb GetVerb() const noexcept{return m_Verb;}
-        //const std::unordered_map<std::string, std::string>& GetHeaders() const noexcept{return m_Headers;}
         std::unordered_map<HBuffer, std::vector<HBuffer>>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, std::vector<HBuffer>>&)m_Headers;}
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
-        //const std::unordered_map<std::string, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
     private:
         int Parse() noexcept;
@@ -125,8 +123,6 @@
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
         bool m_IsBodyCompressed=false;
         std::vector<HBuffer> m_Body;
-    private:
-        uint32_t m_ParsePosition = 0;
     public:
         bool m_MidwayParsing = false;
 

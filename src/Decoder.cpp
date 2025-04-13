@@ -142,10 +142,10 @@ namespace LLHttp{
                 output.Append('/');
                 break;
             case 0x3F:
-                output.Append('#');
+                output.Append('?');
                 break;
             case 0x23:
-                output.Append('?');
+                output.Append('#');
                 break;
             case 0x5B:
                 output.Append('[');
@@ -228,10 +228,10 @@ namespace LLHttp{
                     output.Append("%2F");
                     break;
                 case '#':
-                    output.Append("%2F");
+                    output.Append("%23");
                     break;
                 case '?':
-                    output.Append("%2F");
+                    output.Append("%3F");
                     break;
                 case '[':
                     output.Append("%5B");

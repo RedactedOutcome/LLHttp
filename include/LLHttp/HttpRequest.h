@@ -49,9 +49,7 @@ namespace LLHttp{
         void AddBodyReference(const HBuffer& buffer)noexcept;
         /// @brief Appends a new buffer to the body list
         void AddBody(HBuffer&& buffer)noexcept;
-
-        //void SetHeader(const char* header, const std::string& value);
-        //void SetHeader(const char* header, std::string&& value);
+        
         void SetHeader(const char* name, const char* value) noexcept;
         void SetHeader(const HBuffer& name, const char* value) noexcept;
         void SetHeader(const HBuffer& name, const HBuffer& value) noexcept;

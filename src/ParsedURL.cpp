@@ -20,7 +20,7 @@ namespace LLHttp{
             m_Port = 80;
             at += 7;
         }
-        else if (url.StartsWith("https://", 8) == 0){
+        else if (url.StartsWith("https://", 8)){
             m_Protocol = URLProtocol::Https;
             m_Port = 443;
             at += 8;
@@ -84,7 +84,11 @@ namespace LLHttp{
             pathStart--;
             m_Path = url.SubString(pathStart, (at - pathStart) - 1);
         }
-        if(at < url.GetSize())return URLParseError::InvalidPath;
+        if(at < url.GetSize()){
+            std::cout << "At " << (size_t)at << " IS LESS THAN " << (size_t)url.GetSize()<<std::endl;
+            std::cout << "Remaining is " << url.SubString(at, at - url.GetSize()).GetCStr()<<std::endl;
+            return URLParseError::InvalidPath;
+        }
         return URLParseError::None;
     }
 }

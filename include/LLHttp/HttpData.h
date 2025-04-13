@@ -101,6 +101,7 @@ namespace LLHttp{
     enum class HttpParseErrorCode{
         None=0,
         NeedsMoreData=1,
+        NoMoreBodies,
         InvalidHttpResponse,
         UnsupportedHttpProtocol,
         UnsupportedTransferEncoding,

@@ -142,7 +142,7 @@
                     }else{
                         //TODO: Set cookies map with key
                     }
-
+                    
                     //Jump past \r\n
                     m_At+=2;
                     if(m_Join.StartsWith(m_At, "\r\n", 2)){
@@ -732,10 +732,10 @@
     }
 
     std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() noexcept{
-        return std::move(BuffersToValidBodyPart(m_Body));
+        return std::move(BuffersToValidBodyFormat(m_Body));
     }
 
-    std::vector<HBuffer> HttpResponse::BuffersToValidBodyPart(std::vector<HBuffer>& buffers)noexcept{
+    std::vector<HBuffer> HttpResponse::BuffersToValidBodyFormat(std::vector<HBuffer>& buffers, bool addEndChunk)noexcept{
         std::vector<HBuffer> bodyParts;
 
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
@@ -750,6 +750,7 @@
             //CORE_DEBUG("Done");
         }else if(*transferEncoding == "chunked"){
             for(size_t i = 0; i < buffers.size(); i++){
+                
                 const HBuffer& bodyPart = buffers[i];
 
                 size_t partSize = bodyPart.GetSize();
@@ -778,7 +779,7 @@
                 buffer.Append('\n');
                 bodyParts.emplace_back(std::move(buffer));
             }
-            bodyParts.emplace_back("0\r\n\r\n", 5, false, false);
+            if(addEndChunk)bodyParts.emplace_back("0\r\n\r\n", 5, false, false);
         }else{
             std::cout << "Unsupported transfer encoding (" << transferEncodingString << ") "<<std::endl;
             //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());

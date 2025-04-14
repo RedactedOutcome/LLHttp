@@ -92,7 +92,7 @@ namespace LLHttp{
     }
 
 
-    int Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer& output){
+    int Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer& output) noexcept{
         size_t size = input.GetSize();
         output.Reserve(size);
 
@@ -192,6 +192,9 @@ namespace LLHttp{
             case 0x25:
                 output.Append('%');
                 break;
+            case 0x22:
+                output.Append('"');
+                break;
             case 0x20:
                 output.Append(' ');
                 break;
@@ -209,7 +212,7 @@ namespace LLHttp{
     }
 
     
-    int Decoder::ToPercentEncoding(const HBuffer& input, HBuffer& output){
+    int Decoder::ToPercentEncoding(const HBuffer& input, HBuffer& output) noexcept {
         size_t size = input.GetSize();
         output.Reserve(size);
 
@@ -278,6 +281,9 @@ namespace LLHttp{
                 case '%':
                     output.Append("%25");
                     break;
+                case '"':
+                    output.Append("%22");
+                    break;
                 case ' ':
                     output.Append("%20");
                     break;
@@ -290,5 +296,31 @@ namespace LLHttp{
         }
 
         return (int)HttpEncodingErrorCode::Success;
+    }
+
+    void Decoder::ConvertToChunkedEncoding(const HBuffer& input, HBuffer& output)noexcept{
+        size_t partSize = input.GetSize();
+
+        HBuffer string;
+        string.Reserve(5);
+
+        size_t size = partSize;
+        while(size > 0){
+            char digit = size % 16;
+            string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
+            size/=16;
+        }
+
+        string.Reverse();
+        output.SetSize(0);
+
+        output.Append(string.GetData(), string.GetSize());
+        output.Append('\r');
+        output.Append('\n');
+        output.Append(input.GetData(), partSize);
+
+        output.Append('\r');
+        output.Append('\n');
+        output = std::move(output);
     }
 }

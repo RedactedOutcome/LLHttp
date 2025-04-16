@@ -138,6 +138,8 @@ namespace LLHttp{
         uint16_t m_Status = 0;
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
+        /// TODO: Case insensitive
+        /// @brief a map of headers. When accessed directly the keys are case insensitive. Only through the get functions will be using lowercase functions
         std::unordered_map<HBuffer, std::vector<HBuffer>> m_Headers;
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
         bool m_IsBodyCompressed=false;

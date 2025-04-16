@@ -41,10 +41,10 @@
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        m_At = 0;
         HttpParseErrorCode error = ParseHead(finishedAt);
         m_LastState = error;
         *finishedAt = m_At;
-        m_At = 0;
         return error;
     }
 
@@ -56,10 +56,11 @@
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        m_At = 0;
+
         HttpParseErrorCode error = ParseBody(output, finishedAt);
         m_LastState = error;
         *finishedAt = m_At;
-        m_At = 0;
         return error;
     }
 
@@ -230,7 +231,7 @@
                 HBuffer* contentLength = GetHeader("Content-Length");
                 std::cout << "Content length : " << (contentLength ? contentLength->GetCStr() : "0")<<std::endl;
                 std::cout << "last 10 characters from body start are " << m_Join.SubString(std::min(m_At - 10, m_At), 15).GetCStr()<<std::endl;
-                if(contentLength == nullptr)return HttpParseErrorCode::None;
+                if(contentLength == nullptr)return HttpParseErrorCode::NoMoreBodies;
                 std::cout << "Data at " << m_At << " m_At is " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
                 std::cout << "Current buffer size " << m_Join.GetSize()<<std::endl;
                 size_t contentLengthValue = std::atoi(contentLength[0].GetCStr());
@@ -299,6 +300,7 @@
                     m_State = 8;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
+                std::cout << "Creating new body with " << bytes<< " chunked"<<std::endl;
                 output = std::move(m_Join.SubBuffer(m_At, bytes));
                 m_At+=bytes + 2;
                 *finishedAt = m_At;

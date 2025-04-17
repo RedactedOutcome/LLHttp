@@ -55,6 +55,8 @@ namespace LLHttp{
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
+        std::cout << "Buff 1 is " << m_Join.GetBuffer1().GetSize() << " bytes with data : " << m_Join.GetBuffer1().SubString(0,-1).GetCStr()<<std::endl;
+        std::cout << "Buff 2 is " << m_Join.GetBuffer2().GetSize() << " bytes with data : " << m_Join.GetBuffer2().SubString(0,-1).GetCStr()<<std::endl;
         std::cout << "after parse body join size " << m_Join.GetSize()<<std::endl;
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;

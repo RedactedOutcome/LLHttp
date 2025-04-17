@@ -39,7 +39,6 @@ namespace LLHttp{
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
-        std::cout << "after parse head join size " << m_Join.GetSize()<<std::endl;
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
@@ -55,9 +54,6 @@ namespace LLHttp{
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
-        std::cout << "Buff 1 is " << m_Join.GetBuffer1().GetSize() << " bytes with data : " << m_Join.GetBuffer1().SubString(0,-1).GetCStr()<<std::endl;
-        std::cout << "Buff 2 is " << m_Join.GetBuffer2().GetSize() << " bytes with data : " << m_Join.GetBuffer2().SubString(0,-1).GetCStr()<<std::endl;
-        std::cout << "after parse body join size " << m_Join.GetSize()<<std::endl;
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
@@ -207,7 +203,6 @@ namespace LLHttp{
             case 2:{
                 //Detect Transfer Mode
                 HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-                std::cout << "Transfer encoding : " << (transferEncoding ? transferEncoding->GetCStr() : "identity") << std::endl;
                 //Rest wont be evaluated since after the first it will just jump to true
                 if(transferEncoding == nullptr || *transferEncoding == "" || *transferEncoding == "identity"){
                     m_State = 3;
@@ -225,7 +220,6 @@ namespace LLHttp{
                     m_State = 7;
                 }
                 else{
-                    std::cout << "unsupported Transfer Encoding"<<std::endl;
                     return HttpParseErrorCode::UnsupportedTransferEncoding;
                 }
                 return ParseBody(output, finishedAt);
@@ -233,24 +227,15 @@ namespace LLHttp{
             case 3:{
                 //Get Body from no encoding with Content-Length
                 HBuffer* contentLength = GetHeader("Content-Length");
-                std::cout << "Content length : " << (contentLength ? contentLength->GetCStr() : "0")<<std::endl;
-                std::cout << "last 10 characters from body start are " << m_Join.SubString(std::min(m_At - 10, m_At), 15).GetCStr()<<std::endl;
                 if(contentLength == nullptr)return HttpParseErrorCode::NoMoreBodies;
-                std::cout << "Data at " << m_At << " m_At is " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
-                std::cout << "Current buffer size " << m_Join.GetSize()<<std::endl;
                 size_t contentLengthValue = std::atoi(contentLength[0].GetCStr());
                 if(contentLengthValue < 1){
-                    std::cout << "Needs no data"<<std::endl;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-                std::cout << "M join size " << m_Join.GetSize()<<std::endl;
                 if(m_Join.GetSize() - m_At < contentLengthValue){
-                    std::cout << "body needs more data"<<std::endl;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
 
-                std::cout << "made body"<<std::endl;
-                
                 //TODO: Check for encoding and decode
                 //Gots all the body data we need
                 output = std::move(m_Join.SubString(m_At, contentLengthValue));
@@ -260,6 +245,7 @@ namespace LLHttp{
             }
             case 4:{
                 //Transfer Chunked Encoding
+                std::cout << "M_At " << m_At<<std::endl;
                 size_t before = m_At;
                 uint8_t state = 0;
 
@@ -293,6 +279,8 @@ namespace LLHttp{
                         c-=87;
                     else{
                         //INVALID CHARACTER;
+                        std::cout << "Invalid character : " << (size_t)c << " char " << c<<std::endl;
+                        std::cout << "Join First 10 are " << m_Join.SubString(0, 10).GetCStr()<<std::endl;
                         return HttpParseErrorCode::InvalidChunkSize;
                     }
                     bytes <<=4;
@@ -304,7 +292,6 @@ namespace LLHttp{
                     m_State = 8;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-                std::cout << "Creating new body with " << bytes<< " chunked"<<std::endl;
                 output = std::move(m_Join.SubBuffer(m_At, bytes));
                 m_At+=bytes + 2;
                 *finishedAt = m_At;

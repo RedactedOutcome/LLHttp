@@ -93,12 +93,12 @@ namespace LLHttp{
 
                     size_t headerSize = headerEnd - m_At;
                     char* headerName = new char[headerSize + 1];
-                    m_Join.Memcpy(headerName, wasAt, headerSize);
+                    m_Join.MemcpyTo(headerName, wasAt, headerSize);
                     headerName[headerSize] = '\0';
 
                     size_t valueLength = valueEnd - valueStart;
                     char* headerValue = new char[valueLength + 1];
-                    m_Join.Memcpy(headerValue, valueStart, valueLength);
+                    m_Join.MemcpyTo(headerValue, valueStart, valueLength);
                     headerValue[valueLength] = '\0';
 
                     if(strcmp(headerName, "Set-Cookie") != 0){

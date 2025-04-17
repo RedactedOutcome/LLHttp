@@ -3,6 +3,7 @@
 #ifdef LLHTTP_USE_PCH
 #include LLHTTP_PCH_DIR
 #else
+#include <iostream>
 #include <HBuffer/HBuffer.hpp>
 #include <unordered_map>
 #include <cstdint>

@@ -2,7 +2,7 @@
 #include "HttpResponse.h"
 #include "Decoder.h"
 
-    namespace LLHttp{
+namespace LLHttp{
     HttpResponse::HttpResponse(){
         //memset(&m_Stream, 0, sizeof(z_stream));
     }
@@ -39,6 +39,7 @@
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
+        std::cout << "after parse head join size " << m_Join.GetSize()<<std::endl;
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
@@ -54,6 +55,7 @@
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
+        std::cout << "after parse body join size " << m_Join.GetSize()<<std::endl;
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
@@ -92,7 +94,7 @@
 
                     size_t headerLength = m_At - startAt;
                     char* headerName = new char[headerLength + 1];
-                    m_Join.Memcpy(headerName, startAt, headerLength);
+                    m_Join.MemcpyTo(headerName, startAt, headerLength);
                     headerName[headerLength] = '\0';
 
                     if(m_Join.Get(m_At + 1) != ' '){
@@ -131,7 +133,7 @@
                     //Last Value
                     size_t valueLength = m_At - lastValueAt;
                     char* headerValue = new char[valueLength + 1];
-                    m_Join.Memcpy(headerValue, lastValueAt, valueLength);
+                    m_Join.MemcpyTo(headerValue, lastValueAt, valueLength);
                     headerValue[valueLength] = '\0';
 
                     HBuffer headerNameBuffer = HBuffer(headerName, headerLength, true, true);
@@ -239,7 +241,7 @@
                     std::cout << "Needs no data"<<std::endl;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-
+                std::cout << "M join size " << m_Join.GetSize()<<std::endl;
                 if(m_Join.GetSize() - m_At < contentLengthValue){
                     std::cout << "body needs more data"<<std::endl;
                     return HttpParseErrorCode::NeedsMoreData;

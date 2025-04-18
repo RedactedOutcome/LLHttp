@@ -297,8 +297,10 @@ namespace LLHttp{
 
         return (int)HttpEncodingErrorCode::Success;
     }
-
-    void Decoder::ConvertToChunkedEncoding(const HBuffer& input, HBuffer& output)noexcept{
+    
+#pragma region ConvertingBuffers
+    HBuffer Decoder::ConvertToChunkedEncoding(const HBuffer& input) noexcept{
+        HBuffer output;
         size_t partSize = input.GetSize();
 
         HBuffer string;
@@ -311,8 +313,11 @@ namespace LLHttp{
             size/=16;
         }
 
+        std::cout << "Body part sise " << partSize << " data: " << input.SubString(0,-1).GetCStr()<<std::endl;
+
         string.Reverse();
-        output.SetSize(0);
+
+        output.Reserve(partSize + 6);
 
         output.Append(string.GetData(), string.GetSize());
         output.Append('\r');
@@ -321,6 +326,7 @@ namespace LLHttp{
 
         output.Append('\r');
         output.Append('\n');
-        output = std::move(output);
+        return output;
     }
+#pragma endregion
 }

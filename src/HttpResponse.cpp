@@ -246,8 +246,16 @@ namespace LLHttp{
             case 4:{
                 //Transfer Chunked Encoding
                 std::cout << "M_At " << m_At<<std::endl;
-                size_t before = m_At;
+                std::cout << "data starts with " << m_Join.SubString(m_At,15).GetCStr()<<std::endl;
+                std::cout << "Data first " << m_Join.Get(m_At) << std::endl;
+                std::cout << "current buffer size " << m_Join.GetSize() << " Dataa : " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
+                size_t size = std::min(m_Join.GetSize(), static_cast<size_t>(15));
+                for(size_t i = 0; i < size; i++){
+                    std::cout << "M Join at " << i << " is " << m_Join.Get(i)<<std::endl;
+                }
+                int32_t before = m_At;
                 uint8_t state = 0;
+                std::cout << "T1" <<std::endl;
 
                 while(true){
                     char current = m_Join.Get(m_At++);
@@ -261,10 +269,13 @@ namespace LLHttp{
                     }
                     if(current == '\0'){
                         m_At = before;
+                        std::cout << "Chunk start " << m_Join.SubString(before, m_At).GetCStr()<<std::endl;
+                        std::cout << "Inside buffer needs data"<<std::endl;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
                     state = 0;
                 }
+                std::cout << "T2" <<std::endl;
 
                 size_t bytes = 0;
                 size_t dist = m_At - 2 - before - 1;
@@ -287,7 +298,12 @@ namespace LLHttp{
                     bytes += c;
                     dist--;
                 }
-                if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false)return HttpParseErrorCode::NeedsMoreData;
+                std::cout << "T3" <<std::endl;
+                if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false){
+                    std::cout << "Needs more data" <<std::endl;
+                    m_At = before;
+                    return HttpParseErrorCode::NeedsMoreData;
+                }
                 if(bytes < 1){
                     m_State = 8;
                     return HttpParseErrorCode::NoMoreBodies;
@@ -468,7 +484,7 @@ namespace LLHttp{
     std::shared_ptr<Cookie> HttpResponse::GetCookie(const char* name)noexcept{
         return m_Cookies[name];
     }
-    void HttpResponse::PreparePayload()noexcept{
+    void HttpResponse::PreparePayload(size_t overrideSize)noexcept{
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
 
@@ -476,10 +492,12 @@ namespace LLHttp{
             RemoveHeader("Content-Length");
             return;
         }
-        size_t totalSize = 0;
-        for(size_t i = 0; i < m_Body.size(); i++){
-            totalSize += m_Body[i].GetSize();
+        size_t totalSize = overrideSize;
+        if(totalSize == -1){
+            for(size_t i = 0; i < m_Body.size(); i++)
+                totalSize += m_Body[i].GetSize();
         }
+        
         if(totalSize < 1){
             RemoveHeader("Content-Length");
             return;
@@ -743,34 +761,10 @@ namespace LLHttp{
             //CORE_DEBUG("Done");
         }else if(*transferEncoding == "chunked"){
             for(size_t i = 0; i < buffers.size(); i++){
-                
                 const HBuffer& bodyPart = buffers[i];
 
-                size_t partSize = bodyPart.GetSize();
-
-                HBuffer string;
-                string.Reserve(5);
-
-                size_t size = partSize;
-                while(size > 0){
-                    char digit = size % 16;
-                    string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
-                    size/=16;
-                }
-
-                string.Reverse();
-
-                HBuffer buffer;
-                buffer.Reserve(partSize + 6);
-
-                buffer.Append(string.GetData(), string.GetSize());
-                buffer.Append('\r');
-                buffer.Append('\n');
-                buffer.Append(bodyPart.GetData(), partSize);
-
-                buffer.Append('\r');
-                buffer.Append('\n');
-                bodyParts.emplace_back(std::move(buffer));
+                HBuffer chunk = Decoder::ConvertToChunkedEncoding(bodyPart);
+                bodyParts.emplace_back(std::move(chunk));
             }
             if(addEndChunk)bodyParts.emplace_back("0\r\n\r\n", 5, false, false);
         }else{
@@ -780,7 +774,26 @@ namespace LLHttp{
 
         return std::move(bodyParts);
     }
+
+    HBuffer HttpResponse::BufferToValidBodyFormat(const HBuffer& input)noexcept{
+        HBuffer output;
+        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
+
+        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
+            output.Copy(input);
+        }else if(*transferEncoding == "chunked"){
+            output = Decoder::ConvertToChunkedEncoding(input);
+        }else{
+            std::cout << "Unsupported transfer encoding (" << transferEncodingString << ") "<<std::endl;
+            //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
+        }
+
+        return output;
+    }
+
     int HttpResponse::Decompress() noexcept{
+        /// TODO: finish decompressing
         HBuffer* contentEncoding = GetHeader("Content-Encoding");
 
         if(!contentEncoding)return (int)HttpContentEncoding::Identity;
@@ -832,6 +845,7 @@ namespace LLHttp{
     }
 
     int HttpResponse::Compress() noexcept{
+        ///TODO: finish compressing
         return 0;
     }
 }

@@ -33,6 +33,6 @@ namespace LLHttp{
         /// @return type of HttpEncodingErrorCode
         static int DecodeData(int encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept;
 
-        static void ConvertToChunkedEncoding(const HBuffer&, HBuffer& output)noexcept;
+        static HBuffer ConvertToChunkedEncoding(const HBuffer&)noexcept;
     };
 }

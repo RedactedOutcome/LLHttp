@@ -74,7 +74,10 @@ namespace LLHttp{
 
         void SetStatus(uint16_t status)noexcept;
         void SetStatus(HttpStatus status)noexcept;
-        void PreparePayload()noexcept;
+
+        /// @brief Prepares the response to be converted and sent over
+        /// @param overrideSize a value to override Content-Length if identity encoding. The value -1 will make have the Content-Length be the size of all the body parts combined
+        void PreparePayload(size_t overrideSize = -1)noexcept;
 
         void Redirect(const HBuffer& location)noexcept;
         void Redirect(HBuffer&& location)noexcept;
@@ -96,7 +99,12 @@ namespace LLHttp{
         std::vector<HBuffer>& GetBodyParts() const noexcept {return (std::vector<HBuffer>&)m_Body;}
         /// @brief returns a copy of a all the body parts. Body may be merged into a single part if transfer identity encoding. Else body is split up as needed depending on transfer encoding. Data inside the copy will not be decoded or encoded.
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
-        /// @brief 
+
+        /// @brief Takes a normal buffer and converts it to any encoding necessary depending on the Transfer-Encoding headers. Will not convert data to or from Content-Encoding
+        /// @param input the input to make a copy of and return as a valid bodypart
+        HBuffer BufferToValidBodyFormat(const HBuffer& input)noexcept;
+
+        /// @brief Takes a normal buffer and converts it to any encoding necessary depending on the Transfer-Encoding headers. Will not convert data to or from Content-Encoding
         /// @param buffers 
         /// @param addEndChunk decides if a null chunk is appended for chunked transfer encoding.
         std::vector<HBuffer> BuffersToValidBodyFormat(std::vector<HBuffer>& buffers, bool addEndChunk=true)noexcept;

@@ -254,9 +254,9 @@ namespace LLHttp{
                 std::cout << "M_At " << m_At<<std::endl;
                 std::cout << "data starts with " << m_Join.SubString(m_At,15).GetCStr()<<std::endl;
                 std::cout << "Data first " << m_Join.Get(m_At) << std::endl;
-                std::cout << "current buffer size " << m_Join.GetSize() << " Dataa : " << m_Join.SubString(std::min(m_At - 1, 0), 15).GetCStr()<<std::endl;
+                std::cout << "current buffer size " << m_Join.GetSize() << " Dataa : " << m_Join.SubString(std::min(m_At - 1, (size_t)0), 15).GetCStr()<<std::endl;
                 size_t size = std::min(m_Join.GetSize(), static_cast<size_t>(15));
-                int32_t before = m_At;
+                size_t before = m_At;
                 uint8_t state = 0;
                 std::cout << "T1" <<std::endl;
 

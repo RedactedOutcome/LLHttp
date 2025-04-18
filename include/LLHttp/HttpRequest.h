@@ -111,14 +111,14 @@ namespace LLHttp{
 
         //const std::unordered_map<std::string, std::string> GetHeaders() const noexcept{return m_Headers;}
         std::unordered_map<HBuffer, std::vector<HBuffer>, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, std::vector<HBuffer>, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
-        std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash>&)m_Cookies;}
+        std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash, HBufferLowercaseEquals>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Cookies;}
     private:
         int Parse() noexcept;
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
         HBuffer m_Path;
         std::unordered_map<HBuffer, std::vector<HBuffer>, HBufferLowercaseHash, HBufferLowercaseEquals> m_Headers;
-        std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash> m_Cookies;
+        std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash, HBufferLowercaseEquals> m_Cookies;
         bool m_IsBodyCompressed=false;
         std::vector<HBuffer> m_Body;
         

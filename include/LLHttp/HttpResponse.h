@@ -136,7 +136,7 @@ namespace LLHttp{
         HttpVersion GetVersion() const noexcept{return m_Version;}
         HttpVerb GetVerb() const noexcept{return m_Verb;}
         std::unordered_map<HBuffer, std::vector<HBuffer>, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, std::vector<HBuffer>, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
-        std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash>&)m_Cookies;}
+        std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash, HBufferLowercaseEquals>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
     public:
         /// @brief returns the current position in the joined buffer that we are using to pase data for the current state
@@ -150,7 +150,7 @@ namespace LLHttp{
         /// TODO: Case insensitive
         /// @brief a map of headers. When accessed directly the keys are case insensitive. Only through the get functions will be using lowercase functions
         std::unordered_map<HBuffer, std::vector<HBuffer>, HBufferLowercaseHash, HBufferLowercaseEquals> m_Headers;
-        std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash> m_Cookies;
+        std::unordered_map<HBuffer, std::shared_ptr<Cookie>, HBufferLowercaseHash, HBufferLowercaseEquals> m_Cookies;
         bool m_IsBodyCompressed=false;
         std::vector<HBuffer> m_Body;
     public:
@@ -163,6 +163,6 @@ namespace LLHttp{
 
         /// @brief first string is the last copy of a "read" buffer if there is one. Right is a view of the new read buffer data
         HBufferJoin m_Join;
-        int32_t m_At = 0;
+        size_t m_At = 0;
     };
 }

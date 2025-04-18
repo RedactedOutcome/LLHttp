@@ -227,9 +227,15 @@ namespace LLHttp{
             case 3:{
                 //Get Body from no encoding with Content-Length
                 HBuffer* contentLength = GetHeader("Content-Length");
-                if(contentLength == nullptr)return HttpParseErrorCode::NoMoreBodies;
+                if(contentLength == nullptr){
+                    contentLength = GetHeader("content-length");
+                    std::cout << "content Length " << (size_t)contentLength<<std::endl;
+                    std::cout << "Nullptr content length"<<std::endl;
+                    return HttpParseErrorCode::NoMoreBodies;
+                }
                 size_t contentLengthValue = std::atoi(contentLength[0].GetCStr());
                 if(contentLengthValue < 1){
+                    std::cout << "Content length value less than 1"<<std::endl;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
                 if(m_Join.GetSize() - m_At < contentLengthValue){
@@ -248,11 +254,8 @@ namespace LLHttp{
                 std::cout << "M_At " << m_At<<std::endl;
                 std::cout << "data starts with " << m_Join.SubString(m_At,15).GetCStr()<<std::endl;
                 std::cout << "Data first " << m_Join.Get(m_At) << std::endl;
-                std::cout << "current buffer size " << m_Join.GetSize() << " Dataa : " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
+                std::cout << "current buffer size " << m_Join.GetSize() << " Dataa : " << m_Join.SubString(std::min(m_At - 1, 0), 15).GetCStr()<<std::endl;
                 size_t size = std::min(m_Join.GetSize(), static_cast<size_t>(15));
-                for(size_t i = 0; i < size; i++){
-                    std::cout << "M Join at " << i << " is " << m_Join.Get(i)<<std::endl;
-                }
                 int32_t before = m_At;
                 uint8_t state = 0;
                 std::cout << "T1" <<std::endl;
@@ -278,7 +281,6 @@ namespace LLHttp{
                 std::cout << "T2" <<std::endl;
 
                 size_t bytes = 0;
-                size_t dist = m_At - 2 - before - 1;
                 for(size_t i = before; i < m_At - 2; i++){
                     uint8_t c = m_Join.At(i);
 
@@ -294,17 +296,18 @@ namespace LLHttp{
                         std::cout << "Join First 10 are " << m_Join.SubString(0, 10).GetCStr()<<std::endl;
                         return HttpParseErrorCode::InvalidChunkSize;
                     }
+                    std::cout << "Char c "<< (size_t)c<<std::endl;
                     bytes <<=4;
                     bytes += c;
-                    dist--;
                 }
-                std::cout << "T3" <<std::endl;
+                std::cout << "T3 bytes" << bytes <<std::endl;
                 if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false){
                     std::cout << "Needs more data" <<std::endl;
                     m_At = before;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
                 if(bytes < 1){
+                    m_At+=bytes + 2;
                     m_State = 8;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
@@ -762,7 +765,7 @@ namespace LLHttp{
         }else if(*transferEncoding == "chunked"){
             for(size_t i = 0; i < buffers.size(); i++){
                 const HBuffer& bodyPart = buffers[i];
-
+                std::cout << "bodyPart to valid bodyPart " << bodyPart.GetSize()<<std::endl;
                 HBuffer chunk = Decoder::ConvertToChunkedEncoding(bodyPart);
                 bodyParts.emplace_back(std::move(chunk));
             }
@@ -783,6 +786,7 @@ namespace LLHttp{
         if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
             output.Copy(input);
         }else if(*transferEncoding == "chunked"){
+            std::cout << "Buffer to valid bodyPart " << input.GetSize()<<std::endl;
             output = Decoder::ConvertToChunkedEncoding(input);
         }else{
             std::cout << "Unsupported transfer encoding (" << transferEncodingString << ") "<<std::endl;

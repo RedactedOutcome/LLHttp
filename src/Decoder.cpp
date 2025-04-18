@@ -305,19 +305,20 @@ namespace LLHttp{
 
         HBuffer string;
         string.Reserve(5);
+        string.SetSize(0);
 
         size_t size = partSize;
-        while(size > 0){
+        std::cout << "Size " << size<<std::endl;
+        do{
             char digit = size % 16;
-            string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
+            char c = digit >= 10 ? (55 + digit) : (digit + '0');
+            string.AppendString(c);
             size/=16;
-        }
-
-        std::cout << "Body part sise " << partSize << " data: " << input.SubString(0,-1).GetCStr()<<std::endl;
-
+        }while(size > 0);
         string.Reverse();
+        std::cout << "Part size : " << partSize << " hex : " << string.GetCStr()<<std::endl;
 
-        output.Reserve(partSize + 6);
+        output.Reserve(partSize + 6 + input.GetSize());
 
         output.Append(string.GetData(), string.GetSize());
         output.Append('\r');

@@ -320,13 +320,10 @@ namespace LLHttp{
 
         output.Reserve(partSize + 6 + input.GetSize());
 
-        output.Append(string.GetData(), string.GetSize());
-        output.Append('\r');
-        output.Append('\n');
+        output.Append(string);
+        output.Append("\r\n", 2);
         output.Append(input.GetData(), partSize);
-
-        output.Append('\r');
-        output.Append('\n');
+        output.Append("\r\n", 2);
         return output;
     }
 #pragma endregion

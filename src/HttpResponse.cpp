@@ -251,15 +251,9 @@ namespace LLHttp{
             }
             case 4:{
                 //Transfer Chunked Encoding
-                std::cout << "M_At " << m_At<<std::endl;
-                std::cout << "data starts with " << m_Join.SubString(m_At,15).GetCStr()<<std::endl;
-                std::cout << "Data first " << m_Join.Get(m_At) << std::endl;
-                std::cout << "current buffer size " << m_Join.GetSize() << " Dataa : " << m_Join.SubString(std::min(m_At - 1, (size_t)0), 15).GetCStr()<<std::endl;
-                size_t size = std::min(m_Join.GetSize(), static_cast<size_t>(15));
+                std::cout << "Getting chunk" <<std::endl;
                 size_t before = m_At;
                 uint8_t state = 0;
-                std::cout << "T1" <<std::endl;
-
                 while(true){
                     char current = m_Join.Get(m_At++);
                     if(current == '\r'){
@@ -272,14 +266,12 @@ namespace LLHttp{
                     }
                     if(current == '\0'){
                         m_At = before;
-                        std::cout << "Chunk start " << m_Join.SubString(before, m_At).GetCStr()<<std::endl;
+                        std::cout << "Chunk start " << m_Join.SubString(before, m_At - before).GetCStr()<<std::endl;
                         std::cout << "Inside buffer needs data"<<std::endl;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
                     state = 0;
                 }
-                std::cout << "T2" <<std::endl;
-
                 size_t bytes = 0;
                 for(size_t i = before; i < m_At - 2; i++){
                     uint8_t c = m_Join.At(i);
@@ -296,11 +288,11 @@ namespace LLHttp{
                         std::cout << "Join First 10 are " << m_Join.SubString(0, 10).GetCStr()<<std::endl;
                         return HttpParseErrorCode::InvalidChunkSize;
                     }
-                    std::cout << "Char c "<< (size_t)c<<std::endl;
+                    std::cout << "Current char : " << m_Join.At(i) << " is now " << (size_t)c <<std::endl;
                     bytes <<=4;
                     bytes += c;
                 }
-                std::cout << "T3 bytes" << bytes <<std::endl;
+                std::cout << "Chunk needs" << bytes << " bytes" << std::endl;
                 if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false){
                     std::cout << "Needs more data" <<std::endl;
                     m_At = before;
@@ -789,6 +781,7 @@ namespace LLHttp{
         }else if(*transferEncoding == "chunked"){
             std::cout << "Buffer to valid bodyPart " << input.GetSize()<<std::endl;
             output = Decoder::ConvertToChunkedEncoding(input);
+            std::cout << "output size " << output.GetSize()<<std::endl;
         }else{
             std::cout << "Unsupported transfer encoding (" << transferEncodingString << ") "<<std::endl;
             //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());

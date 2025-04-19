@@ -12,6 +12,7 @@ namespace LLHttp{
         s_LLHttpPathAllowedCharacters.set('!');
         s_LLHttpPathAllowedCharacters.set('#');
         s_LLHttpPathAllowedCharacters.set('$');
+        s_LLHttpPathAllowedCharacters.set('_');
         s_LLHttpPathAllowedCharacters.set('/');
         s_LLHttpPathAllowedCharacters.set('?');
         s_LLHttpPathAllowedCharacters.set('@');

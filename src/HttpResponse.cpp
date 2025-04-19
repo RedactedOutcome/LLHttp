@@ -28,8 +28,8 @@ namespace LLHttp{
 
     void HttpResponse::PrepareBodyRead() noexcept{
         m_State = 2;
-        m_At = 0;
         m_Join.Free();
+        m_At = 0;
         m_LastState = HttpParseErrorCode::NeedsMoreData;
     }
 
@@ -40,12 +40,12 @@ namespace LLHttp{
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
-        m_At = 0;
-        HttpParseErrorCode error = ParseHead(finishedAt);
-        m_LastState = error;
-        *finishedAt = m_At;
-        return error;
+        if(m_LastState == HttpParseErrorCode::NeedsMoreData || m_LastState == HttpParseErrorCode::None){
+            m_At = 0;
+            m_LastState = ParseHead(finishedAt);
+            *finishedAt = m_At;
+        }
+        return m_LastState;
     }
 
     HttpParseErrorCode HttpResponse::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept{
@@ -55,13 +55,12 @@ namespace LLHttp{
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
-        m_At = 0;
-
-        HttpParseErrorCode error = ParseBody(output, finishedAt);
-        m_LastState = error;
-        *finishedAt = m_At;
-        return error;
+        if(m_LastState == HttpParseErrorCode::NeedsMoreData || m_LastState == HttpParseErrorCode::None){
+            m_At = 0;
+            m_LastState = ParseBody(output, finishedAt);
+            *finishedAt = m_At;
+        }
+        return m_LastState;
     }
 
     HttpParseErrorCode HttpResponse::ParseHead(uint32_t* finishedAt)noexcept{
@@ -165,7 +164,7 @@ namespace LLHttp{
             bool http1_0 = m_Join.StartsWith("HTTP/1.0", 8);
             bool http1_1 = m_Join.StartsWith("HTTP/1.1", 8);
             if(http1_1 || http1_0){
-                if(m_Join.Get(8)!=' ')return HttpParseErrorCode::InvalidHttpResponse;
+                if(m_Join.Get(8) != ' ')return HttpParseErrorCode::InvalidHttpProtocol;
                 
                 for(uint8_t i = 0; i < 3; i++){
                     char c = m_Join.Get(i + 9);
@@ -173,12 +172,12 @@ namespace LLHttp{
                         return HttpParseErrorCode::NeedsMoreData;
                     }
 
-                    if(std::isdigit(c) == false)return HttpParseErrorCode::UnsupportedHttpProtocol;
+                    if(std::isdigit(c) == false)return HttpParseErrorCode::InvalidStatusMessage;
                 }
 
                 m_Status = std::stoi(m_Join.SubString(9, 3).GetCStr());
 
-                if(m_Join.Get(12) != ' ')return HttpParseErrorCode::UnsupportedHttpProtocol;
+                if(m_Join.Get(12) != ' ')return HttpParseErrorCode::InvalidStatusMessage;
                 m_At = 13;
                 while(!m_Join.StartsWith(m_At, "\r\n")){
                     if(m_Join.Get(m_At) == '\0')return HttpParseErrorCode::NeedsMoreData;
@@ -196,6 +195,7 @@ namespace LLHttp{
     }
     
     HttpParseErrorCode HttpResponse::ParseBody(HBuffer& output, uint32_t* finishedAt)noexcept{
+        std::cout << "parsing"<<std::endl;
         switch(m_Version){
             case HttpVersion::HTTP1_0:
             case HttpVersion::HTTP1_1:
@@ -311,7 +311,7 @@ namespace LLHttp{
                     m_State = 8;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-                output = std::move(m_Join.SubBuffer(m_At, bytes));
+                output = m_Join.SubBuffer(m_At, bytes);
                 m_At+=bytes + 2;
                 *finishedAt = m_At;
                 return HttpParseErrorCode::None;
@@ -333,9 +333,10 @@ namespace LLHttp{
                 return HttpParseErrorCode::NoMoreBodies;
             }
             default:
-                return HttpParseErrorCode::UnsupportedHttpProtocol;
+                return HttpParseErrorCode::InvalidBodyParseState;
             }
         }
+        std::cout << "Invalid version"<<std::endl;
         return HttpParseErrorCode::UnsupportedHttpProtocol;
     }
     void HttpResponse::SetHeader(const char* name, const char* value) noexcept{

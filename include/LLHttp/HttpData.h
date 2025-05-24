@@ -131,7 +131,11 @@ namespace LLHttp{
         InvalidPort,
         InvalidPath,
         InvalidMimeType,
-        InvalidPercentEncodingCharacter
+        InvalidPercentEncodingCharacter,
+        FailedDecodeGZip,
+        FailedEncodeGZip
+        FailedDecodeBrotli,
+        FailedEncoddeBrotli
     };
 
     /// @brief for parsing urls

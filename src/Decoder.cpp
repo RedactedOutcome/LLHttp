@@ -79,7 +79,7 @@ namespace LLHttp{
 
         return HttpEncodingErrorCode::None;
     }
-    HttpEncodingErrorCode Decoder::DecodeData(int encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept{
+    HttpEncodingErrorCode Decoder::DecodeData(HttpContentEncoding encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept{
         switch(encoding){
         case HttpContentEncoding::GZip:{
             return HttpEncodingErrorCode::UnsupportedContentEncoding;

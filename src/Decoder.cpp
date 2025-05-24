@@ -11,7 +11,7 @@ namespace LLHttp{
 
         if (inflateInit2(&stream, 16 + MAX_WBITS) != Z_OK) {
             //CORE_ERROR("Failed to initialize zlib for GZIP decoding");
-            return (int)HttpEncodingErrorCode::InitializationFailure;
+            return HttpEncodingErrorCode::InitializationFailure;
         }
 
         HBuffer out;
@@ -27,7 +27,7 @@ namespace LLHttp{
 
             if (ret != Z_OK && ret != Z_STREAM_END) {
                 inflateEnd(&stream);
-                return (int)HttpParseErrorCode::FailedDecodeGZip;
+                return HttpParseErrorCode::FailedDecodeGZip;
             }
 
             size_t bytesDecompressed = capacity - stream.avail_out;
@@ -66,7 +66,7 @@ namespace LLHttp{
 
             if (ret != Z_OK && ret != Z_STREAM_END) {
                 deflateEnd(&stream);
-                return (int)HttpParseErrorCode::FailedEncodeGZip;
+                return HttpParseErrorCode::FailedEncodeGZip;
             }
 
             size_t bytesCompressed = capacity - stream.avail_out;
@@ -77,17 +77,17 @@ namespace LLHttp{
 
         deflateEnd(&stream);
 
-        return 0;
+        return HttpEncodingErrorCode::None;
     }
     int Decoder::DecodeData(int encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept{
         switch(encoding){
-        case (int)HttpContentEncoding::GZip:{
-            return (int)HttpEncodingErrorCode::UnsupportedContentEncoding;
+        case HttpContentEncoding::GZip:{
+            return HttpEncodingErrorCode::UnsupportedContentEncoding;
         }
-        case (int)HttpContentEncoding::Identity:
-            return (int)HttpEncodingErrorCode::Success;
+        case HttpContentEncoding::Identity:
+            return HttpEncodingErrorCode::None;
         default:
-            return (int)HttpEncodingErrorCode::UnsupportedContentEncoding;
+            return HttpEncodingErrorCode::UnsupportedContentEncoding;
         }
     }
 
@@ -110,27 +110,27 @@ namespace LLHttp{
             }
 
             if(c != '%'){
-                return (int)HttpEncodingErrorCode::IllegalPercentEncodingDelimiter;
+                return HttpEncodingErrorCode::IllegalPercentEncodingDelimiter;
             }
 
             i++;
             if(i >= size){
-                return (int)HttpEncodingErrorCode::NeedsMoreData;
+                return HttpEncodingErrorCode::NeedsMoreData;
             }
             size_t number = 0;
             c = input.At(i++);
 
             if(i >= size){
-                return (int)HttpEncodingErrorCode::NeedsMoreData;
+                return HttpEncodingErrorCode::NeedsMoreData;
             }
 
             if((c < '0' || c > '9') && (c < 'A' || c > 'F')){
-                return (int)HttpEncodingErrorCode::IllegalPercentEncodingCharacter;
+                return HttpEncodingErrorCode::IllegalPercentEncodingCharacter;
             }
             number = (c - (c < 65 ? 48 : 55)) * 16;
             c = input.At(i);
             if((c < '0' || c > '9') && (c < 'A' || c > 'F')){
-                return (int)HttpEncodingErrorCode::IllegalPercentEncodingCharacter;
+                return HttpEncodingErrorCode::IllegalPercentEncodingCharacter;
             }
             number += (c - (c < 65 ? 48 : 55));
 
@@ -203,12 +203,12 @@ namespace LLHttp{
                 break;
             default:
                 //CORE_DEBUG("r 5 ({0}) {1}",number, input.SubString(i - 2, 3).GetCStr());
-                return (int)HttpEncodingErrorCode::IllegalPercentEncodingOpcode;
+                return HttpEncodingErrorCode::IllegalPercentEncodingOpcode;
             }
 
         }
 
-        return (int)HttpEncodingErrorCode::Success;
+        return HttpEncodingErrorCode::None;
     }
 
     
@@ -291,11 +291,11 @@ namespace LLHttp{
                     output.Append("%2E");
                     break;
                 default:
-                    return (int)HttpEncodingErrorCode::InvalidPercentEncodingCharacter;
+                    return HttpEncodingErrorCode::InvalidPercentEncodingCharacter;
                 }
         }
 
-        return (int)HttpEncodingErrorCode::Success;
+        return HttpEncodingErrorCode::None;
     }
 
     void Decoder::ConvertToChunkedEncoding(const HBuffer& input, HBuffer& output)noexcept{

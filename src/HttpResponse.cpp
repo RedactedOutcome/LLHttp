@@ -814,7 +814,7 @@ namespace LLHttp{
         }
         std::vector<HBuffer> newBodies;
         if(encodings.size() == 1)
-            if(encodings[0] == (uint8_t)HttpContentEncoding::Identity)return (int)HttpEncodingErrorCode::Success;
+            if(encodings[0] == (uint8_t)HttpContentEncoding::Identity)return (int)HttpEncodingErrorCode::None;
         
         for(int i = encodings.size(); i > 0; --i){
             uint8_t encoding = encodings[i];
@@ -828,7 +828,7 @@ namespace LLHttp{
         for(size_t i = 0; i < newBodies.size(); i++)
             m_Body[i].Assign(std::move(newBodies[i]));
         
-        return (int)HttpEncodingErrorCode::Success;
+        return (int)HttpEncodingErrorCode::None;
     }
 
     int HttpResponse::Compress() noexcept{

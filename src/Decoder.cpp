@@ -27,7 +27,7 @@ namespace LLHttp{
 
             if (ret != Z_OK && ret != Z_STREAM_END) {
                 inflateEnd(&stream);
-                return HttpParseErrorCode::FailedDecodeGZip;
+                return HttpEncodingErrorCode::FailedDecodeGZip;
             }
 
             size_t bytesDecompressed = capacity - stream.avail_out;
@@ -37,7 +37,7 @@ namespace LLHttp{
 
         inflateEnd(&stream);
 
-        return 0;
+        return HttpEncodingErrorCode::None;
     }
 
     HttpEncodingErrorCode Decoder::EncodeGZip(HBuffer& input, std::vector<HBuffer>& output){
@@ -66,7 +66,7 @@ namespace LLHttp{
 
             if (ret != Z_OK && ret != Z_STREAM_END) {
                 deflateEnd(&stream);
-                return HttpParseErrorCode::FailedEncodeGZip;
+                return HttpEncodingErrorCode::FailedEncodeGZip;
             }
 
             size_t bytesCompressed = capacity - stream.avail_out;

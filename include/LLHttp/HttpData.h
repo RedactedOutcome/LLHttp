@@ -116,9 +116,9 @@ namespace LLHttp{
         FailedEncodeGZip
     };
 
-    /// @brief Error codes for decoding/encoding http request/responses
+    /// @brief Error codes for decoding/encoding encrypted data. 
     enum class HttpEncodingErrorCode{
-        Success=0,
+        None=0,
         NeedsMoreData,
         InitializationFailure,
         UnsupportedContentEncoding,

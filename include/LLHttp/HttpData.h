@@ -133,7 +133,7 @@ namespace LLHttp{
         InvalidMimeType,
         InvalidPercentEncodingCharacter,
         FailedDecodeGZip,
-        FailedEncodeGZip
+        FailedEncodeGZip,
         FailedDecodeBrotli,
         FailedEncoddeBrotli
     };

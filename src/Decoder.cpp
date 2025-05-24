@@ -49,7 +49,7 @@ namespace LLHttp{
 
         // Initialize zlib for GZIP encoding
         if (deflateInit2(&stream, Z_BEST_COMPRESSION, Z_DEFLATED, 16 + MAX_WBITS, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
-            return -1;
+            return HttpEncodingErrorCode::InitializationFailure;
         }
 
         // Compress the data

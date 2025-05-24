@@ -98,6 +98,13 @@ namespace LLHttp{
         std::vector<HBuffer>& GetBodyParts() const noexcept {return (std::vector<HBuffer>&)m_Body;}
         /// @brief returns a copy of a all the body parts. Body may be merged into a single part if transfer identity encoding. Else body is split up as needed depending on transfer encoding. Data inside the copy will not be decoded or encoded.
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
+        
+        /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
+        HttpEncodingErrorCode BufferCopyToValidBodyPartFormat(const HBuffer& input, HBuffer& output)noexcept;
+
+        /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
+        HttpEncodingErrorCode BufferToValidBodyPartFormat(const HBuffer& input, HBuffer& output)noexcept;
+
         /// @brief 
         /// @param buffers 
         /// @param addEndChunk decides if a null chunk is appended for chunked transfer encoding.

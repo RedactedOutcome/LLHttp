@@ -736,6 +736,82 @@ namespace LLHttp{
     std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() noexcept{
         return std::move(BuffersToValidBodyFormat(m_Body));
     }
+    
+
+    HttpEncodingErrorCode BufferCopyToValidBodyPartFormat(const HBuffer& input, HBuffer& output)const noexcept{ 
+        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
+
+        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
+            output = input.Copy();
+            return HttpEncodingErrorCode::None;
+        }
+        else if(*transferEncoding == "chunked"){
+            size_t partSize = input.GetSize();
+
+            HBuffer string;
+            string.Reserve(5);
+
+            size_t size = partSize;
+            while(size > 0){
+                char digit = size % 16;
+                string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
+                size/=16;
+            }
+
+            string.Reverse();
+
+            output.Reserve(partSize + 6);
+
+            output.Append(string.GetData(), string.GetSize());
+            output.Append('\r');
+            output.Append('\n');
+            output.Append(input.GetData(), partSize);
+            
+            output.Append('\r');
+            output.Append('\n');
+            return HttpEncodingErrorCode::None;
+        }
+
+        return HttpEncodingErrorCode::UnsupportedContentEncoding;
+    }
+    HttpEncodingErrorCode BufferToValidBodyPartFormat(const HBuffer& input, HBuffer& output)const noexcept{ 
+        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
+
+        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
+            output = input;
+            return HttpEncodingErrorCode::None;
+        }
+        else if(*transferEncoding == "chunked"){
+            size_t partSize = input.GetSize();
+
+            HBuffer string;
+            string.Reserve(5);
+
+            size_t size = partSize;
+            while(size > 0){
+                char digit = size % 16;
+                string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
+                size/=16;
+            }
+
+            string.Reverse();
+
+            output.Reserve(partSize + 6);
+
+            output.Append(string.GetData(), string.GetSize());
+            output.Append('\r');
+            output.Append('\n');
+            output.Append(input.GetData(), partSize);
+
+            output.Append('\r');
+            output.Append('\n');
+            return HttpEncodingErrorCode::None;
+        }
+
+        return HttpEncodingErrorCode::UnsupportedContentEncoding;
+    }
 
     std::vector<HBuffer> HttpResponse::BuffersToValidBodyFormat(std::vector<HBuffer>& buffers, bool addEndChunk)noexcept{
         std::vector<HBuffer> bodyParts;

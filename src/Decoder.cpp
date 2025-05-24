@@ -3,7 +3,7 @@
 #include "HttpData.h"
 
 namespace LLHttp{
-    int Decoder::DecodeGZip(HBuffer& data, std::vector<HBuffer>& output){
+    HttpContentEncoding Decoder::DecodeGZip(HBuffer& data, std::vector<HBuffer>& output){
         z_stream stream;
         memset(&stream, 0, sizeof(z_stream));
         stream.avail_in = static_cast<uInt>(data.GetSize());
@@ -40,7 +40,7 @@ namespace LLHttp{
         return 0;
     }
 
-    int Decoder::EncodeGZip(HBuffer& input, std::vector<HBuffer>& output){
+    HttpContentEncoding Decoder::EncodeGZip(HBuffer& input, std::vector<HBuffer>& output){
         z_stream stream;
         memset(&stream, 0, sizeof(z_stream));
 
@@ -79,7 +79,7 @@ namespace LLHttp{
 
         return HttpEncodingErrorCode::None;
     }
-    int Decoder::DecodeData(int encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept{
+    HttpContentEncoding Decoder::DecodeData(int encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept{
         switch(encoding){
         case HttpContentEncoding::GZip:{
             return HttpEncodingErrorCode::UnsupportedContentEncoding;
@@ -92,7 +92,7 @@ namespace LLHttp{
     }
 
 
-    int Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer& output) noexcept{
+    HttpContentEncoding Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer& output) noexcept{
         size_t size = input.GetSize();
         output.Reserve(size);
 
@@ -212,7 +212,7 @@ namespace LLHttp{
     }
 
     
-    int Decoder::ToPercentEncoding(const HBuffer& input, HBuffer& output) noexcept {
+    HttpContentEncoding Decoder::ToPercentEncoding(const HBuffer& input, HBuffer& output) noexcept {
         size_t size = input.GetSize();
         output.Reserve(size);
 

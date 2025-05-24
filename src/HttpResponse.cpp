@@ -743,7 +743,7 @@ namespace LLHttp{
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
 
         if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
-            output = input.Copy();
+            output = input.CreateCopy();
             return HttpEncodingErrorCode::None;
         }
         else if(*transferEncoding == "chunked"){

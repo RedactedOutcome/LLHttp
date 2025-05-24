@@ -468,17 +468,26 @@ namespace LLHttp{
     std::shared_ptr<Cookie> HttpResponse::GetCookie(const char* name)noexcept{
         return m_Cookies[name];
     }
-    void HttpResponse::PreparePayload()noexcept{
+    void HttpResponse::PreparePayload(size_t preferedLength)noexcept{
+        /// TODO: handle multiple content encodings
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
 
-        if(transferEncodingString == "chunked"){
+        if(strcmp(transferEncodingString, "chunked") == 0){
             RemoveHeader("Content-Length");
             return;
         }
-        size_t totalSize = 0;
-        for(size_t i = 0; i < m_Body.size(); i++){
-            totalSize += m_Body[i].GetSize();
+        if(strcmp(transferEncodingString, "") != 0 && strcmp(transferEncodingString, "identity") != 0){
+            std::cout << "Failed to prepare payload for HttpResponse. Invalid Transfer-Encoding: " << transferEncodingString << std::endl;
+            //CORE_WARN("Failed to prepare payload for HttpResponse. Invalid Transfer-Encoding: {0}", transferEncodingString);
+            return;
+        }
+        size_t totalSize = preferedLength;
+        if(totalSize == -1){
+            totalSize = 0;
+            for(size_t i = 0; i < m_Body.size(); i++){
+                totalSize += m_Body[i].GetSize();
+            }
         }
         if(totalSize < 1){
             RemoveHeader("Content-Length");

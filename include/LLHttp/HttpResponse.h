@@ -74,7 +74,9 @@ namespace LLHttp{
 
         void SetStatus(uint16_t status)noexcept;
         void SetStatus(HttpStatus status)noexcept;
-        void PreparePayload()noexcept;
+        /// @brief Prepares certain headers depending on the state of the response
+        /// @param preferedSize. The prefered size of Content-Length header. -1 if the value should be the result of all the body sizes. else the prefered content length
+        void PreparePayload(size_t preferedLength = -1)noexcept;
 
         void Redirect(const HBuffer& location)noexcept;
         void Redirect(HBuffer&& location)noexcept;

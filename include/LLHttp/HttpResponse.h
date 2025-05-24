@@ -87,11 +87,11 @@ namespace LLHttp{
 
         /// @brief Attempts to decompress the body data depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
-        int Decompress() noexcept;
+        HttpEncodingErrorCode Decompress() noexcept;
 
         /// @brief Attempts to compress data in the bodies depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
-        int Compress() noexcept;
+        HttpEncodingErrorCode Compress() noexcept;
     public:
         /// @brief returns the entire first part of the http response message just before the body
         HBuffer HeadToBuffer() const noexcept;

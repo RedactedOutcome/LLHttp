@@ -10,7 +10,6 @@ namespace LLHttp{
         stream.next_in = reinterpret_cast<Bytef*>(data.GetData());
 
         if (inflateInit2(&stream, 16 + MAX_WBITS) != Z_OK) {
-            //CORE_ERROR("Failed to initialize zlib for GZIP decoding");
             return HttpEncodingErrorCode::InitializationFailure;
         }
 

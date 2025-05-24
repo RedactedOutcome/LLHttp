@@ -137,7 +137,7 @@ namespace LLHttp{
                 //Get Content length
                 size_t contentLength = std::atoi(GetHeader("Content-Length").c_str());
                 if(contentLength < 1)return 0;
-                //TODO: maybe have a seperate member variable for the encoding
+                /// TODO: maybe have a seperate member variable for the encoding
 
                 //const char* transferEncoding = GetHeader("Transfer-Encoding").c_str();
 
@@ -524,7 +524,7 @@ namespace LLHttp{
         HBuffer buffer;
         buffer.Reserve(HTTP_DEFAULT_HEAD_REQUEST_TO_BUFFER_SIZE);
 
-        //TODO: Fix potential overflow later in function.
+        /// TODO: Fix potential overflow later in function.
         switch(m_Version){
         case HttpVersion::HTTP1_0:
         case HttpVersion::HTTP1_1:{
@@ -675,12 +675,12 @@ namespace LLHttp{
         return std::move(bodyParts);
     }
 
-    int HttpRequest::Decompress() noexcept{
-        //TODO: copy from response
-        return 0;
+    HttpEncodingErrorCode HttpRequest::Decompress() noexcept{
+        /// TODO: copy from response
+        return HttpEncodingErrorCode::None;
     }
 
-    int HttpRequest::Compress() noexcept{
-        return 0;
+    HttpEncodingErrorCode HttpRequest::Compress() noexcept{
+        return HttpEncodingErrorCode::None;
     }
 }

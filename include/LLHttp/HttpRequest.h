@@ -22,9 +22,15 @@ namespace LLHttp{
         HttpRequest();
         ~HttpRequest();
 
-        /// @brief parses the http response and makes a copy of the body
-        /// @return returns 0 if successful
-        int ParseCopy(HBuffer data);
+        /// @brief Starts to parse the head portion of the http request with a copy of data.
+        /// @param data the data to steal and parse into the head
+        /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
+        HttpParseErrorCode ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept;
+
+        /// @brief Starts to parse the next body part of the request
+        /// @param data the data to steal and parse into the body
+        /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified
+        HttpParseErrorCode ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept;
 
         void SetPath(const HBuffer& path) noexcept;
         void SetPath(HBuffer&& path) noexcept;
@@ -72,11 +78,11 @@ namespace LLHttp{
 
         /// @brief Attempts to decompress the body data depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
-        int Decompress() noexcept;
+        HttpEncodingErrorCode Decompress() noexcept;
 
         /// @brief Attempts to compress data in the bodies depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
-        int Compress() noexcept;
+        HttpEncodingErrorCode Compress() noexcept;
     public:
         HBuffer HeadToBuffer() const noexcept;
 

@@ -141,7 +141,7 @@ namespace LLHttp{
                         headerValues.emplace_back(std::move(headerValueBuffer));
                         m_Headers.insert(std::make_pair(std::move(headerNameBuffer), std::move(headerValues)));
                     }else{
-                        //TODO: Set cookies map with key
+                        /// TODO: Set cookies map with key
                     }
                     
                     //Jump past \r\n
@@ -236,7 +236,7 @@ namespace LLHttp{
                     return HttpParseErrorCode::NeedsMoreData;
                 }
 
-                //TODO: Check for encoding and decode
+                /// TODO: Check for encoding and decode
                 //Gots all the body data we need
                 output = std::move(m_Join.SubString(m_At, contentLengthValue));
                 m_State = 8;
@@ -496,7 +496,7 @@ namespace LLHttp{
         SetHeader("Content-Length", std::move(HBuffer::ToString(totalSize)));
     }
     HBuffer HttpResponse::HeadToBuffer() const noexcept{
-        //TODO: different versions
+        /// TODO: different versions
         HBuffer buffer;
         buffer.Reserve(HTTP_DEFAULT_HEAD_RESPONSE_TO_BUFFER_SIZE);
 
@@ -865,10 +865,10 @@ namespace LLHttp{
 
         return std::move(bodyParts);
     }
-    int HttpResponse::Decompress() noexcept{
+    HttpEncodingErrorCode HttpResponse::Decompress() noexcept{
         HBuffer* contentEncoding = GetHeader("Content-Encoding");
 
-        if(!contentEncoding)return (int)HttpContentEncoding::Identity;
+        if(!contentEncoding)return HttpEncodingErrorCode::None;
         std::vector<HttpContentEncoding> encodings;
         size_t at = 0;
 
@@ -895,28 +895,30 @@ namespace LLHttp{
                 valid = true;
             }
 
-            if(!valid) return (int)HttpEncodingErrorCode::UnsupportedContentEncoding;
+            if(!valid) return HttpEncodingErrorCode::UnsupportedContentEncoding;
         }
         std::vector<HBuffer> newBodies;
         if(encodings.size() == 1)
-            if(encodings[0] == HttpContentEncoding::Identity)return (int)HttpEncodingErrorCode::None;
+            if(encodings[0] == HttpContentEncoding::Identity)return HttpEncodingErrorCode::None;
         
         for(int i = encodings.size(); i > 0; --i){
             HttpContentEncoding encoding = encodings[i];
             //newBodies.emplace_back(HBuffer)
-            //TODO: call a function to decode data and append to newBodies
-            for(size_t j = 0; j < m_Body.size(); j++)
+            /// TODO: call a function to decode data and append to newBodies
+            for(size_t j = 0; j < m_Body.size(); j++){
+                /// TODO: Catch unsupported encodings
                 Decoder::DecodeData(encoding, m_Body[i], newBodies);
+            }
         }
         
-        //TODO: might just clear the body and use the move constructor to reassign m_Body to newBodies
+        /// TODO: might just clear the body and use the move constructor to reassign m_Body to newBodies
         for(size_t i = 0; i < newBodies.size(); i++)
             m_Body[i].Assign(std::move(newBodies[i]));
         
-        return (int)HttpEncodingErrorCode::None;
+        return HttpEncodingErrorCode::None;
     }
 
-    int HttpResponse::Compress() noexcept{
-        return 0;
+    HttpEncodingErrorCode HttpResponse::Compress() noexcept{
+        return HttpEncodingErrorCode::None;
     }
 }

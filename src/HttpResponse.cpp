@@ -738,7 +738,7 @@ namespace LLHttp{
     }
     
 
-    HttpEncodingErrorCode BufferCopyToValidBodyPartFormat(const HBuffer& input, HBuffer& output)const noexcept{ 
+    HttpEncodingErrorCode HttpResponse::BufferCopyToValidBodyPartFormat(const HBuffer& input, HBuffer& output)const noexcept{ 
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
 
@@ -775,7 +775,7 @@ namespace LLHttp{
 
         return HttpEncodingErrorCode::UnsupportedContentEncoding;
     }
-    HttpEncodingErrorCode BufferToValidBodyPartFormat(const HBuffer& input, HBuffer& output)const noexcept{ 
+    HttpEncodingErrorCode HttpResponse::BufferToValidBodyPartFormat(const HBuffer& input, HBuffer& output)const noexcept{ 
         HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
         const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
 

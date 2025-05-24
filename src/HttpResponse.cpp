@@ -784,28 +784,28 @@ namespace LLHttp{
         HBuffer* contentEncoding = GetHeader("Content-Encoding");
 
         if(!contentEncoding)return (int)HttpContentEncoding::Identity;
-        std::vector<uint8_t> encodings;
+        std::vector<HttpContentEncoding> encodings;
         size_t at = 0;
 
         while(at < contentEncoding->GetSize()){
             bool valid = false;
             if(contentEncoding->StartsWith(at, "identity", 8)){
-                encodings.push_back((uint8_t)HttpContentEncoding::Identity);
+                encodings.push_back(HttpContentEncoding::Identity);
                 at+=8;
                 valid = true;
             }
             else if(contentEncoding->StartsWith(at, "br", 2)){
-                encodings.push_back((uint8_t)HttpContentEncoding::Brotli);
+                encodings.push_back(HttpContentEncoding::Brotli);
                 at+=2;
                 valid = true;
             }
             else if(contentEncoding->StartsWith(at, "gzip", 4)){
-                encodings.push_back((uint8_t)HttpContentEncoding::GZip);
+                encodings.push_back(HttpContentEncoding::GZip);
                 at+=4;
                 valid = true;
             }
             else if(contentEncoding->StartsWith(at, "compress", 8)){
-                encodings.push_back((uint8_t)HttpContentEncoding::Compress);
+                encodings.push_back(HttpContentEncoding::Compress);
                 at+=8;
                 valid = true;
             }
@@ -814,10 +814,10 @@ namespace LLHttp{
         }
         std::vector<HBuffer> newBodies;
         if(encodings.size() == 1)
-            if(encodings[0] == (uint8_t)HttpContentEncoding::Identity)return (int)HttpEncodingErrorCode::None;
+            if(encodings[0] == HttpContentEncoding::Identity)return (int)HttpEncodingErrorCode::None;
         
         for(int i = encodings.size(); i > 0; --i){
-            uint8_t encoding = encodings[i];
+            HttpContentEncoding encoding = encodings[i];
             //newBodies.emplace_back(HBuffer)
             //TODO: call a function to decode data and append to newBodies
             for(size_t j = 0; j < m_Body.size(); j++)

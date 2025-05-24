@@ -34,5 +34,6 @@ namespace LLHttp{
         static HttpEncodingErrorCode DecodeData(HttpContentEncoding encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept;
 
         static void ConvertToChunkedEncoding(const HBuffer&, HBuffer& output)noexcept;
+
     };
 }

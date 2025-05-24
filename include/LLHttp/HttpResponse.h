@@ -114,11 +114,11 @@ namespace LLHttp{
         std::vector<HBuffer>& GetHeaderValues(const HBuffer& name) noexcept;
         /// @brief Returns the first value inside a header if any
         /// @return returns nullptr if no values else first value
-        HBuffer* GetHeader(const char* name) noexcept;
+        HBuffer& GetHeader(const char* name) noexcept;
 
         /// @brief Returns the first value inside a header if any
         /// @return returns nullptr if no values else first value
-        HBuffer* GetHeader(const HBuffer& name) noexcept;
+        HBuffer& GetHeader(const HBuffer& name) noexcept;
 
         /// @brief Returns the last value inside a header if any
         /// @return returns nullptr if no values else first value
@@ -136,7 +136,7 @@ namespace LLHttp{
         uint16_t GetStatus() const noexcept{return m_Status;}
         HttpVersion GetVersion() const noexcept{return m_Version;}
         HttpVerb GetVerb() const noexcept{return m_Verb;}
-        std::unordered_map<HBuffer, std::vector<HBuffer>>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, std::vector<HBuffer>>&)m_Headers;}
+        std::unordered_map<HBuffer, HBuffer>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer>&)m_Headers;}
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
     public:
@@ -150,7 +150,7 @@ namespace LLHttp{
         HttpVerb m_Verb = HttpVerb::Unknown;
         /// TODO: Case insensitive
         /// @brief a map of headers. When accessed directly the keys are case insensitive. Only through the get functions will be using lowercase functions
-        std::unordered_map<HBuffer, std::vector<HBuffer>> m_Headers;
+        std::unordered_map<HBuffer, HBuffer> m_Headers;
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
         bool m_IsBodyCompressed=false;
         std::vector<HBuffer> m_Body;

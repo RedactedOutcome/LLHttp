@@ -17,6 +17,13 @@
 #endif
 
 namespace LLHttp{
+    enum class RequestState : uint8_t{
+        Unknown=0,
+        HeadersAndCookies,
+        DetectBodyType,
+        IdentityBody,
+        ChunkedBody
+    };
     class HttpRequest{
     public:
         HttpRequest();
@@ -146,7 +153,7 @@ namespace LLHttp{
         /// @brief State of what we are doing in parsing
         HttpParseErrorCode m_LastState=HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
-        uint8_t m_State=0;
+        RequestState m_State=0;
 
         /// @brief first string is the last copy of a "read" buffer if there is one. Right is a view of the new read buffer data
         HBufferJoin m_Join;

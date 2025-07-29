@@ -102,6 +102,10 @@ namespace LLHttp{
         /// @brief Returns the first value inside a header if any
         /// @return returns nullptr if no values else first value
         HBuffer* GetHeader(const HBuffer& name) noexcept;
+        
+        /// @brief Returns the first value inside a header if any
+        /// @return returns nullptr if no values else first value
+        HBuffer* GetHeader(HBuffer&& name) noexcept;
 
         /// @brief Returns the last value inside a header if any
         /// @return returns nullptr if no values else first value
@@ -122,11 +126,10 @@ namespace LLHttp{
         std::unordered_map<HBuffer, std::vector<HBuffer>>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, std::vector<HBuffer>>&)m_Headers;}
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
     private:
-        int Parse() noexcept;
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
         HBuffer m_Path;
-        std::unordered_map<HBuffer, std::vector<HBuffer>> m_Headers;
+        std::unordered_map<HBuffer, HBuffer> m_Headers;
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
         bool m_IsBodyCompressed=false;
         std::vector<HBuffer> m_Body;

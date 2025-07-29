@@ -412,11 +412,6 @@ namespace LLHttp{
         m_Body.clear();
         m_Body.emplace_back(std::move(buffer));
     }
-    void HttpResponse::SetBody(char* data, size_t size, bool canFree, bool canModify) noexcept{
-        //m_Body.Assign(data, size, canFree, canModify);
-        m_Body.clear();
-        m_Body.emplace_back(data, size, canFree, canModify);
-    }
     void HttpResponse::SetBodyReference(const char* data)noexcept{
         //m_Body.Assign((char*)data, strlen(data), false, false);
         m_Body.clear();

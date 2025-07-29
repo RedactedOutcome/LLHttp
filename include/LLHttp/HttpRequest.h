@@ -45,15 +45,15 @@ namespace LLHttp{
         void SetPath(const HBuffer& path) noexcept;
         void SetPath(HBuffer&& path) noexcept;
 
-        /// @brief sets the body to a copy of the string
-        /// @param data the string to copy
+        /// @brief copies the null terminated string passed
         void SetBodyAsCopy(const char* data) noexcept;
+        /// @brief copies the string passed
         void SetBodyAsCopy(char* data, size_t size) noexcept;
+        /// @brief copies the buffer
         void SetBodyAsCopy(const HBuffer& buffer)noexcept;
 
         void SetBody(HBuffer&& buffer)noexcept;
-        void SetBody(char* data, size_t size, bool canFree, bool canModify) noexcept;
-
+        
         /// @brief Assigns the body to a Non owning/modifying HBuffer with data
         void SetBodyReference(const char* data)noexcept;
         /// @brief Assigns the body to a Non owning/modifying HBuffer with data and size
@@ -100,27 +100,9 @@ namespace LLHttp{
         //TODO: maybe have one that just force copies ect. Not sure but think about this in the future
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
     public:
-        std::vector<HBuffer>& GetHeaderValues(const char* name) noexcept;
-        std::vector<HBuffer>& GetHeaderValues(const HBuffer& name) noexcept;
-        /// @brief Returns the first value inside a header if any
-        /// @return returns nullptr if no values else first value
-        HBuffer* GetHeader(const char* name) noexcept;
-
-        /// @brief Returns the first value inside a header if any
-        /// @return returns nullptr if no values else first value
-        HBuffer* GetHeader(const HBuffer& name) noexcept;
-        
-        /// @brief Returns the first value inside a header if any
-        /// @return returns nullptr if no values else first value
-        HBuffer* GetHeader(HBuffer&& name) noexcept;
-
-        /// @brief Returns the last value inside a header if any
-        /// @return returns nullptr if no values else first value
-        HBuffer* GetHeaderLastValue(const char* name) noexcept;
-        
-        /// @brief Returns the last value inside a header if any
-        /// @return returns nullptr if no values else first value
-        HBuffer* GetHeaderLastValue(const HBuffer& name) noexcept;
+        HBuffer& GetHeader(const char* name) noexcept;
+        HBuffer& GetHeader(const HBuffer& name) noexcept;
+        HBuffer& GetHeader(HBuffer&& name) noexcept;
     public:
         std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
         std::shared_ptr<Cookie> GetCookie(const HBuffer& name) noexcept;
@@ -153,7 +135,7 @@ namespace LLHttp{
         /// @brief State of what we are doing in parsing
         HttpParseErrorCode m_LastState=HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
-        RequestState m_State=0;
+        RequestReadState m_State=RequestReadState::Unknown;
 
         /// @brief first string is the last copy of a "read" buffer if there is one. Right is a view of the new read buffer data
         HBufferJoin m_Join;

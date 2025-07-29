@@ -50,9 +50,8 @@ namespace LLHttp{
         void SetBodyAsCopy(const char* data)noexcept;
         void SetBodyAsCopy(char* data, size_t size)noexcept;
         void SetBodyAsCopy(const HBuffer& buffer)noexcept;
-
+        
         void SetBody(HBuffer&& buffer)noexcept;
-        void SetBody(char* data, size_t size, bool canFree, bool canModify) noexcept;
 
         /// @brief Sets the body as a pointer to existing data. Will not free data
         /// @param data the string to point to
@@ -119,23 +118,9 @@ namespace LLHttp{
         /// @param addEndChunk decides if a null chunk is appended for chunked transfer encoding.
         std::vector<HBuffer> BuffersToValidBodyFormat(std::vector<HBuffer>& buffers, bool addEndChunk=true)noexcept;
     public:
-        std::vector<HBuffer>& GetHeaderValues(const char* name) noexcept;
-        std::vector<HBuffer>& GetHeaderValues(const HBuffer& name) noexcept;
-        /// @brief Returns the first value inside a header if any
-        /// @return returns nullptr if no values else first value
         HBuffer& GetHeader(const char* name) noexcept;
-
-        /// @brief Returns the first value inside a header if any
-        /// @return returns nullptr if no values else first value
         HBuffer& GetHeader(const HBuffer& name) noexcept;
-
-        /// @brief Returns the last value inside a header if any
-        /// @return returns nullptr if no values else first value
-        HBuffer* GetHeaderLastValue(const char* name) noexcept;
-
-        /// @brief Returns the last value inside a header if any
-        /// @return returns nullptr if no values else first value
-        HBuffer* GetHeaderLastValue(const HBuffer& name) noexcept;
+        HBuffer& GetHeader(HBuffer&& name) noexcept;
     public:
         std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
         
@@ -148,7 +133,7 @@ namespace LLHttp{
     public:
         /// @brief returns the current position in the joined buffer that we are using to pase data for the current state
         int32_t GetCurrentAt() const noexcept{return m_At;}
-        uint8_t GetState() const noexcept{return m_State;}
+        ResponseReadState GetState() const noexcept{return m_State;}
         const HBufferJoin& GetBufferJoin() const noexcept{return m_Join;}
     private:
         uint16_t m_Status = 0;
@@ -166,7 +151,7 @@ namespace LLHttp{
         /// @brief State of last parse. Wether it was a success, needed data, or an error
         HttpParseErrorCode m_LastState = HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
-        ResponseReadState m_State=0;
+        ResponseReadState m_State=ResponseReadState::Unknown;
 
         /// @brief first string is the last copy of a "read" buffer if there is one. Right is a view of the new read buffer data
         HBufferJoin m_Join;

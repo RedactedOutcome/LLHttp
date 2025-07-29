@@ -31,7 +31,10 @@ namespace LLHttp{
         /// @param data the data to steal and parse into the body
         /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified
         HttpParseErrorCode ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept;
-
+    
+        HttpParseErrorCode ParseHead(uint32_t* finishedAt) noexcept;
+        HttpParseErrorCode ParseBody(HBuffer& output, uint32_t* finishedAt) noexcept;
+    public:
         void SetPath(const HBuffer& path) noexcept;
         void SetPath(HBuffer&& path) noexcept;
 
@@ -138,7 +141,7 @@ namespace LLHttp{
         */
 
         /// @brief State of what we are doing in parsing
-        int m_LastState=(int)HttpParseErrorCode::NeedsMoreData;
+        HttpParseErrorCode m_LastState=HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
         uint8_t m_State=0;
 

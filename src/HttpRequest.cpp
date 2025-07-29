@@ -318,48 +318,124 @@ namespace LLHttp{
         }
         return (int)HttpParseErrorCode::NeedsMoreData;
     }
-    int HttpRequest::ParseCopy(HBuffer data){
-        HBuffer* buff = &m_Join.GetBuffer1();
-        size_t buffSize = buff->GetSize();
-        /*
-        if(m_At >= buffSize){
-            ///Very Rare case. Might just remove
-            //No Need to consume data just move data from second to first and chance at position
-            m_At -= buffSize;
-            HBuffer* buff2 = &m_Join.GetBuffer2();
-            buff->Assign(std::move(*buff2));
-            if(buff->GetSize() > 0)
-                buff = buff2;
-            buff->Assign(std::move(data));
-        }else{
-            buff->Consume(m_At, m_Join.GetBuffer2());
-            // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
-            if(buffSize > 0)
-                buff = &m_Join.GetBuffer2();
-            buff->Assign(data);
-            m_At = 0;
-        }*/
-       
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        // Check if first join has data and if so move it to second. this is incase we attempt to parse nothing burgers multiple times
-        if(buffSize > 0)
-            buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
-        m_At = 0;
-
-        if(m_LastState != (int)HttpParseErrorCode::NeedsMoreData)return m_LastState;
-        m_LastState = Parse(); 
-        return m_LastState;
-        /*
+    HttpParseErrorCode HttpRequest::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt){
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
+        buff->Assign(std::move(data));
+        /// TODO: fix potential bugs with reassigning m_At
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
-        if(m_LastState < 0)return m_LastState;
-        m_LastState = Parse(); 
-        return m_LastState;*/
+        HttpParseErrorCode error = ParseHead(finishedAt);
+        m_LastState = error;
+        *finishedAt = m_At;
+        return error;
+    }
+    HttpParseErrorCode HttpRequest::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept{
+        HBuffer* buff = &m_Join.GetBuffer1();
+        buff->Consume(m_At, m_Join.GetBuffer2());
+        if(buff->GetSize() > 0)
+            buff = &m_Join.GetBuffer2();
+        buff->Assign(std::move(data));
+        /// TODO: fix potential bugs with reassigning m_At
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        m_At = 0;
+
+        HttpParseErrorCode error = ParseBody(output, finishedAt);
+        m_LastState = error;
+        *finishedAt = m_At;
+        return error;
+    }
+
+    HttpParseErrorCode HttpRequest::ParseHead(uint32_t* finishedAt)noexcept{
+        switch(m_Version){
+        case HttpVersion::HTTP0_9:
+        case HttpVersion::HTTP1_0:
+        case HttpVersion::HTTP1_1:{
+            /// TODO : headers/cookies
+            break;
+        }
+        default:
+            /// @brief Detect Http Version
+            /// TODO: Support http 2.2/3
+            if(m_Join.StartsWith(m_At, "GET ", 4)){
+                m_Verb = HttpVerb::Get;
+                m_At+=4;
+            }
+            else if(m_Join.StartsWith(m_At, "POST ", 5)){
+                m_Verb = HttpVerb::Post;
+                m_At += 5;
+            }
+            else if(m_Join.StartsWith(m_At, "CONNECT ", 8)){
+                m_Verb = HttpVerb::Connect;
+                m_At += 9;
+            }
+            else if(m_Join.StartsWith(m_At, "DELETE ", 7)){
+                m_Verb = HttpVerb::Delete;
+                m_At += 7;
+            }
+            else if(m_Join.StartsWith(m_At, "PUT ", 4)){
+                m_Verb = HttpVerb::Put;
+                m_At += 4;
+            }
+            else if(m_Join.StartsWith(m_At, "TRACE ", 6)){
+                m_Verb = HttpVerb::Trace;
+                m_At += 6;
+            }
+            else if(m_Join.StartsWith(m_At, "PATCH ", 6)){
+                m_Verb = HttpVerb::Patch;
+                m_At += 6;
+            }
+            else if(m_Join.StartsWith(m_At, "OPTIONS ", 8)){
+                m_Verb = HttpVerb::Options;
+                m_At += 8;
+            }
+            else if(m_Join.StartsWith(m_At, "HEAD ", 5)){
+                m_Verb = HttpVerb::Head;
+                m_At += 5;
+            }
+            else{
+                /// TODO: Check for different HTTP Protocol
+                m_Verb = HttpVerb::Unknown;
+                return HttpParseErrorCode::UnsupportedHttpProtocol;
+            }
+
+            /// HTTP 0.9 or HTTP 1.X
+            bool valid = false;
+            size_t i;
+            
+            for(i = m_At; i < m_Join.GetSize(); i++){
+                if(m_Join.At(i) == ' '){
+                    valid = true;
+                    break;
+                }
+            }
+
+            if(!valid)
+                return HttpParseErrorCode::NeedsMoreData;
+            m_Path = m_Join.SubString(m_At, i - m_At);
+            m_At = i + 1;
+
+            /// Specific Version Parsing
+            if(m_Join.StartsWith(m_At, "HTTP/0.9", 8)){
+                m_Version = HttpVersion::HTTP0_9;
+                m_At += 8;
+            }
+            else if(m_Join.StartsWith(m_At, "HTTP/1.0", 8)){
+                m_Version = HttpVersion::HTTP1_0;
+                m_At += 8;
+            }
+            else if(m_Join.StartsWith(m_At, "HTTP/1.1", 8)){
+                m_Version = HttpVersion::HTTP1_1;
+                m_At += 8;
+            }
+            else{
+                return HttpParseErrorCode::UnsupportedHttpProtocol;
+            }
+
+            return ParseHead(finishedAt);
+        }
     }
     void HttpRequest::SetBodyAsCopy(const char* data)noexcept{
         size_t strLen = strlen(data);

@@ -22,12 +22,12 @@ namespace LLHttp{
         m_Body.clear();
         m_Join.Free();
         m_LastState = HttpParseErrorCode::NeedsMoreData;
-        m_State = 0;
+        m_State = ResponseReadState::Unknown;
         m_At = 0;
     }
 
     void HttpResponse::PrepareBodyRead() noexcept{
-        m_State = 2;
+        m_State = ResponseReadState::DetectBodyType;
         m_At = 0;
         m_Join.Free();
         m_LastState = HttpParseErrorCode::NeedsMoreData;
@@ -69,7 +69,7 @@ namespace LLHttp{
             case HttpVersion::HTTP1_0:
             case HttpVersion::HTTP1_1:
             switch(m_State){
-            case 1:
+            case RequestReadState::ReadingHeadersAndCookies:
                 //Get Headers
                 while(true){
                     size_t startAt = m_At;
@@ -704,20 +704,13 @@ namespace LLHttp{
 
         //Headers
         for (const auto &myPair : m_Headers) {
-            if(myPair.first.GetSize() < 1 || myPair.second.size() < 1)continue;
-            buffer.Append(myPair.first.GetCStr());
+            const HBuffer& headerName = myPair.first;
+            const HBuffer& headerValue = myPair.second;
+            if(headerName.GetSize() < 1 || headerValue.GetSize() < 1)continue;
+
+            buffer.Append(headerName);
             buffer.Append(": ", 2);
-
-            const std::vector<HBuffer>& headerValues = myPair.second;
-            buffer.Append(headerValues[0].GetCStr());
-
-            if(headerValues.size() > 1){
-                buffer.Append("; ", 2);
-                for(size_t i = 1; i < headerValues.size(); i++){
-                    buffer.Append(headerValues[i].GetCStr());
-                    buffer.Append("; ", 2);
-                }
-            }
+            buffer.Append(headerValue);
             buffer.Append("\r\n", 2);
         }
 

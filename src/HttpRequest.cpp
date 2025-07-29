@@ -14,7 +14,7 @@ namespace LLHttp{
     void HttpRequest::PrepareRead(){
         m_Version = HttpVersion::Unsupported;
         m_LastState = HttpParseErrorCode::NeedsMoreData;
-        m_State = RequestState::Unknown;
+        m_State = RequestReadState::Unknown;
         m_At = 0;
         m_MidwayParsing = false;
         m_Body.clear();
@@ -34,7 +34,7 @@ namespace LLHttp{
         m_Body.clear();
         m_MidwayParsing = false;
     }
-    
+
     HttpParseErrorCode HttpRequest::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt){
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
@@ -72,7 +72,7 @@ namespace LLHttp{
         case HttpVersion::HTTP1_1:{
             /// TODO : headers/cookies
             switch(m_State){
-            case ((uint8_t)RequestState::HeadersAndCookies):
+            case ((uint8_t)RequestReadState::HeadersAndCookies):
                 //Headers
                 while(true){
                     size_t wasAt =m_At;
@@ -148,7 +148,7 @@ namespace LLHttp{
                         break;
                     }
                 }
-                m_State = RequestState::Body;
+                m_State = RequestReadState::Body;
                 return HttpParseErrorCode::None;
             default:{
                 return HttpParseErrorCode::InvalidState;
@@ -232,25 +232,25 @@ namespace LLHttp{
                 return HttpParseErrorCode::UnsupportedHttpProtocol;
             }
             m_At += 10;
-            m_State = RequestState::Body;
+            m_State = RequestReadState::Body;
             return ParseHead(finishedAt);
         }
     }
     HttpParseErrorCode HttpRequest::ParseBody(HBuffer& output, uint32_t* finishedAt)noexcept{
         switch(m_State){
-            case RequestState::DetectBodyType:{
+            case RequestReadState::DetectBodyType:{
                 //Get ransfer encoding
                 HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
                 if(transferEncoding == nullptr || *transferEncoding == "" || *transferEncoding == "identity"){
-                    m_State = RequestState::IdentityBody;
+                    m_State = RequestReadState::IdentityBody;
                 }else if(*transferEncoding == "chunked"){
-                    m_State = RequestState::ChunkedBody;
+                    m_State = RequestReadState::ChunkedBody;
                 }else{
-                    return (int)HttpParseErrorCode::UnsupportedTransferEncoding;
+                    return HttpParseErrorCode::UnsupportedTransferEncoding;
                 }
                 return ParseBody(output, finishedAt);
             }
-            case RequestState::IdentityBody:{//Get the body from no transfer encoding
+            case RequestReadState::IdentityBody:{//Get the body from no transfer encoding
                 HBuffer* contentLength = GetHeader("Content-Length");
 
                 if(contentLength == nullptr)return HttpParseErrorCode::None;
@@ -261,7 +261,7 @@ namespace LLHttp{
                 m_Body.emplace_back(std::move(m_Join.SubString(m_At, size)));
                 return HttpParseErrorCode::None;
             }
-            case RequestState::ChunkedBody:{//Get body from chunked transfer encoding
+            case RequestReadState::ChunkedBody:{//Get body from chunked transfer encoding
                 size_t before = m_At;
                 uint8_t state = 0;
 

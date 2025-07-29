@@ -17,6 +17,11 @@
 #define HTTP_DEFAULT_HEAD_RESPONSE_TO_BUFFER_SIZE 32000
 #endif
 namespace LLHttp{
+    enum class ResponseReadState : uint8_t{
+        Unknown,
+        ReadingHeadersAndCookies,
+        DetectBodyType,
+    };
     class HttpResponse{
     public:
         HttpResponse();
@@ -161,7 +166,7 @@ namespace LLHttp{
         /// @brief State of last parse. Wether it was a success, needed data, or an error
         HttpParseErrorCode m_LastState = HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
-        uint8_t m_State=0;
+        ResponseReadState m_State=0;
 
         /// @brief first string is the last copy of a "read" buffer if there is one. Right is a view of the new read buffer data
         HBufferJoin m_Join;

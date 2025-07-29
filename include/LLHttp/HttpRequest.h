@@ -17,7 +17,7 @@
 #endif
 
 namespace LLHttp{
-    enum class RequestState : uint8_t{
+    enum class RequestReadState : uint8_t{
         Unknown=0,
         HeadersAndCookies,
         DetectBodyType,

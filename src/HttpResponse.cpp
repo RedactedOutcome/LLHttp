@@ -226,9 +226,9 @@ namespace LLHttp{
             }
             case 3:{
                 //Get Body from no encoding with Content-Length
-                HBuffer* contentLength = GetHeader("Content-Length");
-                if(contentLength == nullptr)return HttpParseErrorCode::NoMoreBodies;
-                size_t contentLengthValue = std::atoi(contentLength[0].GetCStr());
+                HBuffer& contentLength = GetHeader("Content-Length");
+                if(contentLength == "")return HttpParseErrorCode::NoMoreBodies;
+                size_t contentLengthValue = std::atoi(contentLength.GetCStr());
                 if(contentLengthValue < 1){
                     return HttpParseErrorCode::NoMoreBodies;
                 }
@@ -369,26 +369,6 @@ namespace LLHttp{
     }
     HBuffer& HttpResponse::GetHeader(HBuffer&& name) noexcept{
         return m_Headers[std::move(name)];
-    }
-    HBuffer* HttpResponse::GetHeader(const char* name) noexcept{
-        std::vector<HBuffer>& value = m_Headers[name];
-        if(value.size() < 1)return nullptr;
-        return &value[0];
-    }
-    HBuffer* HttpResponse::GetHeader(const HBuffer& name) noexcept{
-        std::vector<HBuffer>& value = m_Headers[name];
-        if(value.size() < 1)return nullptr;
-        return &value[0];
-    }
-    HBuffer* HttpResponse::GetHeaderLastValue(const char* name) noexcept{
-        std::vector<HBuffer>& value = m_Headers[name];
-        if(value.size() < 1)return nullptr;
-        return &value[value.size() - 1];
-    }
-    HBuffer* HttpResponse::GetHeaderLastValue(const HBuffer& name) noexcept{
-        std::vector<HBuffer>& value = m_Headers[name];
-        if(value.size() < 1)return nullptr;
-        return &value[value.size() - 1];
     }
     void HttpResponse::SetBodyAsCopy(const char* data)noexcept{
         size_t strLen = strlen(data);
@@ -730,14 +710,15 @@ namespace LLHttp{
     
 
     HttpEncodingErrorCode HttpResponse::BufferCopyToValidBodyPartFormat(const HBuffer& input, HBuffer& output) noexcept{ 
-        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
-
-        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
+        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+        //const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
+        const char* transferEncodingString = transferEncoding.GetCStr();
+        
+        if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             output = input.CreateCopy();
             return HttpEncodingErrorCode::None;
         }
-        else if(*transferEncoding == "chunked"){
+        else if(transferEncoding == "chunked"){
             size_t partSize = input.GetSize();
 
             HBuffer string;
@@ -767,14 +748,14 @@ namespace LLHttp{
         return HttpEncodingErrorCode::UnsupportedContentEncoding;
     }
     HttpEncodingErrorCode HttpResponse::BufferToValidBodyPartFormat(const HBuffer& input, HBuffer& output) noexcept{ 
-        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
+        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+        const char* transferEncodingString = transferEncoding.GetCStr();
 
-        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
+        if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             output = input;
             return HttpEncodingErrorCode::None;
         }
-        else if(*transferEncoding == "chunked"){
+        else if(transferEncoding == "chunked"){
             size_t partSize = input.GetSize();
 
             HBuffer string;
@@ -807,17 +788,17 @@ namespace LLHttp{
     std::vector<HBuffer> HttpResponse::BuffersToValidBodyFormat(std::vector<HBuffer>& buffers, bool addEndChunk)noexcept{
         std::vector<HBuffer> bodyParts;
 
-        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
+        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+        const char* transferEncodingString = transferEncoding.GetCStr();
 
-        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
+        if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             for(size_t i = 0; i < buffers.size(); i++){
                 HBuffer part;
                 part.Copy(buffers[i]);
                 bodyParts.emplace_back(std::move(part));
             }
             //CORE_DEBUG("Done");
-        }else if(*transferEncoding == "chunked"){
+        }else if(transferEncoding == "chunked"){
             for(size_t i = 0; i < buffers.size(); i++){
                 
                 const HBuffer& bodyPart = buffers[i];
@@ -857,30 +838,30 @@ namespace LLHttp{
         return std::move(bodyParts);
     }
     HttpEncodingErrorCode HttpResponse::Decompress() noexcept{
-        HBuffer* contentEncoding = GetHeader("Content-Encoding");
+        HBuffer& contentEncoding = GetHeader("Content-Encoding");
 
         if(!contentEncoding)return HttpEncodingErrorCode::None;
         std::vector<HttpContentEncoding> encodings;
         size_t at = 0;
 
-        while(at < contentEncoding->GetSize()){
+        while(at < contentEncoding.GetSize()){
             bool valid = false;
             if(contentEncoding->StartsWith(at, "identity", 8)){
                 encodings.push_back(HttpContentEncoding::Identity);
                 at+=8;
                 valid = true;
             }
-            else if(contentEncoding->StartsWith(at, "br", 2)){
+            else if(contentEncoding.StartsWith(at, "br", 2)){
                 encodings.push_back(HttpContentEncoding::Brotli);
                 at+=2;
                 valid = true;
             }
-            else if(contentEncoding->StartsWith(at, "gzip", 4)){
+            else if(contentEncoding.StartsWith(at, "gzip", 4)){
                 encodings.push_back(HttpContentEncoding::GZip);
                 at+=4;
                 valid = true;
             }
-            else if(contentEncoding->StartsWith(at, "compress", 8)){
+            else if(contentEncoding.StartsWith(at, "compress", 8)){
                 encodings.push_back(HttpContentEncoding::Compress);
                 at+=8;
                 valid = true;

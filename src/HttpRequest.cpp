@@ -240,10 +240,10 @@ namespace LLHttp{
         switch(m_State){
             case RequestReadState::DetectBodyType:{
                 //Get ransfer encoding
-                HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-                if(transferEncoding == nullptr || *transferEncoding == "" || *transferEncoding == "identity"){
+                HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+                if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
                     m_State = RequestReadState::IdentityBody;
-                }else if(*transferEncoding == "chunked"){
+                }else if(transferEncoding == "chunked"){
                     m_State = RequestReadState::ChunkedBody;
                 }else{
                     return HttpParseErrorCode::UnsupportedTransferEncoding;
@@ -251,11 +251,11 @@ namespace LLHttp{
                 return ParseBody(output, finishedAt);
             }
             case RequestReadState::IdentityBody:{//Get the body from no transfer encoding
-                HBuffer* contentLength = GetHeader("Content-Length");
+                HBuffer& contentLength = GetHeader("Content-Length");
 
-                if(contentLength == nullptr)return HttpParseErrorCode::None;
+                if(!contentLength)return HttpParseErrorCode::None;
 
-                size_t size = atoi(contentLength->GetCStr());
+                size_t size = atoi(contentLength.GetData());
                 if(m_Join.GetSize() - m_At < size)return HttpParseErrorCode::NeedsMoreData;
 
                 m_Body.emplace_back(std::move(m_Join.SubString(m_At, size)));
@@ -433,16 +433,7 @@ namespace LLHttp{
     HBuffer& HttpRequest::GetHeader(HBuffer&& name) noexcept{
         return m_Headers[std::move(name)];
     }
-    HBuffer* HttpRequest::GetHeader(const char* name) noexcept{
-        std::vector<HBuffer>& value = m_Headers[name];
-        if(value.size() < 1)return nullptr;
-        return &value[0];
-    }
-    HBuffer* HttpRequest::GetHeader(const HBuffer& name) noexcept{
-        std::vector<HBuffer>& value = m_Headers[name];
-        if(value.size() < 1)return nullptr;
-        return &value[0];
-    }
+    
     std::shared_ptr<Cookie> HttpRequest::GetCookie(const char* name) noexcept{
         return m_Cookies[name];
     }

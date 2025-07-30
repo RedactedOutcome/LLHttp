@@ -20,7 +20,7 @@ namespace LLHttp{
     enum class ResponseReadState : uint8_t{
         /// @brief Unknown is the state of detecting the current Http protocol.
         Unknown,
-        ReadingHeadersAndCookies,
+        HeadersAndCookies,
         DetectBodyType,
         IdentityBody,
         ChunkedBody,

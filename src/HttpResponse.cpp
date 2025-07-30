@@ -69,7 +69,7 @@ namespace LLHttp{
             case HttpVersion::HTTP1_0:
             case HttpVersion::HTTP1_1:
             switch(m_State){
-            case RequestReadState::ReadingHeadersAndCookies:
+            case ResponseReadState::HeadersAndCookies:
                 //Get Headers
                 while(true){
                     size_t startAt = m_At;
@@ -185,7 +185,7 @@ namespace LLHttp{
                     m_At++;
                 }
                 m_At+=2;
-                m_State = ResponseReadState::ReadingHeadersAndCookies;
+                m_State = ResponseReadState::HeadersAndCookies;
                 m_Version = http1_1 ? HttpVersion::HTTP1_1 : HttpVersion::HTTP1_0;
                 return ParseHead(finishedAt);
             }

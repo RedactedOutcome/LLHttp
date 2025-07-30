@@ -139,7 +139,7 @@ namespace LLHttp{
 
                     if(strcmp(headerName, "Set-Cookie") != 0){
                         headerValues.emplace_back(std::move(headerValueBuffer));
-                        m_Headers.insert(std::make_pair(std::move(headerNameBuffer), std::move(headerValues)));
+                        m_Headers.insert(std::make_pair(std::move(headerNameBuffer), std::move(headerValueBuffer)));
                     }else{
                         /// TODO: Set cookies map with key
                     }
@@ -159,7 +159,7 @@ namespace LLHttp{
             }
         }
         switch(m_State){
-        case 0:{
+        case ResponseReadState::Unknown:{
             //Get State
             if(m_Join.GetSize() < 15)return HttpParseErrorCode::NeedsMoreData;
             bool http1_0 = m_Join.StartsWith("HTTP/1.0", 8);
@@ -185,7 +185,7 @@ namespace LLHttp{
                     m_At++;
                 }
                 m_At+=2;
-                m_State = 1;
+                m_State = ResponseReadState::ReadingHeadersAndCookies;
                 m_Version = http1_1 ? HttpVersion::HTTP1_1 : HttpVersion::HTTP1_0;
                 return ParseHead(finishedAt);
             }
@@ -200,31 +200,31 @@ namespace LLHttp{
             case HttpVersion::HTTP1_0:
             case HttpVersion::HTTP1_1:
             switch(m_State){
-            case 2:{
+            case ResponseReadState::DetectBodyType:{
                 //Detect Transfer Mode
-                HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+                HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
                 //Rest wont be evaluated since after the first it will just jump to true
-                if(transferEncoding == nullptr || *transferEncoding == "" || *transferEncoding == "identity"){
-                    m_State = 3;
+                if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
+                    m_State = ResponseReadState::IdentityBody;
                 }
-                else if(*transferEncoding == "chunked"){
-                    m_State = 4;
+                else if(transferEncoding == "chunked"){
+                    m_State = ResponseReadState::ChunkedBody;
                 }
-                else if(*transferEncoding == "gzip" || *transferEncoding == "x-gzip"){
-                    m_State = 5;
+                else if(transferEncoding == "gzip" || transferEncoding == "x-gzip"){
+                    m_State = ResponseReadState::GZipBody;
                 }
-                else if(*transferEncoding == "compress"){
-                    m_State = 6;
+                else if(transferEncoding == "compress"){
+                    m_State = ResponseReadState::CompressBody;
                 }
-                else if(*transferEncoding == "deflate"){
-                    m_State = 7;
+                else if(transferEncoding == "deflate"){
+                    m_State = ResponseReadState::DeflateBody;
                 }
                 else{
                     return HttpParseErrorCode::UnsupportedTransferEncoding;
                 }
                 return ParseBody(output, finishedAt);
             }
-            case 3:{
+            case ResponseReadState::IdentityBody:{
                 //Get Body from no encoding with Content-Length
                 HBuffer& contentLength = GetHeader("Content-Length");
                 if(contentLength == "")return HttpParseErrorCode::NoMoreBodies;
@@ -239,13 +239,12 @@ namespace LLHttp{
                 /// TODO: Check for encoding and decode
                 //Gots all the body data we need
                 output = std::move(m_Join.SubString(m_At, contentLengthValue));
-                m_State = 8;
+                m_State = ResponseReadState::Finished;
                 *finishedAt = m_At;
                 return HttpParseErrorCode::None;
             }
-            case 4:{
+            case ResponseReadState::ChunkedBody:{
                 //Transfer Chunked Encoding
-                std::cout << "M_At " << m_At<<std::endl;
                 size_t before = m_At;
                 uint8_t state = 0;
 
@@ -279,8 +278,6 @@ namespace LLHttp{
                         c-=87;
                     else{
                         //INVALID CHARACTER;
-                        std::cout << "Invalid character : " << (size_t)c << " char " << c<<std::endl;
-                        std::cout << "Join First 10 are " << m_Join.SubString(0, 10).GetCStr()<<std::endl;
                         return HttpParseErrorCode::InvalidChunkSize;
                     }
                     bytes <<=4;
@@ -289,7 +286,7 @@ namespace LLHttp{
                 }
                 if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false)return HttpParseErrorCode::NeedsMoreData;
                 if(bytes < 1){
-                    m_State = 8;
+                    m_State = ResponseReadState::Finished;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
                 output = std::move(m_Join.SubBuffer(m_At, bytes));
@@ -297,20 +294,20 @@ namespace LLHttp{
                 *finishedAt = m_At;
                 return HttpParseErrorCode::None;
             }
-            case 5:{
+            case ResponseReadState::GZipBody:{
                 //GZIP
                 //CORE_ERROR("Getting GZIP Transfer encoding");
                 
             }
-            case 6:{
+            case ResponseReadState::CompressBody:{
                 //Compress
                 //CORE_ERROR("Getting Compress Transfer encoding");
             }
-            case 7:{
+            case ResponseReadState::DeflateBody:{
                 //Deflate
                 //CORE_ERROR("Getting Deflate Transfer encoding");
             }
-            case 8:{
+            case ResponseReadState::Finished:{
                 return HttpParseErrorCode::NoMoreBodies;
             }
             default:

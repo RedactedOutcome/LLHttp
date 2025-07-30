@@ -450,35 +450,35 @@ namespace LLHttp{
         case HttpVersion::HTTP1_0:
         case HttpVersion::HTTP1_1:{
             switch(m_Verb){
-            case (int)HttpVerb::Get:{
+            case HttpVerb::Get:{
                 buffer.Append("GET ", 4);
                 break;
             }
-            case (int)HttpVerb::Patch:{
+            case HttpVerb::Patch:{
                 buffer.Append("PATCH ", 6);
                 break;
             }
-            case (int)HttpVerb::Post:{
+            case HttpVerb::Post:{
                 buffer.Append("POST ", 5);
                 break;
             }
-            case (int)HttpVerb::Head:{
+            case HttpVerb::Head:{
                 buffer.Append("HEAD ", 5);
                 break;
             }
-            case (int)HttpVerb::Delete:{
+            case HttpVerb::Delete:{
                 buffer.Append("DELETE ", 7);
                 break;
             }
-            case (int)HttpVerb::Connect:{
+            case HttpVerb::Connect:{
                 buffer.Append("CONNECT ", 8);
                 break;
             }
-            case (int)HttpVerb::Trace:{
+            case HttpVerb::Trace:{
                 buffer.Append("TRACE ",6 );
                 break;
             }
-            case (int)HttpVerb::Options:{
+            case HttpVerb::Options:{
                 buffer.Append("OPTIONS ", 8);
                 break;
             }
@@ -495,15 +495,14 @@ namespace LLHttp{
 
             //Headers
             for (const auto &myPair : m_Headers) {
-                if(myPair.first.GetSize() < 1 || myPair.second.size() < 1)continue;
-                buffer.Append(myPair.first.GetCStr());
-                buffer.Append(": ", 2);
+                const std::vector<HBuffer>& headerName = myPair.first;
+                const std::vector<HBuffer>& headerValue = myPair.second;
 
-                const std::vector<HBuffer>& headerValues = myPair.second;
-                for(size_t i = 0; i < headerValues.size(); i++){
-                    buffer.Append(headerValues[i].GetCStr());
-                    buffer.Append("\r\n", 2);
-                }
+                if(headerName.GetSize() < 1 || headerValue.GetSize() < 1)continue;
+                buffer.Append(headerName.GetCStr());
+                buffer.Append(": ", 2);
+                buffer.Append(headerValue.GetCStr());
+                buffer.Append("\r\n", 2);
             }
 
             //Cookies
@@ -547,15 +546,15 @@ namespace LLHttp{
     std::vector<HBuffer> HttpRequest::GetBodyPartsCopy() noexcept{
         std::vector<HBuffer> bodyParts;
         
-        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
         
-        if(!transferEncoding || *transferEncoding == "" || *transferEncoding == "identity"){
+        if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 HBuffer part;
                 part.Copy(m_Body[i]);
                 bodyParts.emplace_back(std::move(part));
             }
-        }else if(*transferEncoding == "chunked"){
+        }else if(transferEncoding == "chunked"){
             for(size_t i = 0; i < m_Body.size(); i++){
                 const HBuffer& bodyPart = m_Body[i];
 

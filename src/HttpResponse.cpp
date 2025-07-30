@@ -827,7 +827,7 @@ namespace LLHttp{
 
         while(at < contentEncoding.GetSize()){
             bool valid = false;
-            if(contentEncoding->StartsWith(at, "identity", 8)){
+            if(contentEncoding.StartsWith(at, "identity", 8)){
                 encodings.push_back(HttpContentEncoding::Identity);
                 at+=8;
                 valid = true;

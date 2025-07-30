@@ -339,11 +339,6 @@ namespace LLHttp{
         m_Body.clear();
         m_Body.emplace_back(std::move(buffer));
     }
-    void HttpRequest::SetBody(char* data, size_t size, bool canFree, bool canModify) noexcept{
-        //m_Body.Assign(data, size, canFree, canModify);
-        m_Body.clear();
-        m_Body.emplace_back(data, size, canFree, canModify);
-    }
     void HttpRequest::SetBodyReference(const char* data)noexcept{
         //m_Body.Assign((char*)data, strlen(data), false, false);
         m_Body.clear();
@@ -433,7 +428,7 @@ namespace LLHttp{
     HBuffer& HttpRequest::GetHeader(HBuffer&& name) noexcept{
         return m_Headers[std::move(name)];
     }
-    
+
     std::shared_ptr<Cookie> HttpRequest::GetCookie(const char* name) noexcept{
         return m_Cookies[name];
     }

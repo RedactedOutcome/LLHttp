@@ -148,7 +148,7 @@ namespace LLHttp{
                         break;
                     }
                 }
-                m_State = RequestReadState::Body;
+                m_State = RequestReadState::DetectBodyType;
                 return HttpParseErrorCode::None;
             default:{
                 return HttpParseErrorCode::InvalidState;
@@ -424,11 +424,14 @@ namespace LLHttp{
         m_Cookies[name] = cookie;
     }
 
-    std::vector<HBuffer>& HttpRequest::GetHeaderValues(const char* name) noexcept{
+    HBuffer& HttpRequest::GetHeader(const char* name) noexcept{
         return m_Headers[name];
     }
-    std::vector<HBuffer>& HttpRequest::GetHeaderValues(const HBuffer& name) noexcept{
+    HBuffer& HttpRequest::GetHeader(const HBuffer& name) noexcept{
         return m_Headers[name];
+    }
+    HBuffer& HttpRequest::GetHeader(HBuffer&& name) noexcept{
+        return m_Headers[std::move(name)];
     }
     HBuffer* HttpRequest::GetHeader(const char* name) noexcept{
         std::vector<HBuffer>& value = m_Headers[name];

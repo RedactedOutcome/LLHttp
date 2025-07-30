@@ -361,11 +361,14 @@ namespace LLHttp{
     void HttpResponse::RemoveHeader(const HBuffer& header)noexcept{
         m_Headers.erase(header);
     }
-    std::vector<HBuffer>& HttpResponse::GetHeaderValues(const char* name) noexcept{
+    HBuffer& HttpResponse::GetHeader(const char* name) noexcept{
         return m_Headers[name];
     }
-    std::vector<HBuffer>& HttpResponse::GetHeaderValues(const HBuffer& name) noexcept{
+    HBuffer& HttpResponse::GetHeader(const HBuffer& name) noexcept{
         return m_Headers[name];
+    }
+    HBuffer& HttpResponse::GetHeader(HBuffer&& name) noexcept{
+        return m_Headers[std::move(name)];
     }
     HBuffer* HttpResponse::GetHeader(const char* name) noexcept{
         std::vector<HBuffer>& value = m_Headers[name];

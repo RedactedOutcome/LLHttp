@@ -320,40 +320,25 @@ namespace LLHttp{
         return HttpParseErrorCode::UnsupportedHttpProtocol;
     }
     void HttpResponse::SetHeader(const char* name, const char* value) noexcept{
-        //m_Headers[name].Assign(value, false, false);
-        std::vector<HBuffer>& values = m_Headers[name];
-        values.clear();
-        values.emplace_back(value);
+        m_Headers[name] = value;
     }
     void HttpResponse::SetHeader(const HBuffer& name, const char* value) noexcept{
-        std::vector<HBuffer>& values = m_Headers[name];
-        values.clear();
-        values.emplace_back(value);
+        m_Headers[name] = value;
     }
     void HttpResponse::SetHeader(const HBuffer& name, const HBuffer& value) noexcept{
-        std::vector<HBuffer>& values = m_Headers[name];
-        values.clear();
-        values.emplace_back(value);
+        m_Headers[name] = value;
     }
     void HttpResponse::SetHeader(const HBuffer& name, HBuffer&& value) noexcept{
-        std::vector<HBuffer>& values = m_Headers[name];
-        values.clear();
-        values.emplace_back(std::move(value));
+        m_Headers[name] = std::move(value);
     }
     void HttpResponse::SetHeader(HBuffer&& name, const char* value) noexcept{
-        std::vector<HBuffer>& values = m_Headers[std::move(name)];
-        values.clear();
-        values.emplace_back(value);
+        m_Headers[std::move(name)] = value;
     }
     void HttpResponse::SetHeader(HBuffer&& name, const HBuffer& value) noexcept{
-        std::vector<HBuffer>& values = m_Headers[std::move(name)];
-        values.clear();
-        values.emplace_back(value);
+        m_Headers[std::move(name)] = value;
     }
     void HttpResponse::SetHeader(HBuffer&& name, HBuffer&& value) noexcept{
-        std::vector<HBuffer>& values = m_Headers[std::move(name)];
-        values.clear();
-        values.emplace_back(std::move(value));
+        m_Headers[std::move(name)] = value;
     }
     void HttpResponse::RemoveHeader(const char* header)noexcept{
         m_Headers.erase(header);

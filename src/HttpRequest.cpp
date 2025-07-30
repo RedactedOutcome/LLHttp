@@ -425,9 +425,9 @@ namespace LLHttp{
         m_Verb = verb;
     }
     void HttpRequest::PreparePayload(){
-        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
+        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
 
-        if(transferEncoding != nullptr && *transferEncoding == "chunked"){
+        if(transferEncoding && transferEncoding == "chunked"){
             RemoveHeader(HBuffer("Content-Length", 14, false, false));
             return;
         }
@@ -439,7 +439,7 @@ namespace LLHttp{
             RemoveHeader(HBuffer("Content-Length", 14, false, false));
             return;
         }
-        SetHeader("Content-Length", std::move(HBuffer::ToString(totalSize)));
+        SetHeader("Content-Length", HBuffer::ToString(totalSize));
     }
     HBuffer HttpRequest::HeadToBuffer() const noexcept{
         HBuffer buffer;

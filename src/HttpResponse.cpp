@@ -433,18 +433,17 @@ namespace LLHttp{
     }
     void HttpResponse::PreparePayload(size_t preferedLength)noexcept{
         /// TODO: handle multiple content encodings
-        HBuffer* transferEncoding = GetHeader("Transfer-Encoding");
-        const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
+        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
 
-        if(strcmp(transferEncodingString, "chunked") == 0){
+        if(transferEncoding == "chunked"){
             RemoveHeader("Content-Length");
             return;
         }
-        if(strcmp(transferEncodingString, "") != 0 && strcmp(transferEncodingString, "identity") != 0){
-            std::cout << "Failed to prepare payload for HttpResponse. Invalid Transfer-Encoding: " << transferEncodingString << std::endl;
+        //if(strcmp(transferEncodingString, "") != 0 && strcmp(transferEncodingString, "identity") != 0){
+            //std::cout << "Failed to prepare payload for HttpResponse. Invalid Transfer-Encoding: " << transferEncodingString << std::endl;
             //CORE_WARN("Failed to prepare payload for HttpResponse. Invalid Transfer-Encoding: {0}", transferEncodingString);
             return;
-        }
+        //}
         size_t totalSize = preferedLength;
         if(totalSize == -1){
             totalSize = 0;
@@ -456,7 +455,7 @@ namespace LLHttp{
             RemoveHeader("Content-Length");
             return;
         }
-        SetHeader("Content-Length", std::move(HBuffer::ToString(totalSize)));
+        SetHeader("Content-Length", HBuffer::ToString(totalSize));
     }
     HBuffer HttpResponse::HeadToBuffer() const noexcept{
         /// TODO: different versions

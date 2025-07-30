@@ -495,8 +495,8 @@ namespace LLHttp{
 
             //Headers
             for (const auto &myPair : m_Headers) {
-                const std::vector<HBuffer>& headerName = myPair.first;
-                const std::vector<HBuffer>& headerValue = myPair.second;
+                const HBuffer& headerName = myPair.first;
+                const HBuffer& headerValue = myPair.second;
 
                 if(headerName.GetSize() < 1 || headerValue.GetSize() < 1)continue;
                 buffer.Append(headerName.GetCStr());

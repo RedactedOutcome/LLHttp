@@ -232,7 +232,7 @@ namespace LLHttp{
                 return HttpParseErrorCode::UnsupportedHttpProtocol;
             }
             m_At += 10;
-            m_State = RequestReadState::Body;
+            m_State = RequestReadState::DetectBodyType;
             return ParseHead(finishedAt);
         }
     }

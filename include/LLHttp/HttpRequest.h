@@ -12,10 +12,6 @@
 #include "Cookie.h"
 #include "HttpData.h"
 
-#ifndef HTTP_DEFAULT_HEAD_REQUEST_TO_BUFFER_SIZE
-#define HTTP_DEFAULT_HEAD_REQUEST_TO_BUFFER_SIZE 32000
-#endif
-
 namespace LLHttp{
     enum class RequestReadState : uint8_t{
         Unknown=0,

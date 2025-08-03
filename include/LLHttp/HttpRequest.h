@@ -25,6 +25,11 @@ namespace LLHttp{
         HttpRequest();
         ~HttpRequest();
 
+        /// @brief Starts to parse the head portion of the http request with a buffer of data. If this data does not finish all the data then we copy it
+        /// @param data the data to steal and parse into the head
+        /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
+        HttpParseErrorCode ParseHead(const HBuffer& data, uint32_t* finishedAt) noexcept;
+
         /// @brief Starts to parse the head portion of the http request with a copy of data.
         /// @param data the data to steal and parse into the head
         /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored

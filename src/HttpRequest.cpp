@@ -35,6 +35,29 @@ namespace LLHttp{
         m_MidwayParsing = false;
     }
 
+    HttpParseErrorCode HttpRequest::ParseHead(const HBuffer& data, uint32_t* finishedAt)noexcept{
+        HBuffer* buff = &m_Join.GetBuffer1();
+        buff->Consume(m_At, m_Join.GetBuffer2());
+        if(buff->GetSize() > 0)
+            buff = &m_Join.GetBuffer2();
+        buff->Assign(data);
+        /// TODO: fix potential bugs with reassigning m_At
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        m_At = 0;
+        HttpParseErrorCode error = ParseHead(finishedAt);
+        m_LastState = error;
+        *finishedAt = m_At;
+
+        /// Only copying data if needed
+        if(error == HttpParseErrorCode::None){
+            buff->Free();
+            return error;
+
+        }
+        HBuffer copy = buff->GetCopy();
+        buff->Assign(std::move(copy));
+        return error;
+    }
     HttpParseErrorCode HttpRequest::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt)noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());

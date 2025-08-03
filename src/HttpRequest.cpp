@@ -52,7 +52,6 @@ namespace LLHttp{
         if(error == HttpParseErrorCode::None){
             buff->Free();
             return error;
-
         }
         HBuffer copy = buff->GetCopy();
         buff->Assign(std::move(copy));
@@ -255,7 +254,7 @@ namespace LLHttp{
                 return HttpParseErrorCode::UnsupportedHttpProtocol;
             }
             m_At += 10;
-            m_State = RequestReadState::DetectBodyType;
+            m_State = RequestReadState::HeadersAndCookies;
             return ParseHead(finishedAt);
         }
     }

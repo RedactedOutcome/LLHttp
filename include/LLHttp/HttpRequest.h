@@ -35,6 +35,11 @@ namespace LLHttp{
         /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
         HttpParseErrorCode ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept;
 
+        /// @brief Starts to parse the next body part of the request with a buffer. if data is still needed then we copy it
+        /// @param data the data to steal and parse into the body
+        /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified
+        HttpParseErrorCode ParseNextBody(const HBuffer& data, HBuffer& output, uint32_t* finishedAt) noexcept;
+
         /// @brief Starts to parse the next body part of the request
         /// @param data the data to steal and parse into the body
         /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified

@@ -71,6 +71,27 @@ namespace LLHttp{
         *finishedAt = m_At;
         return error;
     }
+    HttpParseErrorCode HttpRequest::ParseNextBody(const HBuffer& data, HBuffer& output, uint32_t* finishedAt) noexcept{
+        HBuffer* buff = &m_Join.GetBuffer1();
+        buff->Consume(m_At, m_Join.GetBuffer2());
+        if(buff->GetSize() > 0)
+            buff = &m_Join.GetBuffer2();
+        buff->Assign(data);
+        /// TODO: fix potential bugs with reassigning m_At
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        m_At = 0;
+
+        HttpParseErrorCode error = ParseBody(output, finishedAt);
+        m_LastState = error;
+        *finishedAt = m_At;
+
+        if(error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies){
+            buff->Free();
+            return error;
+        }
+
+        return error;
+    }
     HttpParseErrorCode HttpRequest::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
@@ -157,6 +178,7 @@ namespace LLHttp{
                     if(strcmp(headerName, "Set-Cookie") != 0){
                         SetHeader(std::move(HBuffer(headerName, headerSize, true, true)), HBuffer(headerValue, valueLength, true, true));
                     }else{
+                        /// TODO: handle cookie
                         delete headerName;
                         delete headerValue;
                     }

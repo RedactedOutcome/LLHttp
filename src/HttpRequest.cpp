@@ -297,13 +297,17 @@ namespace LLHttp{
             case RequestReadState::IdentityBody:{//Get the body from no transfer encoding
                 HBuffer& contentLength = GetHeader("Content-Length");
 
-                if(!contentLength)return HttpParseErrorCode::NoMoreBodies;
+                if(!contentLength){
+                    m_State = RequestReadState::EndOfBodies;
+                    return HttpParseErrorCode::NoMoreBodies;
+                }
 
                 size_t size = atoi(contentLength.GetData());
                 std::cout << "Content length " << size<<std::endl;
                 if(m_Join.GetSize() - m_At < size)return HttpParseErrorCode::NeedsMoreData;
 
                 m_Body.emplace_back(std::move(m_Join.SubString(m_At, size)));
+                m_State = RequestReadState::EndOfBodies;
                 return HttpParseErrorCode::None;
             }
             case RequestReadState::ChunkedBody:{//Get body from chunked transfer encoding
@@ -349,7 +353,10 @@ namespace LLHttp{
                 m_Body.emplace_back(std::move(m_Join.SubBuffer(m_At, bytes)));
                 m_At += bytes;
                 if(m_Join.StartsWith("\r\n") == false)return HttpParseErrorCode::InvalidChunkEnd;
-                if(bytes <= 0)return HttpParseErrorCode::NoMoreBodies;
+                if(bytes <= 0){
+                    m_State = RequestReadState::EndOfBodies;
+                    return HttpParseErrorCode::NoMoreBodies;
+                }
                 return ParseBody(output, finishedAt);
             }
             case RequestReadState::EndOfBodies:{

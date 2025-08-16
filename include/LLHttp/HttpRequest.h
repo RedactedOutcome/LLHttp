@@ -18,7 +18,8 @@ namespace LLHttp{
         HeadersAndCookies,
         DetectBodyType,
         IdentityBody,
-        ChunkedBody
+        ChunkedBody,
+        EndOfBodies
     };
     class HttpRequest{
     public:

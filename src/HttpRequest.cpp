@@ -300,6 +300,7 @@ namespace LLHttp{
                 if(!contentLength)return HttpParseErrorCode::NoMoreBodies;
 
                 size_t size = atoi(contentLength.GetData());
+                std::cout << "Content length " << size<<std::endl;
                 if(m_Join.GetSize() - m_At < size)return HttpParseErrorCode::NeedsMoreData;
 
                 m_Body.emplace_back(std::move(m_Join.SubString(m_At, size)));
@@ -350,6 +351,9 @@ namespace LLHttp{
                 if(m_Join.StartsWith("\r\n") == false)return HttpParseErrorCode::InvalidChunkEnd;
                 if(bytes <= 0)return HttpParseErrorCode::NoMoreBodies;
                 return ParseBody(output, finishedAt);
+            }
+            case RequestReadState::EndOfBodies:{
+                return HttpParseErrorCode::NoMoreBodies;
             }
         }
     }

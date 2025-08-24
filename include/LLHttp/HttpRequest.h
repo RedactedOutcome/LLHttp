@@ -127,7 +127,7 @@ namespace LLHttp{
         HBuffer m_Path;
         std::unordered_map<HBuffer, HBuffer> m_Headers;
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
-        bool m_IsBodyCompressed=false;
+        bool m_IsBodyEncoded=false;
         std::vector<HBuffer> m_Body;
         
         std::vector<HttpContentEncoding> m_AcceptEncodings;

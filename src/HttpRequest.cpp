@@ -192,6 +192,9 @@ namespace LLHttp{
                         break;
                     }
                 }
+                /// Checking if body is compressed. Might remove
+                HBuffer& encoding = GetHeader("Content-Encoding");
+                m_IsBodyEncoded = encoding != "" && encoding != "identity";
                 m_State = RequestReadState::DetectBodyType;
                 return HttpParseErrorCode::None;
             default:{

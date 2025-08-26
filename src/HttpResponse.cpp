@@ -33,6 +33,13 @@ namespace LLHttp{
         m_LastState = HttpParseErrorCode::NeedsMoreData;
     }
 
+    void HttpResponse::Clear()noexcept{
+        m_Headers.clear();
+        m_Cookies.clear();
+        m_Verb = HttpVerb::Unknown;
+        m_IsBodyCompressed = false;
+        m_Join.Free();
+    }
     HttpParseErrorCode HttpResponse::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());

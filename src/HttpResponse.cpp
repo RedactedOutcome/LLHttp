@@ -36,6 +36,7 @@ namespace LLHttp{
     void HttpResponse::Clear()noexcept{
         m_Headers.clear();
         m_Cookies.clear();
+        m_Body.clear();
         m_Verb = HttpVerb::Unknown;
         m_IsBodyCompressed = false;
         m_Join.Free();

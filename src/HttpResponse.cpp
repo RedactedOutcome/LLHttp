@@ -205,6 +205,7 @@ namespace LLHttp{
                     }
                 }
                 *finishedAt = m_At;
+                m_State = ResponseReadState::DetectBodyType;
                 return HttpParseErrorCode::None;
             default:
                 return HttpParseErrorCode::UnsupportedHttpProtocol;

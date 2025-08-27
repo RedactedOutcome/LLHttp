@@ -210,40 +210,33 @@ namespace LLHttp{
                 return HttpParseErrorCode::UnsupportedHttpProtocol;
             }
         }
-        switch(m_State){
-        case ResponseReadState::Unknown:{
-            //Get State
-            if(m_Join.GetSize() < 15)return HttpParseErrorCode::NeedsMoreData;
-            bool http1_0 = m_Join.StartsWith("HTTP/1.0", 8);
-            bool http1_1 = m_Join.StartsWith("HTTP/1.1", 8);
-            if(http1_1 || http1_0){
-                if(m_Join.Get(8)!=' ')return HttpParseErrorCode::InvalidHttpResponse;
-                
-                for(uint8_t i = 0; i < 3; i++){
-                    char c = m_Join.Get(i + 9);
-                    if(c == '/0'){
-                        return HttpParseErrorCode::NeedsMoreData;
-                    }
-
-                    if(std::isdigit(c) == false)return HttpParseErrorCode::UnsupportedHttpProtocol;
+        //Get Protocol
+        if(m_Join.GetSize() < 15)return HttpParseErrorCode::NeedsMoreData;
+        bool http1_0 = m_Join.StartsWith("HTTP/1.0", 8);
+        bool http1_1 = m_Join.StartsWith("HTTP/1.1", 8);
+        if(http1_1 || http1_0){
+            if(m_Join.Get(8)!=' ')return HttpParseErrorCode::InvalidHttpResponse;
+            
+            for(uint8_t i = 0; i < 3; i++){
+                char c = m_Join.Get(i + 9);
+                if(c == '/0'){
+                    return HttpParseErrorCode::NeedsMoreData;
                 }
-
-                m_Status = std::stoi(m_Join.SubString(9, 3).GetCStr());
-
-                if(m_Join.Get(12) != ' ')return HttpParseErrorCode::UnsupportedHttpProtocol;
-                m_At = 13;
-                while(!m_Join.StartsWith(m_At, "\r\n")){
-                    if(m_Join.Get(m_At) == '\0')return HttpParseErrorCode::NeedsMoreData;
-                    m_At++;
-                }
-                m_At+=2;
-                m_State = ResponseReadState::HeadersAndCookies;
-                m_Version = http1_1 ? HttpVersion::HTTP1_1 : HttpVersion::HTTP1_0;
-                return ParseHead(finishedAt);
+                if(std::isdigit(c) == false)return HttpParseErrorCode::UnsupportedHttpProtocol;
             }
-        }
-        default:
-            return HttpParseErrorCode::UnsupportedHttpProtocol;
+
+            m_Status = std::stoi(m_Join.SubString(9, 3).GetCStr());
+
+            if(m_Join.Get(12) != ' ')return HttpParseErrorCode::UnsupportedHttpProtocol;
+            m_At = 13;
+            while(!m_Join.StartsWith(m_At, "\r\n")){
+                if(m_Join.Get(m_At) == '\0')return HttpParseErrorCode::NeedsMoreData;
+                m_At++;
+            }
+            m_At+=2;
+            m_State = ResponseReadState::HeadersAndCookies;
+            m_Version = http1_1 ? HttpVersion::HTTP1_1 : HttpVersion::HTTP1_0;
+            return ParseHead(finishedAt);
         }
     }
     

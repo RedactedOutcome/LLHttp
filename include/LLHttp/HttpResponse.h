@@ -34,12 +34,22 @@ namespace LLHttp{
 
         /// @brief clears the join buffer and prepares the response to be able to read and parse body parts while keeping necessary information for head, content type, transfer encoding, ect
         void PrepareBodyRead() noexcept;
+        
+        /// @brief Starts to parse the head portion of the http response with some data. copies if needs more data
+        /// @param data the data to steal and parse into the head
+        /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
+        HttpParseErrorCode ParseHead(const HBuffer& data, uint32_t* finishedAt) noexcept;
 
         /// @brief Starts to parse the head portion of the http response with a copy of data.
         /// @param data the data to steal and parse into the head
         /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
         HttpParseErrorCode ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept;
 
+        /// @brief Starts to parse the next body part of the response with some data. copies if needed
+        /// @param data the data to steal and parse into the body
+        /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified
+        HttpParseErrorCode ParseNextBody(const HBuffer& data, HBuffer& output, uint32_t* finishedAt) noexcept;
+        
         /// @brief Starts to parse the next body part of the response
         /// @param data the data to steal and parse into the body
         /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified

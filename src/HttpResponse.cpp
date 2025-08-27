@@ -41,6 +41,28 @@ namespace LLHttp{
         m_IsBodyCompressed = false;
         m_Join.Free();
     }
+    HttpParseErrorCode HttpResponse::ParseHead(const HBuffer& data, uint32_t* finishedAt) noexcept{
+        HBuffer* buff = &m_Join.GetBuffer1();
+        buff->Consume(m_At, m_Join.GetBuffer2());
+        if(buff->GetSize() > 0)
+            buff = &m_Join.GetBuffer2();
+        buff->Assign(data);
+        /// TODO: fix potential bugs with reassigning m_At
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        m_At = 0;
+        HttpParseErrorCode error = ParseHead(finishedAt);
+        m_LastState = error;
+        *finishedAt = m_At;
+
+        if(error == HttpParseErrorCode::None){
+            /// @brief freeing incase data is temporary and we dont want dangling pointers
+            buff->Free();
+            return error;
+        }
+        buff->Assign(buff->GetCopy());
+        return error;
+    }
+    
     HttpParseErrorCode HttpResponse::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
@@ -53,6 +75,28 @@ namespace LLHttp{
         HttpParseErrorCode error = ParseHead(finishedAt);
         m_LastState = error;
         *finishedAt = m_At;
+        return error;
+    }
+
+    HttpParseErrorCode HttpResponse::ParseNextBody(const HBuffer& data, HBuffer& output, uint32_t* finishedAt) noexcept{
+        HBuffer* buff = &m_Join.GetBuffer1();
+        buff->Consume(m_At, m_Join.GetBuffer2());
+        if(buff->GetSize() > 0)
+            buff = &m_Join.GetBuffer2();
+        buff->Assign(std::move(data));
+        /// TODO: fix potential bugs with reassigning m_At
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        m_At = 0;
+
+        HttpParseErrorCode error = ParseBody(output, finishedAt);
+        m_LastState = error;
+        *finishedAt = m_At;
+        if(error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies){
+            /// @brief freeing incase data is temporary and we dont want dangling pointers
+            buff->Free();
+            return error;
+        }
+        buff->Assign(buff->GetCopy());
         return error;
     }
 

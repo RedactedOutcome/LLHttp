@@ -59,7 +59,7 @@ namespace LLHttp{
         m_LastState = error;
         *finishedAt = m_At;
 
-        if(error == HttpParseErrorCode::None){
+        if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             buff->Free();
             return error;
@@ -97,7 +97,7 @@ namespace LLHttp{
         HttpParseErrorCode error = ParseBody(output, finishedAt);
         m_LastState = error;
         *finishedAt = m_At;
-        if(error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies){
+        if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             buff->Free();
             return error;

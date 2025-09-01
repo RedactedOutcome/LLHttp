@@ -46,13 +46,14 @@ namespace LLHttp{
         m_Join.Free();
     }
     HttpParseErrorCode HttpResponse::ParseHead(const HBuffer& data, uint32_t* finishedAt) noexcept{
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(data);
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
         HttpParseErrorCode error = ParseHead(finishedAt);
         m_LastState = error;
@@ -68,13 +69,14 @@ namespace LLHttp{
     }
     
     HttpParseErrorCode HttpResponse::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept{
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
         HttpParseErrorCode error = ParseHead(finishedAt);
         m_LastState = error;
@@ -83,13 +85,13 @@ namespace LLHttp{
     }
 
     HttpParseErrorCode HttpResponse::ParseNextBody(const HBuffer& data, HBuffer& output, uint32_t* finishedAt) noexcept{
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
 
         HttpParseErrorCode error = ParseBody(output, finishedAt);
@@ -105,13 +107,13 @@ namespace LLHttp{
     }
 
     HttpParseErrorCode HttpResponse::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept{
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
 
         HttpParseErrorCode error = ParseBody(output, finishedAt);
@@ -159,7 +161,6 @@ namespace LLHttp{
                     m_At+=2;
                     size_t startAt2 = m_At;
                     size_t lastValueAt = m_At;
-                    std::vector<HBuffer> headerValues;
                     while(true){
                         int status = m_Join.StrXCmp(m_At, "\r\n");
                         if(status == 0)
@@ -194,7 +195,6 @@ namespace LLHttp{
                     HBuffer headerValueBuffer = HBuffer(headerValue, valueLength, true, true);
 
                     if(strcmp(headerName, "Set-Cookie") != 0){
-                        headerValues.emplace_back(std::move(headerValueBuffer));
                         m_Headers.insert(std::make_pair(std::move(headerNameBuffer), std::move(headerValueBuffer)));
                     }else{
                         /// TODO: Set cookies map with key

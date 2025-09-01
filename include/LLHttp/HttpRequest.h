@@ -4,6 +4,7 @@
 #include LLHTTP_PCH_DIR
 #else
 #include <HBuffer/HBuffer.hpp>
+#include <HBuffer/HBufferExtras.hpp>
 #include <unordered_map>
 #include <cstdint>
 #include <vector>
@@ -119,13 +120,13 @@ namespace LLHttp{
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
 
         //const std::unordered_map<std::string, std::string> GetHeaders() const noexcept{return m_Headers;}
-        std::unordered_map<HBuffer, HBuffer>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer>&)m_Headers;}
+        std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
     private:
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
         HBuffer m_Path;
-        std::unordered_map<HBuffer, HBuffer> m_Headers;
+        std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals> m_Headers;
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
         bool m_IsBodyEncoded=false;
         std::vector<HBuffer> m_Body;

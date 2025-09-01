@@ -9,6 +9,7 @@
 
 #include <HBuffer/HBuffer.hpp>
 #include <HBuffer/HBufferJoin.hpp>
+#include <HBuffer/HBufferExtras.hpp>
 
 #pragma region Encoding Libraries
 #include <brotli/decode.h>

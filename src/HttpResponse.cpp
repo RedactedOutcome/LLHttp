@@ -780,7 +780,6 @@ namespace LLHttp{
     }
     HttpEncodingErrorCode HttpResponse::BufferToValidBodyPartFormat(const HBuffer& input, HBuffer& output) noexcept{ 
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
-        const char* transferEncodingString = transferEncoding.GetCStr();
 
         if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             output = input;
@@ -793,11 +792,11 @@ namespace LLHttp{
             string.Reserve(5);
 
             size_t size = partSize;
-            while(size > 0){
+            do{
                 char digit = size % 16;
                 string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
                 size/=16;
-            }
+            }while(size > 0);
 
             string.Reverse();
 

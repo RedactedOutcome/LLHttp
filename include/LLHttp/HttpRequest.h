@@ -30,25 +30,25 @@ namespace LLHttp{
         /// @brief Starts to parse the head portion of the http request with a buffer of data. If this data does not finish all the data then we copy it
         /// @param data the data to steal and parse into the head
         /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
-        HttpParseErrorCode ParseHead(const HBuffer& data, uint32_t* finishedAt) noexcept;
+        HttpParseErrorCode ParseHead(const HBuffer& data, BodyParseInfo* info) noexcept;
 
         /// @brief Starts to parse the head portion of the http request with a copy of data.
         /// @param data the data to steal and parse into the head
         /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
-        HttpParseErrorCode ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt) noexcept;
+        HttpParseErrorCode ParseHeadCopy(HBuffer&& data, BodyParseInfo* info) noexcept;
 
         /// @brief Starts to parse the next body part of the request with a buffer. if data is still needed then we copy it
         /// @param data the data to steal and parse into the body
         /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified
-        HttpParseErrorCode ParseNextBody(const HBuffer& data, HBuffer& output, uint32_t* finishedAt) noexcept;
+        HttpParseErrorCode ParseNextBody(const HBuffer& data, HBuffer& output, BodyParseInfo* info) noexcept;
 
         /// @brief Starts to parse the next body part of the request
         /// @param data the data to steal and parse into the body
         /// @param finishedAt the position where the next body ends. if HttpParseErrorCode != HttpParseErrorCode::None data will not be modified
-        HttpParseErrorCode ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept;
+        HttpParseErrorCode ParseNextBodyCopy(HBuffer&& data, HBuffer& output, BodyParseInfo* info) noexcept;
     
-        HttpParseErrorCode ParseHead(uint32_t* finishedAt) noexcept;
-        HttpParseErrorCode ParseBody(HBuffer& output, uint32_t* finishedAt) noexcept;
+        HttpParseErrorCode ParseHead(BodyParseInfo* info) noexcept;
+        HttpParseErrorCode ParseBody(HBuffer& output, BodyParseInfo* parseInfo) noexcept;
     public:
         void SetPath(const HBuffer& path) noexcept;
         void SetPath(HBuffer&& path) noexcept;

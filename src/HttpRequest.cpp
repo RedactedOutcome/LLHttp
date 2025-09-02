@@ -39,7 +39,7 @@ namespace LLHttp{
         m_MidwayParsing = false;
     }
 
-    HttpParseErrorCode HttpRequest::ParseHead(const HBuffer& data, uint32_t* finishedAt)noexcept{
+    HttpParseErrorCode HttpRequest::ParseHead(const HBuffer& data, BodyParseInfo* info)noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
@@ -48,9 +48,8 @@ namespace LLHttp{
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
-        HttpParseErrorCode error = ParseHead(finishedAt);
+        HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
-        *finishedAt = m_At;
 
         /// Only copying data if needed
         if(error == HttpParseErrorCode::None){
@@ -61,7 +60,7 @@ namespace LLHttp{
         buff->Assign(std::move(copy));
         return error;
     }
-    HttpParseErrorCode HttpRequest::ParseHeadCopy(HBuffer&& data, uint32_t* finishedAt)noexcept{
+    HttpParseErrorCode HttpRequest::ParseHeadCopy(HBuffer&& data, BodyParseInfo* info)noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
@@ -70,12 +69,12 @@ namespace LLHttp{
         /// TODO: fix potential bugs with reassigning m_At
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
-        HttpParseErrorCode error = ParseHead(finishedAt);
+        HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
-        *finishedAt = m_At;
+
         return error;
     }
-    HttpParseErrorCode HttpRequest::ParseNextBody(const HBuffer& data, HBuffer& output, uint32_t* finishedAt) noexcept{
+    HttpParseErrorCode HttpRequest::ParseNextBody(const HBuffer& data, HBuffer& output, BodyParseInfo* info) noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
@@ -85,9 +84,8 @@ namespace LLHttp{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
 
-        HttpParseErrorCode error = ParseBody(output, finishedAt);
+        HttpParseErrorCode error = ParseBody(output, info);
         m_LastState = error;
-        *finishedAt = m_At;
 
         if(error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies){
             buff->Free();
@@ -96,7 +94,7 @@ namespace LLHttp{
 
         return error;
     }
-    HttpParseErrorCode HttpRequest::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, uint32_t* finishedAt) noexcept{
+    HttpParseErrorCode HttpRequest::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, BodyParseInfo* info) noexcept{
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
@@ -106,13 +104,13 @@ namespace LLHttp{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
 
-        HttpParseErrorCode error = ParseBody(output, finishedAt);
+        HttpParseErrorCode error = ParseBody(output, info);
         m_LastState = error;
-        *finishedAt = m_At;
+
         return error;
     }
 
-    HttpParseErrorCode HttpRequest::ParseHead(uint32_t* finishedAt)noexcept{
+    HttpParseErrorCode HttpRequest::ParseHead(BodyParseInfo* info)noexcept{
         switch(m_Version){
         case HttpVersion::HTTP0_9:
         case HttpVersion::HTTP1_0:
@@ -284,33 +282,35 @@ namespace LLHttp{
             }
             m_At += 10;
             m_State = RequestReadState::HeadersAndCookies;
-            return ParseHead(finishedAt);
+            return ParseHead(info);
         }
     }
-    HttpParseErrorCode HttpRequest::ParseBody(HBuffer& output, uint32_t* finishedAt)noexcept{
+    HttpParseErrorCode HttpRequest::ParseBody(HBuffer& output, BodyParseInfo* info)noexcept{
         switch(m_State){
             case RequestReadState::DetectBodyType:{
                 //Get ransfer encoding
                 HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
-                if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
+                if(!transferEncoding || transferEncoding == "")
+                    m_State = RequestReadState::EndOfBodies;
+                else if(transferEncoding == "identity"){
                     m_State = RequestReadState::IdentityBody;
                 }else if(transferEncoding == "chunked"){
                     m_State = RequestReadState::ChunkedBody;
                 }else{
                     return HttpParseErrorCode::UnsupportedTransferEncoding;
                 }
-                return ParseBody(output, finishedAt);
+                return ParseBody(output, info);
             }
             case RequestReadState::IdentityBody:{//Get the body from no transfer encoding
                 HBuffer& contentLength = GetHeader("Content-Length");
 
                 if(!contentLength){
-                    m_State = RequestReadState::EndOfBodies;
-                    return HttpParseErrorCode::NoMoreBodies;
+                    /// @brief malformed request. If identity encoding then we must have a valid body size
+                    m_State = RequestReadState::Unknown;
+                    return HttpParseErrorCode::FailedToGetIdentityBodySize;
                 }
 
                 size_t size = atoi(contentLength.GetData());
-                std::cout << "Content length " << size<<std::endl;
                 if(m_Join.GetSize() - m_At < size)return HttpParseErrorCode::NeedsMoreData;
 
                 m_Body.emplace_back(std::move(m_Join.SubString(m_At, size)));
@@ -364,7 +364,7 @@ namespace LLHttp{
                     m_State = RequestReadState::EndOfBodies;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-                return ParseBody(output, finishedAt);
+                return ParseBody(output, info);
             }
             case RequestReadState::EndOfBodies:{
                 return HttpParseErrorCode::NoMoreBodies;

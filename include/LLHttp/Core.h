@@ -20,3 +20,11 @@
 #endif
 #endif
 */
+
+struct BodyParseInfo{
+    /// @brief a bool that is determined on whether the body parts for identity is any data sent until the stream is ended
+    /// @brief Http specification says that if content-length isnt specified any data passed the head phase is the body until the stream is ended
+    /// @brief Set by parser
+    bool m_IdentityEndsByStream=false;
+    uint32_t m_FinishedAt=0;
+};

@@ -114,7 +114,8 @@ namespace LLHttp{
         InvalidChunkEnd,
         FailedDecodeGZip,
         FailedEncodeGZip,
-        InvalidState
+        InvalidState,
+        FailedToGetIdentityBodySize
     };
 
     /// @brief Error codes for decoding/encoding encrypted data. 

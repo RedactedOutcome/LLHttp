@@ -492,16 +492,19 @@ namespace LLHttp{
             //return;
         //}
         size_t totalSize = preferedLength;
-        if(totalSize == -1){
-            totalSize = 0;
-            for(size_t i = 0; i < m_Body.size(); i++){
-                totalSize += m_Body[i].GetSize();
+        if(totalSize != -2){
+            if(totalSize == -1){
+                totalSize = 0;
+                for(size_t i = 0; i < m_Body.size(); i++){
+                    totalSize += m_Body[i].GetSize();
+                }
+            }
+            if(totalSize < 1){
+                RemoveHeader("Content-Length");
+                return;
             }
         }
-        if(totalSize < 1){
-            RemoveHeader("Content-Length");
-            return;
-        }
+        
         SetHeader("Content-Length", HBuffer::ToString(totalSize));
     }
     HBuffer HttpResponse::HeadToBuffer() const noexcept{
@@ -756,11 +759,11 @@ namespace LLHttp{
             string.Reserve(5);
 
             size_t size = partSize;
-            while(size > 0){
+            do{
                 char digit = size % 16;
                 string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
                 size/=16;
-            }
+            }while(size > 0);
 
             string.Reverse();
 
@@ -839,11 +842,11 @@ namespace LLHttp{
                 string.Reserve(5);
 
                 size_t size = partSize;
-                while(size > 0){
+                do{
                     char digit = size % 16;
                     string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
                     size/=16;
-                }
+                }while(size > 0);
 
                 string.Reverse();
 

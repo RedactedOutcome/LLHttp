@@ -171,5 +171,7 @@ namespace LLHttp{
         /// @brief first string is the last copy of a "read" buffer if there is one. Right is a view of the new read buffer data
         HBufferJoin m_Join;
         int32_t m_At = 0;
+        /// @brief used for identity encoding. If we dont have enough data we can return a body and specify that there is more data with return value of NeedsMoreData
+        size_t m_Remaining=0;
     };
 }

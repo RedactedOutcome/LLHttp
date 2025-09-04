@@ -177,8 +177,10 @@ namespace LLHttp{
                     m_Join.MemcpyTo(headerValue, valueStart, valueLength);
                     headerValue[valueLength] = '\0';
 
-                    if(strcmp(headerName, "Set-Cookie") != 0){
-                        SetHeader(std::move(HBuffer(headerName, headerSize, true, true)), HBuffer(headerValue, valueLength, true, true));
+                    HBuffer headerNameBuffer(headerName, headerSize, true, true);
+                    HBufferLowercaseEquals equals;
+                    if(!equals(headerNameBuffer, "Set-Cookie"))
+                        SetHeader(std::move(headerNameBuffer), HBuffer(headerValue, valueLength, true, true));
                     }else{
                         /// TODO: handle cookie
                         delete headerName;

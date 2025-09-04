@@ -193,7 +193,8 @@ namespace LLHttp{
                     HBuffer headerNameBuffer = HBuffer(headerName, headerLength, true, true);
                     HBuffer headerValueBuffer = HBuffer(headerValue, valueLength, true, true);
 
-                    if(strcmp(headerName, "Set-Cookie") != 0){
+                    HBufferLowercaseEquals equals;
+                    if(!equals(headerNameBuffer, "Set-Cookie")){
                         m_Headers.insert(std::make_pair(std::move(headerNameBuffer), std::move(headerValueBuffer)));
                     }else{
                         /// TODO: Set cookies map with key

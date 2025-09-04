@@ -27,4 +27,5 @@ struct BodyParseInfo{
     /// @brief Set by response parser and should only be used in a response parsing context.
     bool m_IdentityEndsByStream=false;
     uint32_t m_FinishedAt=0;
+    bool m_ValidBody=false;
 };

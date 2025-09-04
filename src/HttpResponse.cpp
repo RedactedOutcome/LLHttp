@@ -270,6 +270,23 @@ namespace LLHttp{
                 return ParseBody(output, info);
             }
             case ResponseReadState::IdentityBody:{
+                if(m_Remaining != -1){
+                    /// Remaining has a valid value
+
+                    size_t remaining = m_Join.GetSize() - m_At;
+                    if(remaining < 0)
+                        return HttpParseErrorCode::NoMoreBodies;
+                    info->m_ValidBody = true;
+                    if(remaining < m_Remaining){
+                        m_Remaining = m_Remaining - (m_Join.GetSize() - m_At);
+                        output = std::move(m_Join.SubString(m_At, remaining));
+                        return HttpParseErrorCode::NeedsMoreData;
+                    }
+
+                    output = std::move(m_Join.SubString(m_At, -1));
+                    m_State = ResponseReadState::Finished;
+                    return HttpParseErrorCode::None;
+                }
                 //Get Body from no encoding with Content-Length
                 HBuffer& contentLength = GetHeader("Content-Length");
                 if(contentLength == ""){
@@ -280,10 +297,15 @@ namespace LLHttp{
                     return HttpParseErrorCode::NoMoreBodies;
                 }
                 size_t contentLengthValue = std::atoi(contentLength.GetCStr());
+
                 if(contentLengthValue < 1){
                     return HttpParseErrorCode::NoMoreBodies;
                 }
                 if(m_Join.GetSize() - m_At < contentLengthValue){
+                    size_t fillSize = m_Join.GetSize() - m_At;
+                    m_Remaining = contentLengthValue - fillSize;
+                    output = std::move(m_Join.SubString(m_At, fillSize));
+                    info->m_ValidBody;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
 

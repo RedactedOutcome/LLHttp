@@ -179,7 +179,7 @@ namespace LLHttp{
 
                     HBuffer headerNameBuffer(headerName, headerSize, true, true);
                     HBufferLowercaseEquals equals;
-                    if(!equals(headerNameBuffer, "Set-Cookie"))
+                    if(!equals(headerNameBuffer, "Set-Cookie")){
                         SetHeader(std::move(headerNameBuffer), HBuffer(headerValue, valueLength, true, true));
                     }else{
                         /// TODO: handle cookie

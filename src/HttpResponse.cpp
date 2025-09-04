@@ -28,6 +28,7 @@ namespace LLHttp{
         m_LastState = HttpParseErrorCode::NeedsMoreData;
         m_State = ResponseReadState::Unknown;
         m_At = 0;
+        m_Remaining = -1;
     }
 
     void HttpResponse::PrepareBodyRead() noexcept{

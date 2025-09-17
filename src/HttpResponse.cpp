@@ -172,6 +172,7 @@ namespace LLHttp{
                         char c= m_Join.Get(m_At);
                         //if(c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                         if((c < 0x21 || c > 0x7E) && c != ' '){
+                            std::cout << "Unsupported character :(" << c<<")"<<std::endl;
                             delete headerName;
                             return HttpParseErrorCode::InvalidHeaderValue;
                         }

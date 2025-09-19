@@ -173,6 +173,10 @@ namespace LLHttp{
                         /// TODO: make table
                         if(c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                         //if((c < 0x21 || c > 0x7E) && c != ' '){
+                            for(size_t i = m_At; i < m_Join.GetSize();i++){
+                                std::cout << "Characters at error at " << i << "C:" << (size_t)m_Join.At(i);
+
+                            }
                             std::cout << "Unsupported character :(" << c<<")" << (size_t)c<<std::endl;
                             delete headerName;
                             return HttpParseErrorCode::InvalidHeaderValue;

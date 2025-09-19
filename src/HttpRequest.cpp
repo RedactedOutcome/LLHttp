@@ -162,6 +162,7 @@ namespace LLHttp{
                         }
                         if(m_Join.StartsWith(valueEnd, "\r\n"))break;
                         if((c < 0x21 || c > 0x7E) && c != ' '){
+                            std::cout << "Jion invalid t" << m_Join.SubString(valueEnd, 5).GetCStr()<<std::endl;
                             return HttpParseErrorCode::InvalidHeaderValue;
                         }
                         valueEnd++;

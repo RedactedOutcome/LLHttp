@@ -162,7 +162,6 @@ namespace LLHttp{
                     size_t lastValueAt = m_At;
                     while(true){
                         int status = m_Join.StrXCmp(m_At, "\r\n");
-                        char c= '\r';
                         std::cout << "Status " << status<<std::endl;
                         if(status == 0)
                             break;

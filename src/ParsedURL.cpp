@@ -89,6 +89,7 @@ namespace LLHttp{
             m_Path = url.SubString(pathStart, (at - pathStart) - 1);
         }
         if(at < url.GetSize()){
+            std::cout << "Invalid path " << (size_t)url.At(at)<<std::endl;
             //std::cout << "At " << (size_t)at << " IS LESS THAN " << (size_t)url.GetSize()<<std::endl;
             //std::cout << "Remaining is " << url.SubString(at, at - url.GetSize()).GetCStr()<<std::endl;
             return URLParseError::InvalidPath;

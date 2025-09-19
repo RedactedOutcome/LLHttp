@@ -15,6 +15,22 @@ namespace LLHttp{
         //m_Body.Free();
         m_Body.clear();
     }
+    
+    HttpRequest::HttpRequest(HttpRequest&& request)noexcept{
+        m_Version = request.m_Version;
+        m_Verb = request.m_Verb;
+        m_State = request.m_State;
+        m_LastState = request.m_LastState;
+        m_At = request.m_At;
+        m_MidwayParsing = request.m_MidwayParsing;
+        m_Body = std::move(request.m_Body);
+        m_Cookies = std::move(request.m_Cookies);
+        m_Headers = std::move(request.m_Headers);
+        m_Join = std::move(request.m_Join);
+        m_Path = std::move(request.m_Path);
+
+        request.Clear();
+    }
     void HttpRequest::PrepareRead(){
         m_Version = HttpVersion::Unsupported;
         m_LastState = HttpParseErrorCode::NeedsMoreData;

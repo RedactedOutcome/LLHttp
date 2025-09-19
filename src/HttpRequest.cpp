@@ -7,10 +7,10 @@
 #include "HttpData.h"
 
 namespace LLHttp{
-    HttpRequest::HttpRequest(){
+    HttpRequest::HttpRequest()noexcept{
 
     }
-    HttpRequest::~HttpRequest(){
+    HttpRequest::~HttpRequest()noexcept{
         m_Join.Free();
         //m_Body.Free();
         m_Body.clear();

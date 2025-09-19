@@ -24,8 +24,9 @@ namespace LLHttp{
     };
     class HttpRequest{
     public:
-        HttpRequest();
-        ~HttpRequest();
+        HttpRequest()noexcept;
+        ~HttpRequest()noexcept;
+        HttpRequest(const HttpRequest&)noexcept=delete;
 
         /// @brief Starts to parse the head portion of the http request with a buffer of data. If this data does not finish all the data then we copy it
         /// @param data the data to steal and parse into the head

@@ -172,7 +172,7 @@ namespace LLHttp{
                         }
                         char c= m_Join.Get(m_At);
                         /// TODO: make table
-                        if(c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
+                        if(c != '*' && c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                         //if((c < 0x21 || c > 0x7E) && c != ' '){
                             size_t length = m_At + 5;
                             for(size_t i = m_At; i < length;i++){

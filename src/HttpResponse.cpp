@@ -172,13 +172,7 @@ namespace LLHttp{
                         char c= m_Join.Get(m_At);
                         /// TODO: make table
                         if(c != '*' && c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
-                        //if((c < 0x21 || c > 0x7E) && c != ' '){
-                            size_t length = m_At + 5;
-                            for(size_t i = m_At - 1; i < length;i++){
-                                std::cout << "Characters at error at " << i << "C:" << (size_t)m_Join.At(i) << std::endl;
-
-                            }
-                            std::cout << "Unsupported character :(" << c<<")" << (size_t)c<<std::endl;
+                            std::cout << "Continuation is :" << m_Join.SubString(at, 10).GetCStr()<<std::endl;
                             delete headerName;
                             return HttpParseErrorCode::InvalidHeaderValue;
                         }

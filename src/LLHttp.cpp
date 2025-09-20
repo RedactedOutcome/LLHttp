@@ -25,8 +25,17 @@ namespace LLHttp{
         s_LLHttpPathAllowedCharacters.set('.');
         s_LLHttpPathAllowedCharacters.set('-');
         s_LLHttpPathAllowedCharacters.set('_');
+
+        for(size_t i = 0x21; i <= 0x7E; i++){
+            s_LLHttpHeaderValueAllowedCharacters.set(i);
+        }
+        s_LLHttpHeaderValueAllowedCharacters.set(' ');
     }
-    bool IsValidPathCharacter(char c){
+    bool IsValidPathCharacter(char c)noexcept{
         return s_LLHttpPathAllowedCharacters.test(c);
+    }
+
+    bool IsValidHeaderValueCharacter(char c)noexcept{
+        return s_LLHttpHeaderValueAllowedCharacters.test(c);
     }
 }

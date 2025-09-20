@@ -258,7 +258,7 @@ namespace LLHttp{
                 HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
                 //Rest wont be evaluated since after the first it will just jump to true
                 if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
-                    std::cout << "Using Identity";
+                    std::cout << "Using Identity"<<std::endl;
                     m_State = ResponseReadState::IdentityBody;
                 }
                 else if(transferEncoding == "chunked"){

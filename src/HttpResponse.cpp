@@ -250,6 +250,8 @@ namespace LLHttp{
             m_Version = http1_1 ? HttpVersion::HTTP1_1 : HttpVersion::HTTP1_0;
             return ParseHead(info);
         }
+
+        return HttpParseErrorCode::UnsupportedHttpProtocol;
     }
     
     HttpParseErrorCode HttpResponse::ParseBody(HBuffer& output, BodyParseInfo* info)noexcept{

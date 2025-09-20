@@ -389,6 +389,7 @@ namespace LLHttp{
                 return HttpParseErrorCode::NoMoreBodies;
             }
         }
+        return HttpParseErrorCode::InvalidState;
     }
     void HttpRequest::SetBodyAsCopy(const char* data)noexcept{
         size_t strLen = strlen(data);

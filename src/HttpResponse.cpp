@@ -100,7 +100,7 @@ namespace LLHttp{
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
 
-        HttpParseErrorCode error = ParseBody(output, info);
+        HttpParseErrorCode error = ParseBodyTo(output, info);
         m_LastState = error;
         if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
             /// @brief freeing incase data is temporary and we dont want dangling pointers
@@ -122,7 +122,7 @@ namespace LLHttp{
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
 
-        HttpParseErrorCode error = ParseBody(output, info);
+        HttpParseErrorCode error = ParseBodyTo(output, info);
         m_LastState = error;
         return error;
     }
@@ -247,7 +247,7 @@ namespace LLHttp{
         return HttpParseErrorCode::UnsupportedHttpProtocol;
     }
     
-    HttpParseErrorCode HttpResponse::ParseBody(HBuffer& output, BodyParseInfo* info)noexcept{
+    HttpParseErrorCode HttpResponse::ParseBodyTo(HBuffer& output, BodyParseInfo* info)noexcept{
         switch(m_Version){
             case HttpVersion::HTTP1_0:
             case HttpVersion::HTTP1_1:
@@ -275,7 +275,7 @@ namespace LLHttp{
                 else{
                     return HttpParseErrorCode::UnsupportedTransferEncoding;
                 }
-                return ParseBody(output, info);
+                return ParseBodyTo(output, info);
             }
             case ResponseReadState::IdentityBody:{
                 if(m_Remaining != -1){

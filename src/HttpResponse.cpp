@@ -279,11 +279,12 @@ namespace LLHttp{
             }
             case ResponseReadState::IdentityBody:{
                 if(m_Remaining != -1){
-                    std::cout << "Using remaining"<<std::endl;
+                    std::cout << "Using remaining "<<std::endl;
                     /// Remaining has a valid value
 
                     size_t remaining = m_Join.GetSize() - m_At;
-                    if(remaining < 0)
+                    std::cout << "M remaining " << m_Remaining << "remaining " << remaining<<std::endl;
+                    if(remaining < 1)
                         return HttpParseErrorCode::NoMoreBodies;
                     info->m_ValidBody = true;
                     if(remaining < m_Remaining){

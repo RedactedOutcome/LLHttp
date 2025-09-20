@@ -65,6 +65,7 @@ namespace LLHttp{
 
         if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
             std::cout << "Test 1 data is " << m_At << " Data : " << m_Join.SubString(m_At, 5).GetCStr()<<std::endl;
+            m_At = 0;
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             buff->Free();
             return error;
@@ -103,6 +104,7 @@ namespace LLHttp{
         m_LastState = error;
         if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
             /// @brief freeing incase data is temporary and we dont want dangling pointers
+            m_At = 0;
             buff->Free();
             return error;
         }

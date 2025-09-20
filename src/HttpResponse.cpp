@@ -162,7 +162,6 @@ namespace LLHttp{
                     size_t lastValueAt = m_At;
                     while(true){
                         int status = m_Join.StrXCmp(m_At, "\r\n");
-                        std::cout << "Status " << status<<std::endl;
                         if(status == 0)
                             break;
                         if(status == -1){
@@ -175,7 +174,7 @@ namespace LLHttp{
                         if(c != '*' && c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                         //if((c < 0x21 || c > 0x7E) && c != ' '){
                             size_t length = m_At + 5;
-                            for(size_t i = m_At; i < length;i++){
+                            for(size_t i = m_At - 1; i < length;i++){
                                 std::cout << "Characters at error at " << i << "C:" << (size_t)m_Join.At(i) << std::endl;
 
                             }

@@ -287,12 +287,15 @@ namespace LLHttp{
                         return HttpParseErrorCode::NoMoreBodies;
                     info->m_ValidBody = true;
                     if(remaining < m_Remaining){
-                        m_Remaining = m_Remaining - (m_Join.GetSize() - m_At);
+                        m_Remaining -= remaining;
                         output = std::move(m_Join.SubString(m_At, remaining));
+                        m_At+=remaining;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
 
-                    output = std::move(m_Join.SubString(m_At, -1));
+                    output = std::move(m_Join.SubString(m_At, m_Remaining));
+                    m_At+=m_Remaining;
+                    m_Remaining = 0;
                     m_State = ResponseReadState::Finished;
                     return HttpParseErrorCode::None;
                 }

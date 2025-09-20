@@ -320,7 +320,7 @@ namespace LLHttp{
                 if(m_Join.GetSize() - m_At < contentLengthValue){
                     std::cout << "Using remaining"<<std::endl;
                     size_t fillSize = m_Join.GetSize() - m_At;
-                    m_Remaining = contentLengthValue - fillSize;
+                    m_Remaining -= contentLengthValue - fillSize;
                     output = std::move(m_Join.SubString(m_At, fillSize));
                     info->m_ValidBody;
                     return HttpParseErrorCode::NeedsMoreData;

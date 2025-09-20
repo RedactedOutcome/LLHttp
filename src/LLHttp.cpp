@@ -24,6 +24,7 @@ namespace LLHttp{
         s_LLHttpPathAllowedCharacters.set(']');
         s_LLHttpPathAllowedCharacters.set('.');
         s_LLHttpPathAllowedCharacters.set('-');
+        s_LLHttpPathAllowedCharacters.set('_');
     }
     bool IsValidPathCharacter(char c){
         return s_LLHttpPathAllowedCharacters.test(c);

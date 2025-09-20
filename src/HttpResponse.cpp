@@ -59,6 +59,7 @@ namespace LLHttp{
         buff->Assign(data);
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
+        std::cout << "Head joni size " << m_Join.GetSize()<<std::endl;
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
 

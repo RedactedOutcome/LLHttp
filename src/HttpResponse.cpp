@@ -69,6 +69,7 @@ namespace LLHttp{
             return error;
         }
         buff->Assign(buff->GetCopy());
+        std::cout << "after Head joni size " << m_Join.GetSize()<<std::endl;
         return error;
     }
     

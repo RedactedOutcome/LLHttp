@@ -173,7 +173,7 @@ namespace LLHttp{
                         char c= m_Join.Get(m_At);
                         /// TODO: make table
                         //if(c != '*' && c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
-                        if(!::LLHttp::IsValidHeaderValueCharacter(c))
+                        if(!::LLHttp::IsValidHeaderValueCharacter(c)){
                             delete headerName;
                             return HttpParseErrorCode::InvalidHeaderValue;
                         }

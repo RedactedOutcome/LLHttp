@@ -64,7 +64,7 @@ namespace LLHttp{
         m_LastState = error;
 
         if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
-            std::cout << "T1"<<std::endl;
+            std::cout << "Test 1 data is " << m_At << " Data : " << m_Join.SubString(m_At, 5).GetCStr()<<std::endl;
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             buff->Free();
             return error;
@@ -136,6 +136,7 @@ namespace LLHttp{
                     size_t startAt = m_At;
 
                     while(true){
+                        /// @brief check for double line end to stop the head phase
                         int status = m_Join.StrXCmp(m_At, "\r\n");
                         if(status == 0)
                             return HttpParseErrorCode::InvalidHeaderName;
@@ -181,13 +182,6 @@ namespace LLHttp{
                             return HttpParseErrorCode::InvalidHeaderValue;
                         }
                         m_At++;
-                        /*
-                        if(c == ';' || c == ' '){
-                            //One of the headers values
-                            HBuffer headerValueBuffer = m_Join.SubString(lastValueAt, m_At - lastValueAt);
-                            lastValueAt = m_At;
-                            //headerValues.emplace_back(std::move(headerValueBuffer));
-                        }*/
                     }
                     //Last Value
                     size_t valueLength = m_At - lastValueAt;

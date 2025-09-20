@@ -314,6 +314,8 @@ namespace LLHttp{
                     std::cout << "Invalid content length"<<std::endl;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
+                std::cout << "Header says " << contentLength.GetCStr()<<std::endl;
+                std::cout << "Content length is " << contentLengthValue<<std::endl;
                 if(m_Join.GetSize() - m_At < contentLengthValue){
                     std::cout << "Using remaining"<<std::endl;
                     size_t fillSize = m_Join.GetSize() - m_At;

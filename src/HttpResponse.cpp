@@ -64,6 +64,7 @@ namespace LLHttp{
         m_LastState = error;
 
         if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
+            std::cout << "T1"<<std::endl;
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             buff->Free();
             return error;

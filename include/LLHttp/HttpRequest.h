@@ -104,6 +104,8 @@ namespace LLHttp{
         /// @return returns enum of type HttpEncodingErrorCode
         HttpEncodingErrorCode Compress() noexcept;
     public:
+        HttpRequest& operator=(HttpRequest&& right)noexcept;
+    public:
         HBuffer HeadToBuffer() const noexcept;
 
         //TODO: have multiple methods to get body parts. Maybe one to try using references because we know we are going to reuse this

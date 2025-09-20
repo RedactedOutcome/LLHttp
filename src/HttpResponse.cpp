@@ -100,6 +100,7 @@ namespace LLHttp{
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
 
+        std::cout << "Join size " << m_Join.GetSize()<<std::endl;
         HttpParseErrorCode error = ParseBodyTo(output, info);
         m_LastState = error;
         if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){

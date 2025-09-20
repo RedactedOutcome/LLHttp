@@ -59,19 +59,16 @@ namespace LLHttp{
         buff->Assign(data);
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
-        std::cout << "Head joni size " << m_Join.GetSize()<<std::endl;
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
 
         if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
-            std::cout << "Test 1 data is " << m_At << " Data : " << m_Join.SubString(m_At, 5).GetCStr()<<std::endl;
             m_At = 0;
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             buff->Free();
             return error;
         }
         buff->Assign(buff->GetCopy());
-        std::cout << "after Head joni size " << m_Join.GetSize()<<std::endl;
         return error;
     }
     
@@ -100,7 +97,6 @@ namespace LLHttp{
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
 
-        std::cout << "Join size " << m_Join.GetSize()<<std::endl;
         HttpParseErrorCode error = ParseBodyTo(output, info);
         m_LastState = error;
         if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
@@ -258,7 +254,6 @@ namespace LLHttp{
                 HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
                 //Rest wont be evaluated since after the first it will just jump to true
                 if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
-                    std::cout << "Using Identity"<<std::endl;
                     m_State = ResponseReadState::IdentityBody;
                 }
                 else if(transferEncoding == "chunked"){
@@ -280,12 +275,9 @@ namespace LLHttp{
             }
             case ResponseReadState::IdentityBody:{
                 if(m_Remaining != -1){
-                    std::cout << "Using remaining "<<std::endl;
                     /// Remaining has a valid value
 
                     size_t fillSize = m_Join.GetSize() - m_At;
-                    std::cout << "Size " << m_Join.GetSize() << " at " << m_At<<std::endl;
-                    std::cout << "M remaining " << m_Remaining << "remaining " << fillSize<<std::endl;
                     if(m_Remaining < 1)
                         return HttpParseErrorCode::NoMoreBodies;
                     info->m_ValidBody = true;
@@ -302,14 +294,11 @@ namespace LLHttp{
                     m_State = ResponseReadState::Finished;
                     return HttpParseErrorCode::None;
                 }
-                std::cout << "Not using remainning"<<std::endl;
                 //Get Body from no encoding with Content-Length
                 HBuffer& contentLength = GetHeader("Content-Length");
                 if(contentLength == ""){
-                    std::cout << "Empty content length"<<std::endl;
                     /// @brief If content length is empty with identity encoding then the body parts end when the connection ends
                     output = std::move(m_Join.SubString(m_At, -1));
-                    std::cout << "Output size" << output.GetSize()<<std::endl;
                     m_At = m_Join.GetSize();
                     info->m_IdentityEndsByStream = true;
                     return HttpParseErrorCode::NoMoreBodies;
@@ -317,18 +306,11 @@ namespace LLHttp{
                 size_t contentLengthValue = std::atoi(contentLength.GetCStr());
 
                 if(contentLengthValue < 1){
-                    std::cout << "Invalid content length"<<std::endl;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-                std::cout << "Header says " << contentLength.GetCStr()<<std::endl;
-                std::cout << "Content length is " << contentLengthValue<<std::endl;
-                std::cout << "Size is " << m_Join.GetSize() << " at is " << m_At<<std::endl;
-                std::cout << "buffer left is " << (m_Join.GetSize() - m_At) << std::endl;
                 if(m_Join.GetSize() - m_At < contentLengthValue){
-                    std::cout << "Using remaining"<<std::endl;
                     size_t fillSize = m_Join.GetSize() - m_At;
                     m_Remaining = contentLengthValue - std::min(contentLengthValue, fillSize);
-                    std::cout << "Fill size " << fillSize << "m_Remaining " << m_Remaining<<std::endl;
                     output = std::move(m_Join.SubString(m_At, fillSize));
                     info->m_ValidBody;
                     return HttpParseErrorCode::NeedsMoreData;
@@ -338,7 +320,6 @@ namespace LLHttp{
                 //Gots all the body data we need
                 output = std::move(m_Join.SubString(m_At, contentLengthValue));
                 m_State = ResponseReadState::Finished;
-                std::cout <<"Done"<<std::endl;
                 return HttpParseErrorCode::None;
             }
             case ResponseReadState::ChunkedBody:{

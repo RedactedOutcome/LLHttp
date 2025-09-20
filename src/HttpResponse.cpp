@@ -76,7 +76,7 @@ namespace LLHttp{
     }
     
     HttpParseErrorCode HttpResponse::ParseHeadCopy(HBuffer&& data, BodyParseInfo* info) noexcept{
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
 
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
@@ -91,7 +91,7 @@ namespace LLHttp{
     }
 
     HttpParseErrorCode HttpResponse::ParseNextBody(const HBuffer& data, HBuffer& output, BodyParseInfo* info) noexcept{
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)

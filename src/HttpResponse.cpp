@@ -5,6 +5,7 @@
 #endif
 #include "HttpResponse.h"
 #include "Decoder.h"
+#include "LLHttp.h"
 
 namespace LLHttp{
     HttpResponse::HttpResponse(){

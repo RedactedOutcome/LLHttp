@@ -5,6 +5,7 @@
 #endif
 #include "HttpRequest.h"
 #include "HttpData.h"
+#include "LLHttp.h"
 
 namespace LLHttp{
     HttpRequest::HttpRequest()noexcept{

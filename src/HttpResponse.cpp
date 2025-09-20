@@ -283,6 +283,7 @@ namespace LLHttp{
                     /// Remaining has a valid value
 
                     size_t remaining = m_Join.GetSize() - m_At;
+                    std::cout << "Size " << m_Join.GetSize() << " at " << m_At<<std::endl;
                     std::cout << "M remaining " << m_Remaining << "remaining " << remaining<<std::endl;
                     if(remaining < 1)
                         return HttpParseErrorCode::NoMoreBodies;

@@ -303,6 +303,7 @@ namespace LLHttp{
                     std::cout << "Empty content length"<<std::endl;
                     /// @brief If content length is empty with identity encoding then the body parts end when the connection ends
                     output = std::move(m_Join.SubString(m_At, -1));
+                    std::cout << "Output size" << output.GetSize()<<std::endl;
                     m_At = m_Join.GetSize();
                     info->m_IdentityEndsByStream = true;
                     return HttpParseErrorCode::NoMoreBodies;

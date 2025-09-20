@@ -316,6 +316,7 @@ namespace LLHttp{
                 }
                 std::cout << "Header says " << contentLength.GetCStr()<<std::endl;
                 std::cout << "Content length is " << contentLengthValue<<std::endl;
+                std::cout << "buffer left is " << (m_Join.GetSize() - m_At) << std::endl;
                 if(m_Join.GetSize() - m_At < contentLengthValue){
                     std::cout << "Using remaining"<<std::endl;
                     size_t fillSize = m_Join.GetSize() - m_At;

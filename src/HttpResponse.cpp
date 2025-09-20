@@ -175,7 +175,7 @@ namespace LLHttp{
                             size_t length = 10;
                             std::cout << "Continuation is :" << m_Join.SubString(m_At, length).GetCStr()<<std::endl;
                             for(size_t i = m_At; i < m_At + length; i++){
-                                std::cout << "At " << (size_t)i << "Char code " << (size_t)m_Join.At(i)<< " :"<<m_Join.At(i);
+                                std::cout << "At " << (size_t)i << "Char code " << (size_t)m_Join.At(i)<< " :"<<m_Join.At(i)<<std::endl;
                             }
                             delete headerName;
                             return HttpParseErrorCode::InvalidHeaderValue;

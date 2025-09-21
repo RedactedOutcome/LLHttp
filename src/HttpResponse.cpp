@@ -283,12 +283,12 @@ namespace LLHttp{
                     info->m_ValidBody = true;
                     if(fillSize < m_Remaining){
                         m_Remaining -= fillSize;
-                        output = std::move(m_Join.SubString(m_At, fillSize));
+                        output = m_Join.SubString(m_At, fillSize);
                         m_At+=fillSize;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
 
-                    output = std::move(m_Join.SubString(m_At, m_Remaining));
+                    output = m_Join.SubString(m_At, m_Remaining);
                     m_At+=m_Remaining;
                     m_Remaining = 0;
                     m_State = ResponseReadState::Finished;

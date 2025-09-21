@@ -33,7 +33,7 @@ namespace LLHttp{
             m_Protocol = URLProtocol::Http;
             m_Port = 80;
         }
-
+        
         size_t hostStart = at;
         size_t lastLabelStart = at;
         char c;

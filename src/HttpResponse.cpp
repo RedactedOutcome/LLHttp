@@ -852,59 +852,43 @@ namespace LLHttp{
 
         return HttpEncodingErrorCode::UnsupportedContentEncoding;
     }
-
-    std::vector<HBuffer> HttpResponse::BuffersToValidBodyFormat(std::vector<HBuffer>& buffers, bool addEndChunk)noexcept{
-        std::vector<HBuffer> bodyParts;
-
+    HttpEncodingErrorCode HttpResponse::BufferToValidBodyPartFormat(HBuffer&& input, HBuffer& output) noexcept{ 
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
-        const char* transferEncodingString = transferEncoding.GetCStr();
 
         if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
-            for(size_t i = 0; i < buffers.size(); i++){
-                HBuffer part;
-                part.Copy(buffers[i]);
-                bodyParts.emplace_back(std::move(part));
-            }
-            //CORE_DEBUG("Done");
-        }else if(transferEncoding == "chunked"){
-            for(size_t i = 0; i < buffers.size(); i++){
-                
-                const HBuffer& bodyPart = buffers[i];
+            output = std::move(input);
+            return HttpEncodingErrorCode::None;
+        }
+        else if(transferEncoding == "chunked"){
+            size_t partSize = input.GetSize();
 
-                size_t partSize = bodyPart.GetSize();
+            HBuffer string;
+            string.Reserve(5);
 
-                HBuffer string;
-                string.Reserve(5);
+            size_t size = partSize;
+            do{
+                char digit = size % 16;
+                string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
+                size/=16;
+            }while(size > 0);
 
-                size_t size = partSize;
-                do{
-                    char digit = size % 16;
-                    string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
-                    size/=16;
-                }while(size > 0);
+            string.Reverse();
 
-                string.Reverse();
+            output.Reserve(partSize + 6);
 
-                HBuffer buffer;
-                buffer.Reserve(partSize + 6);
+            output.Append(string.GetData(), string.GetSize());
+            output.Append('\r');
+            output.Append('\n');
+            output.Append(input.GetData(), partSize);
 
-                buffer.Append(string.GetData(), string.GetSize());
-                buffer.Append('\r');
-                buffer.Append('\n');
-                buffer.Append(bodyPart.GetData(), partSize);
-
-                buffer.Append('\r');
-                buffer.Append('\n');
-                bodyParts.emplace_back(std::move(buffer));
-            }
-            if(addEndChunk)bodyParts.emplace_back("0\r\n\r\n", 5, false, false);
-        }else{
-            std::cout << "Unsupported transfer encoding (" << transferEncodingString << ") "<<std::endl;
-            //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
+            output.Append('\r');
+            output.Append('\n');
+            return HttpEncodingErrorCode::None;
         }
 
-        return std::move(bodyParts);
+        return HttpEncodingErrorCode::UnsupportedContentEncoding;
     }
+    
     HttpEncodingErrorCode HttpResponse::Decompress() noexcept{
         HBuffer& contentEncoding = GetHeader("Content-Encoding");
 

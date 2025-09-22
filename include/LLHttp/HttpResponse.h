@@ -128,10 +128,9 @@ namespace LLHttp{
         /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
         HttpEncodingErrorCode BufferToValidBodyPartFormat(const HBuffer& input, HBuffer& output)noexcept;
 
-        /// @brief 
-        /// @param buffers 
-        /// @param addEndChunk decides if a null chunk is appended for chunked transfer encoding.
-        std::vector<HBuffer> BuffersToValidBodyFormat(std::vector<HBuffer>& buffers, bool addEndChunk=true)noexcept;
+        /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
+        HttpEncodingErrorCode BufferToValidBodyPartFormat(HBuffer&& input, HBuffer& output)noexcept;
+        
     public:
         HBuffer& GetHeader(const char* name) noexcept;
         HBuffer& GetHeader(const HBuffer& name) noexcept;

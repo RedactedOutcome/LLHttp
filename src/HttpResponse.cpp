@@ -285,6 +285,7 @@ namespace LLHttp{
                         m_Remaining -= fillSize;
                         output = m_Join.SubString(m_At, fillSize);
                         m_At+=fillSize;
+                        std::cout<<"H" << __LINE__<<std::endl;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
 
@@ -313,6 +314,7 @@ namespace LLHttp{
                     m_Remaining = contentLengthValue - std::min(contentLengthValue, fillSize);
                     output = std::move(m_Join.SubString(m_At, fillSize));
                     info->m_ValidBody;
+                    std::cout<<"H" << __LINE__<<std::endl;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
 

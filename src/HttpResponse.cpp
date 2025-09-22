@@ -46,8 +46,13 @@ namespace LLHttp{
         m_Verb = HttpVerb::Unknown;
         m_IsBodyCompressed = false;
         m_Join.Free();
+        m_At = 0;
         m_Remaining = -1;
+        m_LastState = HttpParseErrorCode::NeedsMoreData;
         m_State = ResponseReadState::Unknown;
+        
+        m_Version = HttpVersion::Unsupported;
+        m_Verb = HttpVerb::Unknown;
     }
     HttpParseErrorCode HttpResponse::ParseHead(const HBuffer& data, BodyParseInfo* info) noexcept{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;

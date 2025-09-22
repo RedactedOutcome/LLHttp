@@ -121,7 +121,9 @@ namespace LLHttp{
         std::vector<HBuffer>& GetBodyParts() const noexcept {return (std::vector<HBuffer>&)m_Body;}
         /// @brief returns a copy of a all the body parts. Body may be merged into a single part if transfer identity encoding. Else body is split up as needed depending on transfer encoding. Data inside the copy will not be decoded or encoded.
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
-        
+
+        HttpEncodingErrorCode GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)noexcept;
+
         /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
         HttpEncodingErrorCode BufferCopyToValidBodyPartFormat(const HBuffer& input, HBuffer& output)noexcept;
 
@@ -130,7 +132,12 @@ namespace LLHttp{
 
         /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
         HttpEncodingErrorCode BufferToValidBodyPartFormat(HBuffer&& input, HBuffer& output)noexcept;
+        
+        /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
+        HttpEncodingErrorCode BufferToValidBodyPartFormat(const HBuffer& input, std::vector<HBuffer>& output)noexcept;
 
+        /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
+        HttpEncodingErrorCode BufferToValidBodyPartFormat(HBuffer&& input, std::vector<HBuffer>& output)noexcept;
     public:
         HBuffer& GetHeader(const char* name) noexcept;
         HBuffer& GetHeader(const HBuffer& name) noexcept;

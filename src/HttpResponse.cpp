@@ -758,15 +758,64 @@ namespace LLHttp{
     }
 
     std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() noexcept{
-        return std::move(BuffersToValidBodyFormat(m_Body));
+        std::vector<HBuffer> buffer;
+        buffer.resize(m_Body.size());
+        for(size_t i = 0; i < m_Body.size(); i++){
+            buffer[i] = m_Body[i].GetCopy();
+        }
+        return buffer;
     }
-    
+
+    HttpEncodingErrorCode HttpResponse::GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)noexcept{
+        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+        output.reserve(m_Body.size());
+
+        if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
+            for(size_t i = 0; i < m_Body.size(); i++){
+                output.emplace_back(m_Body[i].GetCopy());
+            }
+
+            return HttpEncodingErrorCode::None;
+        }else if(transferEncoding == "chunked"){
+            for(size_t i = 0; i < m_Body.size(); i++){
+                const HBuffer& input = m_Body[i];
+
+                size_t partSize = input.GetSize();
+                HBuffer newPart;
+                newPart.Reserve(partSize + 5);
+
+                HBuffer string;
+                string.Reserve(5);
+                
+                size_t size = partSize;
+                do{
+                    char digit = size % 16;
+                    string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
+                    size/=16;
+                }while(size > 0);
+
+                string.Reverse();
+
+                newPart.Reserve(partSize + 6);
+
+                newPart.Append(string.GetData(), string.GetSize());
+                newPart.Append('\r');
+                newPart.Append('\n');
+                newPart.Append(input.GetData(), partSize);
+
+                newPart.Append('\r');
+                newPart.Append('\n');
+                output.emplace_back(std::move(newPart));
+            }
+
+            return HttpEncodingErrorCode::None;
+        }
+        return HttpEncodingErrorCode::UnsupportedContentEncoding;
+    }
 
     HttpEncodingErrorCode HttpResponse::BufferCopyToValidBodyPartFormat(const HBuffer& input, HBuffer& output) noexcept{ 
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
-        //const char* transferEncodingString = transferEncoding == nullptr ? "" : transferEncoding->GetCStr();
-        const char* transferEncodingString = transferEncoding.GetCStr();
-        
+
         if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             output = input.CreateCopy();
             return HttpEncodingErrorCode::None;

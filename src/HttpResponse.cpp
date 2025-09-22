@@ -21,7 +21,6 @@ namespace LLHttp{
     void HttpResponse::PrepareRead() noexcept{
         //memset(&m_Stream, 0, sizeof(z_stream));
         m_Version = HttpVersion::Unsupported;
-        m_Verb = HttpVerb::Unknown;
         m_Headers.clear();
         m_Cookies.clear();
         m_Body.clear();
@@ -30,6 +29,7 @@ namespace LLHttp{
         m_State = ResponseReadState::Unknown;
         m_At = 0;
         m_Remaining = -1;
+        m_IsBodyCompressed = false;
     }
 
     void HttpResponse::PrepareBodyRead() noexcept{
@@ -43,7 +43,6 @@ namespace LLHttp{
         m_Headers.clear();
         m_Cookies.clear();
         m_Body.clear();
-        m_Verb = HttpVerb::Unknown;
         m_IsBodyCompressed = false;
         m_Join.Free();
         m_At = 0;
@@ -52,7 +51,6 @@ namespace LLHttp{
         m_State = ResponseReadState::Unknown;
         
         m_Version = HttpVersion::Unsupported;
-        m_Verb = HttpVerb::Unknown;
     }
     HttpParseErrorCode HttpResponse::ParseHead(const HBuffer& data, BodyParseInfo* info) noexcept{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
@@ -888,7 +886,7 @@ namespace LLHttp{
 
         return HttpEncodingErrorCode::UnsupportedContentEncoding;
     }
-    
+
     HttpEncodingErrorCode HttpResponse::Decompress() noexcept{
         HBuffer& contentEncoding = GetHeader("Content-Encoding");
 

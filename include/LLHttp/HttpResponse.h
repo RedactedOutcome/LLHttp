@@ -130,7 +130,7 @@ namespace LLHttp{
 
         /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
         HttpEncodingErrorCode BufferToValidBodyPartFormat(HBuffer&& input, HBuffer& output)noexcept;
-        
+
     public:
         HBuffer& GetHeader(const char* name) noexcept;
         HBuffer& GetHeader(const HBuffer& name) noexcept;
@@ -140,7 +140,6 @@ namespace LLHttp{
         
         uint16_t GetStatus() const noexcept{return m_Status;}
         HttpVersion GetVersion() const noexcept{return m_Version;}
-        HttpVerb GetVerb() const noexcept{return m_Verb;}
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
         std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
@@ -152,7 +151,6 @@ namespace LLHttp{
     private:
         uint16_t m_Status = 0;
         HttpVersion m_Version = HttpVersion::Unsupported;
-        HttpVerb m_Verb = HttpVerb::Unknown;
         /// TODO: Case insensitive
         /// @brief a map of headers. When accessed directly the keys are case insensitive. Only through the get functions will be using lowercase functions
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals> m_Headers;

@@ -310,8 +310,8 @@ namespace LLHttp{
                     return HttpParseErrorCode::NoMoreBodies;
                 }
                 if(m_Join.GetSize() - m_At < contentLengthValue){
-                    size_t fillSize = m_Join.GetSize() - m_At;
-                    m_Remaining = contentLengthValue - std::min(contentLengthValue, fillSize);
+                    size_t fillSize = std::min(contentLengthValue, m_Join.GetSize() - m_At);
+                    m_Remaining = contentLengthValue - fillSize;
                     output = std::move(m_Join.SubString(m_At, fillSize));
                     info->m_ValidBody;
                     std::cout<<"H" << __LINE__<<std::endl;

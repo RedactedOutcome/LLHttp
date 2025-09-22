@@ -820,7 +820,7 @@ namespace LLHttp{
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
 
         if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
-            output = input;
+            output = input.GetCopy();
             return HttpEncodingErrorCode::None;
         }
         else if(transferEncoding == "chunked"){

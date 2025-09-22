@@ -98,7 +98,7 @@ namespace LLHttp{
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
-        std::cout << "Buff siz e" << buff->GetSize()<<std::endl;
+        //std::cout << "Buff siz e" << buff->GetSize()<<std::endl;
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
@@ -291,7 +291,7 @@ namespace LLHttp{
                         m_Remaining -= fillSize;
                         output = m_Join.SubString(m_At, fillSize);
                         m_At+=fillSize;
-                        std::cout<<"H" << __LINE__<<std::endl;
+                        //std::cout<<"H" << __LINE__<<std::endl;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
 

@@ -17,21 +17,7 @@ namespace LLHttp{
     HttpResponse::~HttpResponse(){
         //m_Body.Free();
     }
-
-    void HttpResponse::PrepareRead() noexcept{
-        //memset(&m_Stream, 0, sizeof(z_stream));
-        m_Version = HttpVersion::Unsupported;
-        m_Headers.clear();
-        m_Cookies.clear();
-        m_Body.clear();
-        m_Join.Free();
-        m_LastState = HttpParseErrorCode::NeedsMoreData;
-        m_State = ResponseReadState::Unknown;
-        m_At = 0;
-        m_Remaining = -1;
-        m_IsBodyCompressed = false;
-    }
-
+    
     void HttpResponse::PrepareBodyRead() noexcept{
         m_State = ResponseReadState::DetectBodyType;
         m_At = 0;

@@ -22,6 +22,7 @@ namespace LLHttp{
         m_Verb = request.m_Verb;
         m_State = request.m_State;
         m_LastState = request.m_LastState;
+        m_Remaining = request.m_Remaining;
         m_At = request.m_At;
         m_MidwayParsing = request.m_MidwayParsing;
         m_Body = std::move(request.m_Body);

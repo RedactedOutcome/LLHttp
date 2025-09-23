@@ -196,7 +196,7 @@ namespace LLHttp{
 
                     HBufferLowercaseEquals equals;
                     if(!equals(headerNameBuffer, "Set-Cookie")){
-                        std::cout << "headerName " << headerNameBuffer <<": " << headerValueBuffer.SubString(0,-1).GetCStr()<<std::endl;
+                        std::cout << "headerName " << headerNameBuffer.SubString(0,-1).GetCStr() <<": " << headerValueBuffer.SubString(0,-1).GetCStr()<<std::endl;
                         SetHeader(std::move(headerNameBuffer), std::move(headerValueBuffer));
                     }else{
                         /// TODO: handle cookie

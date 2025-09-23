@@ -178,7 +178,7 @@ namespace LLHttp{
                         }
                         valueEnd++;
                     }
-                    size_t headerSize = headerEnd - m_At;
+                    size_t headerSize = headerEnd - wasAt;
                     size_t valueLength = valueEnd - valueStart;
                     
                     /*

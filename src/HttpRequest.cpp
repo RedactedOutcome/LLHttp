@@ -32,28 +32,20 @@ namespace LLHttp{
 
         request.Clear();
     }
-    void HttpRequest::PrepareRead(){
+    void HttpRequest::Clear(){
         m_Version = HttpVersion::Unsupported;
         m_LastState = HttpParseErrorCode::NeedsMoreData;
         m_State = RequestReadState::Unknown;
-        m_At = 0;
-        m_MidwayParsing = false;
-        m_Body.clear();
-        m_Join.Free();
-        m_Path.Free();
-        m_Headers.clear();
-        m_Cookies.clear();
-    }
-
-    void HttpRequest::Clear(){
-        m_Version = HttpVersion::Unsupported;
         m_Verb = HttpVerb::Unknown;
         m_Path.Free();
         m_Headers.clear();
         m_Cookies.clear();
-        //m_Body.Free();
         m_Body.clear();
         m_MidwayParsing = false;
+
+        m_At = 0;
+        m_Remaining = -1;
+        m_Join.Free();
     }
 
     HttpParseErrorCode HttpRequest::ParseHead(const HBuffer& data, BodyParseInfo* info)noexcept{
@@ -310,8 +302,13 @@ namespace LLHttp{
             case RequestReadState::DetectBodyType:{
                 //Get ransfer encoding
                 HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
-                if(!transferEncoding || transferEncoding == "")
+                if(!transferEncoding || transferEncoding == ""){
+                    if(GetHeader("Content-Length")){
+                        m_State = RequestReadState::IdentityBody;
+                        return ParseBody(output, info);
+                    }
                     m_State = RequestReadState::EndOfBodies;
+                }
                 else if(transferEncoding == "identity"){
                     m_State = RequestReadState::IdentityBody;
                 }else if(transferEncoding == "chunked"){
@@ -322,19 +319,53 @@ namespace LLHttp{
                 return ParseBody(output, info);
             }
             case RequestReadState::IdentityBody:{//Get the body from no transfer encoding
-                HBuffer& contentLength = GetHeader("Content-Length");
+                if(m_Remaining != -1){
+                    /// Remaining has a valid value
 
-                if(!contentLength){
-                    /// @brief malformed request. If identity encoding then we must have a valid body size
-                    m_State = RequestReadState::Unknown;
-                    return HttpParseErrorCode::FailedToGetIdentityBodySize;
+                    size_t fillSize = m_Join.GetSize() - m_At;
+                    if(m_Remaining < 1)
+                        return HttpParseErrorCode::NoMoreBodies;
+                    info->m_ValidBody = true;
+                    if(fillSize < m_Remaining){
+                        m_Remaining -= fillSize;
+                        output = m_Join.SubString(m_At, fillSize);
+                        m_At+=fillSize;
+                        //std::cout<<"H" << __LINE__<<std::endl;
+                        return HttpParseErrorCode::NeedsMoreData;
+                    }
+
+                    output = m_Join.SubString(m_At, m_Remaining);
+                    m_At+=m_Remaining;
+                    m_Remaining = 0;
+                    m_State = RequestReadState::Finished;
+                    return HttpParseErrorCode::None;
+                }
+                //Get Body from no encoding with Content-Length
+                HBuffer& contentLength = GetHeader("Content-Length");
+                if(contentLength == ""){
+                    /// @brief If content length is empty with identity encoding then the body parts end when the connection ends
+                    output = std::move(m_Join.SubString(m_At, -1));
+                    m_At = m_Join.GetSize();
+                    info->m_IdentityEndsByStream = true;
+                    return HttpParseErrorCode::NoMoreBodies;
+                }
+                size_t contentLengthValue = std::atoi(contentLength.GetCStr());
+
+                if(contentLengthValue < 1){
+                    return HttpParseErrorCode::NoMoreBodies;
+                }
+                if(m_Join.GetSize() - m_At < contentLengthValue){
+                    size_t fillSize = std::min(contentLengthValue, m_Join.GetSize() - m_At);
+                    m_Remaining = contentLengthValue - fillSize;
+                    output = std::move(m_Join.SubString(m_At, fillSize));
+                    info->m_ValidBody;
+                    return HttpParseErrorCode::NeedsMoreData;
                 }
 
-                size_t size = atoi(contentLength.GetData());
-                if(m_Join.GetSize() - m_At < size)return HttpParseErrorCode::NeedsMoreData;
-
-                m_Body.emplace_back(std::move(m_Join.SubString(m_At, size)));
-                m_State = RequestReadState::EndOfBodies;
+                /// TODO: Check for encoding and decode
+                //Gots all the body data we need
+                output = std::move(m_Join.SubString(m_At, contentLengthValue));
+                m_State = RequestReadState::Finished;
                 return HttpParseErrorCode::None;
             }
             case RequestReadState::ChunkedBody:{//Get body from chunked transfer encoding
@@ -626,57 +657,58 @@ namespace LLHttp{
         }
         return buffer;
     }
-
-    std::vector<HBuffer> HttpRequest::GetBodyPartsCopy() noexcept{
+    std::vector<HBuffer> HttpRequest::GetBodyPartsCopy()noexcept{
         std::vector<HBuffer> bodyParts;
-        
+        bodyParts.reserve(m_Body.size());
+        for(size_t i = 0; i < m_Body.size(); i++)
+            bodyParts.emplace_back(m_Body[i].GetCopy());
+        return bodyParts;
+    }
+    HttpEncodingErrorCode HttpResponse::GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)noexcept{
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
-        
+        output.reserve(m_Body.size());
+
         if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             for(size_t i = 0; i < m_Body.size(); i++){
-                HBuffer part;
-                part.Copy(m_Body[i]);
-                bodyParts.emplace_back(std::move(part));
+                output.emplace_back(m_Body[i].GetCopy());
             }
+
+            return HttpEncodingErrorCode::None;
         }else if(transferEncoding == "chunked"){
             for(size_t i = 0; i < m_Body.size(); i++){
-                const HBuffer& bodyPart = m_Body[i];
+                const HBuffer& input = m_Body[i];
 
-                size_t bodySize = bodyPart.GetSize();
-                
+                size_t partSize = input.GetSize();
+                HBuffer newPart;
+                newPart.Reserve(partSize + 5);
+
                 HBuffer string;
                 string.Reserve(5);
                 
-                size_t size = bodySize;
-                while(size > 0){
+                size_t size = partSize;
+                do{
                     char digit = size % 16;
-                    string.AppendString(digit >= 10 ? 55 + digit : digit + '0');
+                    string.AppendString(digit >= 10 ? (55 + digit) : (digit + '0'));
                     size/=16;
-                }
-                
+                }while(size > 0);
+
                 string.Reverse();
 
-                HBuffer buffer;
-                buffer.Reserve(bodySize + 6);
+                newPart.Reserve(partSize + 6);
 
-                buffer.Append(string.GetData(), string.GetSize());
-                buffer.Append('\r');
-                buffer.Append('\n');
-                buffer.Append(bodyPart.GetData(), bodySize);
+                newPart.Append(string.GetData(), string.GetSize());
+                newPart.Append('\r');
+                newPart.Append('\n');
+                newPart.Append(input.GetData(), partSize);
 
-                buffer.Append('\r');
-                buffer.Append('\n');
-                bodyParts.emplace_back(std::move(buffer));
+                newPart.Append('\r');
+                newPart.Append('\n');
+                output.emplace_back(std::move(newPart));
             }
-            bodyParts.emplace_back("0\r\n\r\n", 5, false, false);
-        }else{
-            //CORE_ERROR("Failed to get body parts copy from unsupported transfer Encoding {0}", transferEncoding.GetCStr());
-        }
 
-        //HBuffer = operator creates a copy
-        //HBuffer bodyPart = m_Body;
-        //bodyParts.emplace_back(std::move(bodyPart));
-        return std::move(bodyParts);
+            return HttpEncodingErrorCode::None;
+        }
+        return HttpEncodingErrorCode::UnsupportedContentEncoding;
     }
 
     HttpEncodingErrorCode HttpRequest::Decompress() noexcept{

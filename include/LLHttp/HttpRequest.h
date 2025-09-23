@@ -20,7 +20,8 @@ namespace LLHttp{
         DetectBodyType,
         IdentityBody,
         ChunkedBody,
-        EndOfBodies
+        EndOfBodies,
+        Finished
     };
     class HttpRequest{
     public:
@@ -108,9 +109,9 @@ namespace LLHttp{
     public:
         HBuffer HeadToBuffer() const noexcept;
 
-        //TODO: have multiple methods to get body parts. Maybe one to try using references because we know we are going to reuse this
-        //TODO: maybe have one that just force copies ect. Not sure but think about this in the future
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
+
+        HttpEncodingErrorCode GetFormattedBodyPartsCopy(std::vector<HBuffer>& output) noexcept;
     public:
         HBuffer& GetHeader(const char* name) noexcept;
         HBuffer& GetHeader(const HBuffer& name) noexcept;
@@ -152,5 +153,6 @@ namespace LLHttp{
         /// @brief first string is the last copy of a "read" buffer if there is one. Right is a view of the new read buffer data
         HBufferJoin m_Join;
         size_t m_At=0;
+        size_t m_Remaining = -1;
     };
 }

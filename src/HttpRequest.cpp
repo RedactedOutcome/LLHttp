@@ -554,7 +554,9 @@ namespace LLHttp{
             RemoveHeader(HBuffer("Content-Length", 14, false, false));
             return;
         }
+        std::cout << "bef content length is " << GetHeader("Content-Length").GetCStr()<<std::endl;
         SetHeader("Content-Length", HBuffer::ToString(totalSize));
+        std::cout << "After content length is " << GetHeader("Content-Length").GetCStr()<<std::endl;
     }
     HBuffer HttpRequest::HeadToBuffer() const noexcept{
         HBuffer buffer;
@@ -629,7 +631,7 @@ namespace LLHttp{
                 buffer.Append(pair.second->GetValue());
                 buffer.Append("\r\n", 2);
             }*/
-           
+
             buffer.Append("\r\n", 2);
             break;
         }

@@ -664,7 +664,7 @@ namespace LLHttp{
             bodyParts.emplace_back(m_Body[i].GetCopy());
         return bodyParts;
     }
-    HttpEncodingErrorCode HttpResponse::GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)noexcept{
+    HttpEncodingErrorCode HttpRequest::GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)noexcept{
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
         output.reserve(m_Body.size());
 

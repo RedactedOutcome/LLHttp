@@ -425,7 +425,7 @@ namespace LLHttp{
             }
             
             case RequestReadState::EndOfBodies:
-            case RequestReadState::Finshed:{
+            case RequestReadState::Finished:{
                 return HttpParseErrorCode::NoMoreBodies;
             }
         }

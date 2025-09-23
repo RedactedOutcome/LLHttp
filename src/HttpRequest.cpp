@@ -325,7 +325,7 @@ namespace LLHttp{
                 return ParseBody(output, info);
             }
             case RequestReadState::IdentityBody:{//Get the body from no transfer encoding
-                sdt::cout << "Getting identity body reaquest"<<std::endl;
+                std::cout << "Getting identity body reaquest"<<std::endl;
                 if(m_Remaining != -1){
                     /// Remaining has a valid value
 

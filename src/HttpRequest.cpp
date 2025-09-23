@@ -510,7 +510,7 @@ namespace LLHttp{
         m_Headers[std::move(name)] = value;
     }
     void HttpRequest::SetHeader(HBuffer&& name, HBuffer&& value) noexcept{
-        m_Headers[std::move(name)] = value;
+        m_Headers[std::move(name)] = std::move(value);
     }
     void HttpRequest::RemoveHeader(const char* header)noexcept{
         m_Headers.erase(header);

@@ -50,73 +50,75 @@ namespace LLHttp{
     }
 
     HttpParseErrorCode HttpRequest::ParseHead(const HBuffer& data, BodyParseInfo* info)noexcept{
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
+
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(data);
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
 
-        /// Only copying data if needed
-        if(error == HttpParseErrorCode::None){
+        if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
+            m_At = 0;
+            /// @brief freeing incase data is temporary and we dont want dangling pointers
             buff->Free();
             return error;
         }
-        HBuffer copy = buff->GetCopy();
-        buff->Assign(std::move(copy));
+        buff->Assign(buff->GetCopy());
         return error;
     }
     HttpParseErrorCode HttpRequest::ParseHeadCopy(HBuffer&& data, BodyParseInfo* info)noexcept{
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
+
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
-
         return error;
     }
     HttpParseErrorCode HttpRequest::ParseNextBody(const HBuffer& data, HBuffer& output, BodyParseInfo* info) noexcept{
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
+        //std::cout << "Buff siz e" << buff->GetSize()<<std::endl;
+        buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
 
         HttpParseErrorCode error = ParseBody(output, info);
         m_LastState = error;
-
-        if(error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies){
+        if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
+            /// @brief freeing incase data is temporary and we dont want dangling pointers
+            m_At = 0;
             buff->Free();
             return error;
         }
-
+        buff->Assign(buff->GetCopy());
         return error;
     }
     HttpParseErrorCode HttpRequest::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, BodyParseInfo* info) noexcept{
+        if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(std::move(data));
         /// TODO: fix potential bugs with reassigning m_At
-        if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
         m_At = 0;
 
         HttpParseErrorCode error = ParseBody(output, info);
         m_LastState = error;
-
         return error;
     }
 
@@ -172,30 +174,34 @@ namespace LLHttp{
                         }
                         if(m_Join.StartsWith(valueEnd, "\r\n"))break;
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
-                            std::cout << "Jion invalid t" << m_Join.SubString(valueEnd, 5).GetCStr()<<std::endl;
                             return HttpParseErrorCode::InvalidHeaderValue;
                         }
                         valueEnd++;
                     }
-
                     size_t headerSize = headerEnd - m_At;
+                    size_t valueLength = valueEnd - valueStart;
+                    
+                    /*
                     char* headerName = new char[headerSize + 1];
                     m_Join.MemcpyTo(headerName, wasAt, headerSize);
                     headerName[headerSize] = '\0';
 
-                    size_t valueLength = valueEnd - valueStart;
                     char* headerValue = new char[valueLength + 1];
                     m_Join.MemcpyTo(headerValue, valueStart, valueLength);
                     headerValue[valueLength] = '\0';
+                    */
 
-                    HBuffer headerNameBuffer(headerName, headerSize, true, true);
+                    HBuffer headerNameBuffer = m_Join.SubString(wasAt, headerSize);
+                    HBuffer headerValueBuffer = m_Join.SubString(valueStart, valueLength);
+
                     HBufferLowercaseEquals equals;
                     if(!equals(headerNameBuffer, "Set-Cookie")){
-                        SetHeader(std::move(headerNameBuffer), HBuffer(headerValue, valueLength, true, true));
+                        std::cout << "headerName " << headerNameBuffer <<": " << headerValueBuffer.SubString(0,-1).GetCStr()<<std::endl;
+                        SetHeader(std::move(headerNameBuffer), std::move(headerValueBuffer));
                     }else{
                         /// TODO: handle cookie
-                        delete headerName;
-                        delete headerValue;
+                        //delete headerName;
+                        //delete headerValue;
                     }
                     //CORE_DEBUG("Setting header {0}:{1}", headerName, headerValue);
                     //delete headerValue;

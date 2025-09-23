@@ -614,12 +614,13 @@ namespace LLHttp{
                 const HBuffer& headerValue = myPair.second;
 
                 if(headerName.GetSize() < 1 || headerValue.GetSize() < 1)continue;
-                buffer.Append(headerName.GetCStr());
+                buffer.Append(headerName);
                 buffer.Append(": ", 2);
-                buffer.Append(headerValue.GetCStr());
+                buffer.Append(headerValue);
                 buffer.Append("\r\n", 2);
             }
 
+            /**
             //Cookies
             for (const auto &pair : m_Cookies) {
                 if(pair.first.GetSize() < 1 || pair.second == nullptr)continue;
@@ -627,7 +628,8 @@ namespace LLHttp{
                 buffer.Append("= ", 2);
                 buffer.Append(pair.second->GetValue());
                 buffer.Append("\r\n", 2);
-            }
+            }*/
+           
             buffer.Append("\r\n", 2);
             break;
         }

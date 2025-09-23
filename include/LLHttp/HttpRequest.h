@@ -94,7 +94,6 @@ namespace LLHttp{
 
         //Clears all data
         void Clear();
-        void PrepareRead();
         void PreparePayload();
 
         /// @brief Attempts to decompress the body data depending on the Content-Encoding header. 

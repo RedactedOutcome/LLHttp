@@ -196,7 +196,6 @@ namespace LLHttp{
 
                     HBufferLowercaseEquals equals;
                     if(!equals(headerNameBuffer, "Set-Cookie")){
-                        std::cout << "headerName " << headerNameBuffer.SubString(0,-1).GetCStr() <<": " << headerValueBuffer.SubString(0,-1).GetCStr()<<std::endl;
                         SetHeader(std::move(headerNameBuffer), std::move(headerValueBuffer));
                     }else{
                         /// TODO: handle cookie
@@ -561,9 +560,7 @@ namespace LLHttp{
             RemoveHeader(HBuffer("Content-Length", 14, false, false));
             return;
         }
-        std::cout << "bef content length is " << GetHeader("Content-Length").GetCStr()<<std::endl;
         SetHeader("Content-Length", HBuffer::ToString(totalSize));
-        std::cout << "After content length is " << GetHeader("Content-Length").GetCStr()<<std::endl;
     }
     HBuffer HttpRequest::HeadToBuffer() const noexcept{
         HBuffer buffer;

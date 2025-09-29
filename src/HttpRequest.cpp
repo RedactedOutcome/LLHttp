@@ -157,7 +157,7 @@ namespace LLHttp{
                     }
 
                     //Check for valid end
-                    char spaceChar = m_Join.Get(++headerEnd);
+                    char spaceChar = m_Join.Get(headerEnd + 1);
                     if(spaceChar != ' '){
                         if(spaceChar == '\0'){
                             return HttpParseErrorCode::NeedsMoreData;
@@ -165,7 +165,7 @@ namespace LLHttp{
                         return HttpParseErrorCode::InvalidHeaderSplit;
                     }
 
-                    valueStart = ++headerEnd;
+                    valueStart = headerEnd + 2;
                     valueEnd = valueStart;
 
                     //HeaderValue

@@ -139,11 +139,15 @@ namespace LLHttp{
 
                     //HeaderName
                     while(true){
-                        char c = m_Join.Get(headerEnd);
-                        if(c == '\0'){
-                            m_At = wasAt;
+                        /// @brief check for double line end to stop the head phase
+                        int status = m_Join.StrXCmp(headerEnd, "\r\n");
+                        if(status == 0)
+                            return HttpParseErrorCode::InvalidHeaderName;
+                        if(status == -1){
                             return HttpParseErrorCode::NeedsMoreData;
                         }
+                        
+                        char c = m_Join.Get(headerEnd);
                         if(c == ':')break;
                         if(!std::isdigit(c) && !std::isalpha(c) && c!= '-' && c!='_'){
                             //CORE_DEBUG("BREAKING {0} {1}", (size_t)c, m_Join.SubString(headerEnd, 5).GetCStr());
@@ -153,26 +157,28 @@ namespace LLHttp{
                     }
 
                     //Check for valid end
-                    char spaceChar = m_Join.Get(headerEnd + 1);
+                    char spaceChar = m_Join.Get(++headerEnd);
                     if(spaceChar != ' '){
                         if(spaceChar == '\0'){
-                            m_At = wasAt;
                             return HttpParseErrorCode::NeedsMoreData;
                         }
                         return HttpParseErrorCode::InvalidHeaderSplit;
                     }
 
-                    valueStart = headerEnd + 2;
+                    valueStart = ++headerEnd;
                     valueEnd = valueStart;
 
                     //HeaderValue
                     while(true){
-                        char c = m_Join.Get(valueEnd);
-                        if(c == '\0'){
-                            m_At = wasAt;
+                        int status = m_Join.StrXCmp(valueEnd, "\r\n");
+                        if(status == 0)
+                            break;
+                        if(status == -1){
                             return HttpParseErrorCode::NeedsMoreData;
                         }
-                        if(m_Join.StartsWith(valueEnd, "\r\n"))break;
+                        char c= m_Join.Get(m_At);
+                        /// TODO: make table
+                        //if(c != '*' && c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
                             return HttpParseErrorCode::InvalidHeaderValue;
                         }
@@ -180,16 +186,6 @@ namespace LLHttp{
                     }
                     size_t headerSize = headerEnd - wasAt;
                     size_t valueLength = valueEnd - valueStart;
-                    
-                    /*
-                    char* headerName = new char[headerSize + 1];
-                    m_Join.MemcpyTo(headerName, wasAt, headerSize);
-                    headerName[headerSize] = '\0';
-
-                    char* headerValue = new char[valueLength + 1];
-                    m_Join.MemcpyTo(headerValue, valueStart, valueLength);
-                    headerValue[valueLength] = '\0';
-                    */
 
                     HBuffer headerNameBuffer = m_Join.SubString(wasAt, headerSize);
                     HBuffer headerValueBuffer = m_Join.SubString(valueStart, valueLength);
@@ -202,9 +198,6 @@ namespace LLHttp{
                         //delete headerName;
                         //delete headerValue;
                     }
-                    //CORE_DEBUG("Setting header {0}:{1}", headerName, headerValue);
-                    //delete headerValue;
-                    //delete headerName;
                     m_At = valueEnd + 2;
                     
                     if(m_Join.StartsWith(m_At, "\r\n")){
@@ -212,9 +205,10 @@ namespace LLHttp{
                         break;
                     }
                 }
-                /// Checking if body is compressed. Might remove
+                /// Checking if body is encoded.
                 HBuffer& encoding = GetHeader("Content-Encoding");
                 m_IsBodyEncoded = encoding != "" && encoding != "identity";
+                /// TODO: might have a seperate variable for body encoding for ease of access
                 m_State = RequestReadState::DetectBodyType;
                 return HttpParseErrorCode::None;
             }

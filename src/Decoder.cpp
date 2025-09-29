@@ -102,18 +102,17 @@ namespace LLHttp{
         for(size_t i = 0; i < size; i++){
             char c = input.At(i);
 
-            if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.'){
-                output.Append(c);
-                continue;
-            }
-
             if(c == '+'){
                 output.Append(' ');
                 continue;
             }
 
             if(c != '%'){
-                return HttpEncodingErrorCode::IllegalPercentEncodingDelimiter;
+                if(::LLHttp::IsValidPathCharacter(c)){
+                    output.Append(c);
+                    continue;
+                }
+                return HttpEncodingErrorCode::InvalidPercentEncodingCharacter;
             }
 
             i++;
@@ -222,10 +221,6 @@ namespace LLHttp{
         for(size_t i = 0; i < size; i++){
             char c = input.At(i);
 
-            if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.'){
-                output.Append(c);
-                continue;
-            }
             switch(c){
                 case ':':
                     output.Append("%3A");
@@ -293,8 +288,13 @@ namespace LLHttp{
                 case '.':
                     output.Append("%2E");
                     break;
-                default:
+                default:{
+                    if(::LLHttp::IsValidPathCharacter(c)){
+                        output.Append(c);
+                        break;
+                    }   
                     return HttpEncodingErrorCode::InvalidPercentEncodingCharacter;
+                }
                 }
         }
 

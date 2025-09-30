@@ -544,7 +544,7 @@ namespace LLHttp{
     void HttpRequest::PreparePayload(){
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
 
-        if(transferEncoding && transferEncoding == "chunked"){
+        if(transferEncoding == "chunked"){
             RemoveHeader(HBuffer("Content-Length", 14, false, false));
             return;
         }

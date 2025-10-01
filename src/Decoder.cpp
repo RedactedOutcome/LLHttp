@@ -160,7 +160,7 @@ namespace LLHttp{
                 break;
             case 0x21:
                 output.Append('!');
-                break;
+                break; 
             case 0x24:
                 output.Append('$');
                 break;

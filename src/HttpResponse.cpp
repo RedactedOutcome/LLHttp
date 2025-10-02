@@ -281,7 +281,7 @@ namespace LLHttp{
 
                     output = m_Join.SubString(m_At, m_Remaining);
                     m_At+=m_Remaining;
-                    m_Remaining = 0;
+                    m_Remaining = -1;
                     m_State = ResponseReadState::Finished;
                     return HttpParseErrorCode::None;
                 }

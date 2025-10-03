@@ -288,6 +288,7 @@ namespace LLHttp{
                 std::cout<<"T!"<<__LINE__<<std::endl;
                 //Get Body from no encoding with Content-Length
                 HBuffer& contentLength = GetHeader("Content-Length");
+                std::cout<<"content length : "<< contentLength<<std::endl;
                 if(contentLength == ""){
                     /// @brief If content length is empty with identity encoding then the body parts end when the connection ends
                     output = std::move(m_Join.SubString(m_At, -1));
@@ -304,7 +305,7 @@ namespace LLHttp{
                     size_t fillSize = std::min(contentLengthValue, m_Join.GetSize() - m_At);
                     m_Remaining = contentLengthValue - fillSize;
                     output = std::move(m_Join.SubString(m_At, fillSize));
-                    info->m_ValidBody;
+                    //info->m_ValidBody;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
 

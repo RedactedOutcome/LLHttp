@@ -25,6 +25,7 @@ struct BodyParseInfo{
     /// @brief a bool that is determined on whether the body parts for identity is any data sent until the stream is ended
     /// @brief Http specification says that if content-length isnt specified any data passed the head phase is the body until the stream is ended
     /// @brief Set by response parser and should only be used in a response parsing context.
+    /// TODO: might just remove and replace with error code NeedsMoreData
     bool m_IdentityEndsByStream=false;
     uint32_t m_FinishedAt=0;
     bool m_ValidBody=false;

@@ -283,10 +283,15 @@ namespace LLHttp{
                     m_At+=m_Remaining;
                     m_Remaining = -1;
                     m_State = ResponseReadState::Finished;
+                    std::cout<<"T"<<std::endl;
                     return HttpParseErrorCode::None;
                 }
                 std::cout<<"T!"<<__LINE__<<std::endl;
                 //Get Body from no encoding with Content-Length
+                for(auto[headerName, val] : GetHeaders()){
+                    std::cout<<headerName << ": " << val<<std::endl;
+                }
+                std::cout<<"T1"<<std::endl;
                 HBuffer& contentLength = GetHeader("Content-Length");
                 std::cout<<"content length : "<< contentLength<<std::endl;
                 if(contentLength == ""){

@@ -288,8 +288,8 @@ namespace LLHttp{
                 }
                 std::cout<<"T!"<<__LINE__<<std::endl;
                 //Get Body from no encoding with Content-Length
-                for(auto[headerName, val] : GetHeaders()){
-                    std::cout<<headerName << ": " << val<<std::endl;
+                for(auto it: GetHeaders()){
+                    std::cout<<it.first << ": " << it.second<<std::endl;
                 }
                 std::cout<<"T1"<<std::endl;
                 HBuffer& contentLength = GetHeader("Content-Length");

@@ -267,15 +267,15 @@ namespace LLHttp{
                 if(m_Remaining != -1){
                     /// Remaining has a valid value
 
-                    size_t fillSize = m_Join.GetSize() - m_At;
+                    size_t remainingSize = m_Join.GetSize() - m_At;
                     if(m_Remaining < 1)
                         return HttpParseErrorCode::NoMoreBodies;
                     info->m_ValidBody = true;
-                    if(fillSize < m_Remaining){
-                        m_Remaining -= fillSize;
-                        output = m_Join.SubString(m_At, fillSize);
-                        m_At+=fillSize;
-                        //std::cout<<"H" << __LINE__<<std::endl;
+                    if(remainingSize < m_Remaining){
+                        m_Remaining -= remainingSize;
+                        output = m_Join.SubString(m_At, remainingSize);
+                        m_At+=remainingSize;
+                        std::cout<<"here"<<std::endl;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
 

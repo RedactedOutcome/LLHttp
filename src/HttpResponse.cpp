@@ -271,6 +271,7 @@ namespace LLHttp{
                     if(m_Remaining < 1)
                         return HttpParseErrorCode::NoMoreBodies;
                     info->m_ValidBody = true;
+                    std::cout << "Remaining : " << m_Remaining<<std::endl;
                     if(remainingSize < m_Remaining){
                         m_Remaining -= remainingSize;
                         output = m_Join.SubString(m_At, remainingSize);
@@ -308,7 +309,7 @@ namespace LLHttp{
                 }
                 size_t remainingSize = m_Join.GetSize() - m_At;
                 if(remainingSize < contentLengthValue){
-                    m_Remaining = remainingSize;
+                    m_Remaining = contentLengthValue - remainingSize;
                     output = m_Join.SubString(m_At, remainingSize);
                     std::cout<<"Using"<<std::endl;
                     return HttpParseErrorCode::NeedsMoreData;

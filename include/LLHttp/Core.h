@@ -28,5 +28,5 @@ struct BodyParseInfo{
     /// TODO: might just remove and replace with error code NeedsMoreData
     bool m_IdentityEndsByStream=false;
     uint32_t m_FinishedAt=0;
-    bool m_ValidBody=false;
+    bool m_ValidBody=false; 
 };

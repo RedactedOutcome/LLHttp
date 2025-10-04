@@ -266,18 +266,14 @@ namespace LLHttp{
             case ResponseReadState::IdentityBody:{
                 if(m_Remaining != -1){
                     /// Remaining has a valid value
-                    std::cout << "Join size " << m_Join.GetSize()<<std::endl;
-                    std::cout << "Join at " << m_At<<std::endl;
                     size_t remainingSize = m_Join.GetSize() - m_At;
                     if(m_Remaining < 1)
                         return HttpParseErrorCode::NoMoreBodies;
                     info->m_ValidBody = true;
-                    std::cout << "Remaining : " << m_Remaining<<std::endl;
                     if(remainingSize < m_Remaining){
                         m_Remaining -= remainingSize;
                         output = m_Join.SubString(m_At, remainingSize);
                         m_At+=remainingSize;
-                        std::cout<<"here"<<std::endl;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
 
@@ -285,17 +281,13 @@ namespace LLHttp{
                     m_At+=m_Remaining;
                     m_Remaining = -1;
                     m_State = ResponseReadState::Finished;
-                    std::cout<<"T"<<std::endl;
                     return HttpParseErrorCode::None;
                 }
-                std::cout<<"T!"<<__LINE__<<std::endl;
                 //Get Body from no encoding with Content-Length
                 for(auto it: GetHeaders()){
                     std::cout<<it.first.GetCStr() << ": " << it.second.GetCStr()<<std::endl;
                 }
-                std::cout<<"T1"<<std::endl;
                 HBuffer& contentLength = GetHeader("Content-Length");
-                std::cout<<"content length : "<< contentLength.GetCStr()<<std::endl;
                 if(contentLength == ""){
                     /// @brief If content length is empty with identity encoding then the body parts end when the connection ends
                     output = std::move(m_Join.SubString(m_At, -1));
@@ -313,10 +305,8 @@ namespace LLHttp{
                     m_Remaining = contentLengthValue - remainingSize;
                     output = m_Join.SubString(m_At, remainingSize);
                     m_At+=m_Remaining;
-                    std::cout<<"Using"<<std::endl;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
-                std::cout <<"test"<<std::endl;
                 /// TODO: Check for encoding and decode
                 //Gots all the body data we need
                 output = std::move(m_Join.SubString(m_At, contentLengthValue));

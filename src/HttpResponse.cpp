@@ -312,6 +312,7 @@ namespace LLHttp{
                 if(remainingSize < contentLengthValue){
                     m_Remaining = contentLengthValue - remainingSize;
                     output = m_Join.SubString(m_At, remainingSize);
+                    m_At+=m_Remaining;
                     std::cout<<"Using"<<std::endl;
                     return HttpParseErrorCode::NeedsMoreData;
                 }

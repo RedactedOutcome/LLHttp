@@ -284,9 +284,6 @@ namespace LLHttp{
                     return HttpParseErrorCode::None;
                 }
                 //Get Body from no encoding with Content-Length
-                for(auto it: GetHeaders()){
-                    std::cout<<it.first.GetCStr() << ": " << it.second.GetCStr()<<std::endl;
-                }
                 HBuffer& contentLength = GetHeader("Content-Length");
                 if(contentLength == ""){
                     /// @brief If content length is empty with identity encoding then the body parts end when the connection ends

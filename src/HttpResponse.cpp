@@ -266,7 +266,8 @@ namespace LLHttp{
             case ResponseReadState::IdentityBody:{
                 if(m_Remaining != -1){
                     /// Remaining has a valid value
-
+                    std::cout << "Join size " << m_Join.GetSize()<<std::endl;
+                    std::cout << "Join at " << m_At<<std::endl;
                     size_t remainingSize = m_Join.GetSize() - m_At;
                     if(m_Remaining < 1)
                         return HttpParseErrorCode::NoMoreBodies;

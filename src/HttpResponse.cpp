@@ -306,11 +306,10 @@ namespace LLHttp{
                 if(contentLengthValue < 1){
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-                size_t fillSize = m_Join.GetSize() - m_At;
-                if(fillSize < contentLengthValue){
-                    m_Remaining = fillSize;
-                    output = std::move(m_Join.SubString(m_At, fillSize));
-                    //info->m_ValidBody;
+                size_t remainingSize = m_Join.GetSize() - m_At;
+                if(remainingSize < contentLengthValue){
+                    m_Remaining = remainingSize;
+                    output = m_Join.SubString(m_At, remainingSize);
                     std::cout<<"Using"<<std::endl;
                     return HttpParseErrorCode::NeedsMoreData;
                 }

@@ -422,15 +422,15 @@ namespace LLHttp{
         size_t strLen = strlen(data);
         char* bodyData = new char[strLen];
         for(size_t i = 0; i < strLen; i++)
-            bodyData[i] = data[i];
+        bodyData[i] = data[i];
         m_Body.clear();
         m_Body.emplace_back(const_cast<char*>(bodyData), strLen, true, true);
     }
-
+    
     void HttpResponse::SetBodyAsCopy(char* data, size_t size)noexcept{
         char* bodyData = new char[size];
         for(size_t i = 0; i < size; i++)
-            bodyData[i] = data[i];
+        bodyData[i] = data[i];
         m_Body.clear();
         m_Body.emplace_back(const_cast<char*>(bodyData), size, true, true);
     }
@@ -459,11 +459,11 @@ namespace LLHttp{
         m_Body.clear();
         m_Body.emplace_back(buffer);
     }
-
+    
     void HttpResponse::AddBodyReference(const HBuffer& buffer)noexcept{
         m_Body.emplace_back(buffer);
     }
-
+    
     void HttpResponse::AddBody(const HBuffer& buffer)noexcept{
         m_Body.emplace_back(std::move(buffer));
     }
@@ -476,7 +476,7 @@ namespace LLHttp{
     void HttpResponse::SetStatus(HttpStatus status)noexcept{
         m_Status = (uint16_t)status;
     }
-
+    
     void HttpResponse::Redirect(const HBuffer& location) noexcept{
         m_Status = (uint16_t)HttpStatus::MovedPermanently;
         SetHeader("Location", location);
@@ -493,6 +493,9 @@ namespace LLHttp{
     }
     std::shared_ptr<Cookie> HttpResponse::GetCookie(const char* name)noexcept{
         return m_Cookies[name];
+    }
+    void HttpResponse::SetVersion(HttpVersion version)noexcept{
+        m_Version = version;
     }
     void HttpResponse::PreparePayload(size_t preferedLength)noexcept{
         /// TODO: handle multiple content encodings

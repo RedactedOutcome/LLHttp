@@ -63,7 +63,6 @@ namespace LLHttp{
         /// @brief but if we do infact own any data inside the buffer join. We will do our best to avoid reallocations.
         void CopyNecessary()noexcept;
     public:
-
         /// @brief sets the body to a copy of the strings internals excluding null terminator
         /// @param data the C string to copy.
         void SetBodyAsCopy(const char* data)noexcept;
@@ -98,7 +97,8 @@ namespace LLHttp{
 
         void SetCookie(const char* name, Cookie& cookie);
         void SetCookie(const char* name, std::shared_ptr<Cookie> cookie);
-
+        
+        void SetVersion(HttpVersion version)noexcept;
         void SetStatus(uint16_t status)noexcept;
         void SetStatus(HttpStatus status)noexcept;
         /// @brief Prepares certain headers depending on the state of the response

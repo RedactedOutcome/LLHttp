@@ -599,7 +599,7 @@ namespace LLHttp{
                     break;
                 }
                 case HttpVerb::Trace:{
-                    buffer.Append("TRACE ",6 );
+                    buffer.Append("TRACE ", 6);
                     break;
                 }
                 case HttpVerb::Options:{
@@ -610,7 +610,10 @@ namespace LLHttp{
                     return HttpParseErrorCode::UnsupportedHttpVerb;
                 }
             }
-            buffer.Append(m_Path.GetSize() > 0 ? m_Path : '/');
+            if(m_Path.GetSize() > 0)
+                buffer.Append(m_Path);
+            else
+                buffer.Append('/');
             buffer.Append(" HTTP/1.1\r\n", 11);
             
             //Headers

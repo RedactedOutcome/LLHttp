@@ -636,6 +636,7 @@ namespace LLHttp{
                 }*/
                
             buffer.Append("\r\n", 2);
+            output = std::move(buffer);
             return HttpParseErrorCode::None;
         }
         default:{

@@ -561,110 +561,110 @@ namespace LLHttp{
         }
         SetHeader("Content-Length", HBuffer::ToString(totalSize));
     }
-    HBuffer HttpRequest::HeadToBuffer() const noexcept{
-        HBuffer buffer;
-        buffer.Reserve(HTTP_DEFAULT_HEAD_REQUEST_TO_BUFFER_SIZE);
-
-        /// TODO: Fix potential overflow later in function.
+    HttpParseErrorCode HttpRequest::HeadToBuffer(HBuffer& output) const noexcept{
         switch(m_Version){
+        case HttpVersion::HTTP0_9:
         case HttpVersion::HTTP1_0:
         case HttpVersion::HTTP1_1:{
+            HBuffer buffer;
+
+            buffer.Reserve(HTTP_DEFAULT_HEAD_REQUEST_TO_BUFFER_SIZE);
+
+            /// TODO: Fix potential overflow later in function.
             switch(m_Verb){
-            case HttpVerb::Get:{
-                buffer.Append("GET ", 4);
-                break;
-            }
-            case HttpVerb::Patch:{
-                buffer.Append("PATCH ", 6);
-                break;
-            }
-            case HttpVerb::Post:{
-                buffer.Append("POST ", 5);
-                break;
-            }
-            case HttpVerb::Head:{
-                buffer.Append("HEAD ", 5);
-                break;
-            }
-            case HttpVerb::Delete:{
-                buffer.Append("DELETE ", 7);
-                break;
-            }
-            case HttpVerb::Connect:{
-                buffer.Append("CONNECT ", 8);
-                break;
-            }
-            case HttpVerb::Trace:{
-                buffer.Append("TRACE ",6 );
-                break;
-            }
-            case HttpVerb::Options:{
-                buffer.Append("OPTIONS ", 8);
-                break;
-            }
-            default:{
-                return buffer;
-            }
+                case HttpVerb::Get:{
+                    buffer.Append("GET ", 4);
+                    break;
+                }
+                case HttpVerb::Patch:{
+                    buffer.Append("PATCH ", 6);
+                    break;
+                }
+                case HttpVerb::Post:{
+                    buffer.Append("POST ", 5);
+                    break;
+                }
+                case HttpVerb::Head:{
+                    buffer.Append("HEAD ", 5);
+                    break;
+                }
+                case HttpVerb::Delete:{
+                    buffer.Append("DELETE ", 7);
+                    break;
+                }
+                case HttpVerb::Connect:{
+                    buffer.Append("CONNECT ", 8);
+                    break;
+                }
+                case HttpVerb::Trace:{
+                    buffer.Append("TRACE ",6 );
+                    break;
+                }
+                case HttpVerb::Options:{
+                    buffer.Append("OPTIONS ", 8);
+                    break;
+                }
+                default:{
+                    return HttpParseErrorCode::UnsupportedHttpVerb;
+                }
             }
             if(m_Path.GetSize() > 0)
-                buffer.Append(m_Path);
+            buffer.Append(m_Path);
             else
-                buffer.Append('/');
-
+            buffer.Append('/');
+            
             buffer.Append(" HTTP/1.1\r\n", 11);
-
+            
             //Headers
             for (const auto &myPair : m_Headers) {
                 const HBuffer& headerName = myPair.first;
                 const HBuffer& headerValue = myPair.second;
-
+                
                 if(headerName.GetSize() < 1 || headerValue.GetSize() < 1)continue;
                 buffer.Append(headerName);
                 buffer.Append(": ", 2);
                 buffer.Append(headerValue);
                 buffer.Append("\r\n", 2);
             }
-
+            
             /**
-            //Cookies
-            for (const auto &pair : m_Cookies) {
+             //Cookies
+             for (const auto &pair : m_Cookies) {
                 if(pair.first.GetSize() < 1 || pair.second == nullptr)continue;
                 buffer.Append(pair.first.GetCStr());
                 buffer.Append("= ", 2);
                 buffer.Append(pair.second->GetValue());
                 buffer.Append("\r\n", 2);
-            }*/
-
+                }*/
+               
             buffer.Append("\r\n", 2);
             break;
         }
         default:{
             const char* version = "Unidentified";
             switch(m_Version){
-                case HttpVersion::HTTP0_9:
-                    version = "0.9";
-                    break;
-                case HttpVersion::HTTP1_0:
-                    version = "1.0";
-                    break;
-                case HttpVersion::HTTP1_1:
-                    version = "1.1";
-                    break;
-                case HttpVersion::HTTP2_0:
-                    version = "2";
-                    break;
-                case HttpVersion::HTTP3_0:
-                    version = "3";
-                    break;
+            case HttpVersion::HTTP0_9:
+                version = "0.9";
+                break;
+            case HttpVersion::HTTP1_0:
+                version = "1.0";
+                break;
+            case HttpVersion::HTTP1_1:
+                version = "1.1";
+                break;
+            case HttpVersion::HTTP2_0:
+                version = "2";
+                break;
+            case HttpVersion::HTTP3_0:
+                version = "3";
+                break;
             }
-            //CORE_ERROR("Http Request doesnt support converting head of type Http{0} to buffer yet.", version);
-            buffer.Free();
-            return buffer;
+            /// TODO: log
+            return HttpParseErrorCode::UnsupportedHttpProtocol;
         }
         }
-        return buffer;
     }
-    std::vector<HBuffer> HttpRequest::GetBodyPartsCopy()noexcept{
+    std::vector<HBuffer> HttpRequest::GetBodyPartsCopy()const noexcept{
         std::vector<HBuffer> bodyParts;
         bodyParts.reserve(m_Body.size());
         for(size_t i = 0; i < m_Body.size(); i++)
@@ -744,6 +744,6 @@ namespace LLHttp{
         return *this;
     }
     void HttpRequest::CopyNecessary()noexcept{
-        
+
     }
 }

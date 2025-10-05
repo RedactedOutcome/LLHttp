@@ -502,6 +502,9 @@ namespace LLHttp{
             RemoveHeader("Content-Length");
             return;
         }
+        if(transferEncoding != "" && transferEncoding != "identity"){
+            
+        }
         //if(strcmp(transferEncodingString, "") != 0 && strcmp(transferEncodingString, "identity") != 0){
             //std::cout << "Failed to prepare payload for HttpResponse. Invalid Transfer-Encoding: " << transferEncodingString << std::endl;
             //CORE_WARN("Failed to prepare payload for HttpResponse. Invalid Transfer-Encoding: {0}", transferEncodingString);

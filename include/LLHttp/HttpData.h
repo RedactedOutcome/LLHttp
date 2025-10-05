@@ -104,6 +104,7 @@ namespace LLHttp{
         NoMoreBodies,
         InvalidHttpResponse,
         UnsupportedHttpProtocol,
+        UnsupportedHttpVerb,
         UnsupportedTransferEncoding,
         InvalidPath,
         InvalidHeaderName,

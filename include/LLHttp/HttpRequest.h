@@ -111,7 +111,7 @@ namespace LLHttp{
     public:
         HttpParseErrorCode HeadToBuffer(HBuffer& output) const noexcept;
 
-        std::vector<HBuffer> GetBodyPartsCopy() noexcept;
+        std::vector<HBuffer> GetBodyPartsCopy() const noexcept;
 
         HttpEncodingErrorCode GetFormattedBodyPartsCopy(std::vector<HBuffer>& output) noexcept;
     public:

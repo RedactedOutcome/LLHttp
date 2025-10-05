@@ -570,7 +570,6 @@ namespace LLHttp{
         case HttpVersion::HTTP1_0:
         case HttpVersion::HTTP1_1:{
             HBuffer buffer;
-
             buffer.Reserve(HTTP_DEFAULT_HEAD_REQUEST_TO_BUFFER_SIZE);
 
             /// TODO: Fix potential overflow later in function.
@@ -611,11 +610,7 @@ namespace LLHttp{
                     return HttpParseErrorCode::UnsupportedHttpVerb;
                 }
             }
-            if(m_Path.GetSize() > 0)
-            buffer.Append(m_Path);
-            else
-            buffer.Append('/');
-            
+            buffer.Append(m_Path.GetSize() > 0 ? m_Path : '/');
             buffer.Append(" HTTP/1.1\r\n", 11);
             
             //Headers
@@ -641,7 +636,7 @@ namespace LLHttp{
                 }*/
                
             buffer.Append("\r\n", 2);
-            break;
+            return HttpParseErrorCode::None;
         }
         default:{
             const char* version = "Unidentified";

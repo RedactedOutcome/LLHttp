@@ -52,7 +52,8 @@ namespace LLHttp{
     
         HttpParseErrorCode ParseHead(BodyParseInfo* info) noexcept;
         HttpParseErrorCode ParseBody(HBuffer& output, BodyParseInfo* parseInfo) noexcept;
-
+        /// @brief Copies necessary unparsed data. Lets say we pass a read buffer whos data is temporary and will most likely be invalidated after the scope. We will copy any necessary remaining data.
+        /// @brief but if we do infact own any data inside the buffer join. We will do our best to avoid reallocations.
         void CopyNecessary()noexcept;
     public:
         void SetPath(const HBuffer& path) noexcept;

@@ -109,7 +109,7 @@ namespace LLHttp{
     public:
         HttpRequest& operator=(HttpRequest&& right)noexcept;
     public:
-        HBuffer HeadToBuffer() const noexcept;
+        HttpParseErrorCode HeadToBuffer(HBuffer& output) const noexcept;
 
         std::vector<HBuffer> GetBodyPartsCopy() noexcept;
 

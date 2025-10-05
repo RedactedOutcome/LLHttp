@@ -523,238 +523,248 @@ namespace LLHttp{
         
         SetHeader("Content-Length", HBuffer::ToString(totalSize));
     }
-    HBuffer HttpResponse::HeadToBuffer() const noexcept{
+    HttpParseErrorCode HttpResponse::HeadToBuffer(HBuffer& output) const noexcept{
         /// TODO: different versions
-        HBuffer buffer;
-        buffer.Reserve(HTTP_DEFAULT_HEAD_RESPONSE_TO_BUFFER_SIZE);
-
-        buffer.Append("HTTP/1.1 ");
-        HBuffer statusBuff;
-        statusBuff.Assign(HBuffer::ToString((size_t)m_Status));
-        buffer.Append(statusBuff);
-        buffer.Append(' ');
-
-        const char* statusInfo;
-        switch(m_Status){
-        case 101:
-            statusInfo = "Switching Protocols";
-            break;
-        case 102:
-            statusInfo = "Processing";
-            break;
-        case 103:
-            statusInfo = "Early Hints";
-            break;
-        case 200:
-            statusInfo = "OK";
-            break;
-        case 201:
-            statusInfo = "Created";
-            break;
-        case 202:
-            statusInfo = "Accepted";
-            break;
-        case 203:
-            statusInfo = "Non-Authoritative Information";
-            break;
-        case 204:
-            statusInfo = "No Content";
-            break;
-        case 205:
-            statusInfo = "Reset Content";
-            break;
-        case 206:
-            statusInfo = "Partial Content";
-            break;
-        case 207:
-            statusInfo = "Multi-Status";
-            break;
-        case 208:
-            statusInfo = "Already Reported";
-            break;
-        case 226:
-            statusInfo = "IM Used";
-            break;
-        case 300:
-            statusInfo = "Multiple Choices";
-            break;
-        case 301:
-            statusInfo = "Moved Permanently";
-            break;
-        case 302:
-            statusInfo = "Found";
-            break;
-        case 303:
-            statusInfo = "See Other";
-            break;
-        case 304:
-            statusInfo = "Not Modified";
-            break;
-        case 305:
-            statusInfo = "Use Proxy";
-            break;
-        case 306:
-            statusInfo = "Unused";
-            break;
-        case 307:
-            statusInfo = "Temporary Redirect";
-            break;
-        case 308:
-            statusInfo = "Permanent Redirect";
-            break;
-        case 400:
-            statusInfo = "Bad Request";
-            break;
-        case 401:
-            statusInfo = "Unauthorized";
-            break;
-        case 402:
-            statusInfo = "Payment Required";
-            break;
-        case 403:
-            statusInfo = "Forbidden";
-            break;
-        case 404:
-            statusInfo = "Not Found";
-            break;
-        case 405:
-            statusInfo = "Method Not Allowed";
-            break;
-        case 406:
-            statusInfo = "Not Acceptable";
-            break;
-        case 407:
-            statusInfo = "Proxy Authentication Required";
-            break;
-        case 408:
-            statusInfo = "Request Timeout";
-            break;
-        case 409:
-            statusInfo = "Conflict";
-            break;
-        case 410:
-            statusInfo = "Gone";
-            break;
-        case 411:
-            statusInfo = "Length Required";
-            break;
-        case 412:
-            statusInfo = "Precondition Failed";
-            break;
-        case 413:
-            statusInfo = "Content Too Large";
-            break;
-        case 414:
-            statusInfo = "URI Too Long";
-            break;
-        case 415:
-            statusInfo = "Unsupported Media Type";
-            break;
-        case 416:
-            statusInfo = "Range Not Satisfiable";
-            break;
-        case 417:
-            statusInfo = "Expectation Failed";
-            break;
-        case 418:
-            statusInfo = "I'm a teapot";
-            break;
-        case 421:
-            statusInfo = "Misdirected Request";
-            break;
-        case 422:
-            statusInfo = "Unprocessable Content";
-            break;
-        case 423:
-            statusInfo = "Locked";
-            break;
-        case 424:
-            statusInfo = "Failed Dependency";
-            break;
-        case 425:
-            statusInfo = "Too Early";
-            break;
-        case 426:
-            statusInfo = "Upgrade Required";
-            break;
-        case 428:
-            statusInfo = "Precondition Required";
-            break;
-        case 429:
-            statusInfo = "Too Many Request";
-            break;
-        case 431:
-            statusInfo = "Request Header Fields Too Large";
-            break;
-        case 451:
-            statusInfo = "Unavailable For Legal Reasons";
-            break;
-        case 500:
-            statusInfo = "InternalServerError";
-            break;
-        case 501:
-            statusInfo = "Not Implemented";
-            break;
-        case 502:
-            statusInfo = "Bad Gateway";
-            break;
-        case 503:
-            statusInfo = "Service Unavailable";
-            break;
-        case 504:
-            statusInfo = "Gateway Timeout";
-            break;
-        case 505:
-            statusInfo = "HTTP Version Not Supported";
-            break;
-        case 506:
-            statusInfo = "Variant Also Negotiates";
-            break;
-        case 507:
-            statusInfo = "Insufficient Storage";
-            break;
-        case 508:
-            statusInfo = "Loop Detected";
-            break;
-        case 510:
-            statusInfo = "Not Extended";
-            break;
-        case 511:
-            statusInfo = "Network Authentication Required";
-            break;
-        default:
-            //CORE_DEBUG("WRITING NOT IMPLEMENTED {0}", m_Status);
-            statusInfo = "Not Implemented";
-        }
-
-        buffer.Append(statusInfo);
-        buffer.Append("\r\n", 2);
-
-        //Headers
-        for (const auto &myPair : m_Headers) {
-            const HBuffer& headerName = myPair.first;
-            const HBuffer& headerValue = myPair.second;
-            if(headerName.GetSize() < 1 || headerValue.GetSize() < 1)continue;
-
-            buffer.Append(headerName);
-            buffer.Append(": ", 2);
-            buffer.Append(headerValue);
+        switch(m_Version){
+        case HttpVersion::HTTP0_9:
+        case HttpVersion::HTTP1_0:
+        case HttpVersion::HTTP1_1:{
+            HBuffer buffer;
+            buffer.Reserve(HTTP_DEFAULT_HEAD_RESPONSE_TO_BUFFER_SIZE);
+        
+            buffer.Append("HTTP/1.1 ");
+            HBuffer statusBuff;
+            statusBuff.Assign(HBuffer::ToString((size_t)m_Status));
+            buffer.Append(statusBuff);
+            buffer.Append(' ');
+        
+            const char* statusInfo;
+            switch(m_Status){
+            case 101:
+                statusInfo = "Switching Protocols";
+                break;
+            case 102:
+                statusInfo = "Processing";
+                break;
+            case 103:
+                statusInfo = "Early Hints";
+                break;
+            case 200:
+                statusInfo = "OK";
+                break;
+            case 201:
+                statusInfo = "Created";
+                break;
+            case 202:
+                statusInfo = "Accepted";
+                break;
+            case 203:
+                statusInfo = "Non-Authoritative Information";
+                break;
+            case 204:
+                statusInfo = "No Content";
+                break;
+            case 205:
+                statusInfo = "Reset Content";
+                break;
+            case 206:
+                statusInfo = "Partial Content";
+                break;
+            case 207:
+                statusInfo = "Multi-Status";
+                break;
+            case 208:
+                statusInfo = "Already Reported";
+                break;
+            case 226:
+                statusInfo = "IM Used";
+                break;
+            case 300:
+                statusInfo = "Multiple Choices";
+                break;
+            case 301:
+                statusInfo = "Moved Permanently";
+                break;
+            case 302:
+                statusInfo = "Found";
+                break;
+            case 303:
+                statusInfo = "See Other";
+                break;
+            case 304:
+                statusInfo = "Not Modified";
+                break;
+            case 305:
+                statusInfo = "Use Proxy";
+                break;
+            case 306:
+                statusInfo = "Unused";
+                break;
+            case 307:
+                statusInfo = "Temporary Redirect";
+                break;
+            case 308:
+                statusInfo = "Permanent Redirect";
+                break;
+            case 400:
+                statusInfo = "Bad Request";
+                break;
+            case 401:
+                statusInfo = "Unauthorized";
+                break;
+            case 402:
+                statusInfo = "Payment Required";
+                break;
+            case 403:
+                statusInfo = "Forbidden";
+                break;
+            case 404:
+                statusInfo = "Not Found";
+                break;
+            case 405:
+                statusInfo = "Method Not Allowed";
+                break;
+            case 406:
+                statusInfo = "Not Acceptable";
+                break;
+            case 407:
+                statusInfo = "Proxy Authentication Required";
+                break;
+            case 408:
+                statusInfo = "Request Timeout";
+                break;
+            case 409:
+                statusInfo = "Conflict";
+                break;
+            case 410:
+                statusInfo = "Gone";
+                break;
+            case 411:
+                statusInfo = "Length Required";
+                break;
+            case 412:
+                statusInfo = "Precondition Failed";
+                break;
+            case 413:
+                statusInfo = "Content Too Large";
+                break;
+            case 414:
+                statusInfo = "URI Too Long";
+                break;
+            case 415:
+                statusInfo = "Unsupported Media Type";
+                break;
+            case 416:
+                statusInfo = "Range Not Satisfiable";
+                break;
+            case 417:
+                statusInfo = "Expectation Failed";
+                break;
+            case 418:
+                statusInfo = "I'm a teapot";
+                break;
+            case 421:
+                statusInfo = "Misdirected Request";
+                break;
+            case 422:
+                statusInfo = "Unprocessable Content";
+                break;
+            case 423:
+                statusInfo = "Locked";
+                break;
+            case 424:
+                statusInfo = "Failed Dependency";
+                break;
+            case 425:
+                statusInfo = "Too Early";
+                break;
+            case 426:
+                statusInfo = "Upgrade Required";
+                break;
+            case 428:
+                statusInfo = "Precondition Required";
+                break;
+            case 429:
+                statusInfo = "Too Many Request";
+                break;
+            case 431:
+                statusInfo = "Request Header Fields Too Large";
+                break;
+            case 451:
+                statusInfo = "Unavailable For Legal Reasons";
+                break;
+            case 500:
+                statusInfo = "InternalServerError";
+                break;
+            case 501:
+                statusInfo = "Not Implemented";
+                break;
+            case 502:
+                statusInfo = "Bad Gateway";
+                break;
+            case 503:
+                statusInfo = "Service Unavailable";
+                break;
+            case 504:
+                statusInfo = "Gateway Timeout";
+                break;
+            case 505:
+                statusInfo = "HTTP Version Not Supported";
+                break;
+            case 506:
+                statusInfo = "Variant Also Negotiates";
+                break;
+            case 507:
+                statusInfo = "Insufficient Storage";
+                break;
+            case 508:
+                statusInfo = "Loop Detected";
+                break;
+            case 510:
+                statusInfo = "Not Extended";
+                break;
+            case 511:
+                statusInfo = "Network Authentication Required";
+                break;
+            default:
+                //CORE_DEBUG("WRITING NOT IMPLEMENTED {0}", m_Status);
+                statusInfo = "Not Implemented";
+            }
+        
+            buffer.Append(statusInfo);
             buffer.Append("\r\n", 2);
-        }
-
-        //Cookies
-        for (const auto &pair : m_Cookies) {
-            if(pair.first.GetSize() < 1 || pair.second == nullptr)continue;
-            buffer.Append(pair.first.GetCStr());
-            buffer.Append("= ", 2);
-            buffer.Append(pair.second->GetValue());
+        
+            //Headers
+            for (const auto &myPair : m_Headers) {
+                const HBuffer& headerName = myPair.first;
+                const HBuffer& headerValue = myPair.second;
+                if(headerName.GetSize() < 1 || headerValue.GetSize() < 1)continue;
+        
+                buffer.Append(headerName);
+                buffer.Append(": ", 2);
+                buffer.Append(headerValue);
+                buffer.Append("\r\n", 2);
+            }
+        
+            //Cookies
+            for (const auto &pair : m_Cookies) {
+                if(pair.first.GetSize() < 1 || pair.second == nullptr)continue;
+                buffer.Append(pair.first.GetCStr());
+                buffer.Append("= ", 2);
+                buffer.Append(pair.second->GetValue());
+                buffer.Append("\r\n", 2);
+            }
             buffer.Append("\r\n", 2);
+            output = std::move(buffer);
+            return HttpParseErrorCode::None;
         }
-        buffer.Append("\r\n", 2);
-        return buffer;
+        default:{
+            return HttpParseErrorCode::UnsupportedHttpProtocol;
+        }
+        }
     }
 
-    std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() noexcept{
+    std::vector<HBuffer> HttpResponse::GetBodyPartsCopy() const noexcept{
         std::vector<HBuffer> buffer;
         buffer.resize(m_Body.size());
         for(size_t i = 0; i < m_Body.size(); i++){
@@ -980,15 +990,34 @@ namespace LLHttp{
         HBuffer& vec1 = m_Join.GetBuffer1();
         HBuffer& vec2 = m_Join.GetBuffer2();
 
-        if(vec1.CanFree() && vec2.CanFree()){
-            /// @brief no need to copy since we odn te data
+        size_t vec1Size = vec1.GetSize();
+        size_t vec2Size = vec1.GetSize();
+
+        bool ownVec1 = vec1.CanFree();
+        bool ownVec2 = vec2.CanFree();
+
+        if(ownVec1 && ownVec2){
+            /// @brief no need to copy since we own the data
+            // Very rare case with servers
             return;
         }
 
-        if(m_At >= vec1.GetSize()){
+        if(m_At >= vec1Size){
+            /// Only worrying about second buffer atp
+            if(ownVec2){
+                /// @brief we own the second buffer
+                m_At -= vec1Size;
+                vec1 = std::move(vec2);
+                return;
+            }
 
+            vec1 = vec2.SubString(m_At - vec1Size, -1);
+            vec2.Free();
+            m_At = 0;
+            return;
         }
 
-        
+        if(ownVec1){
+        }
     }
 }

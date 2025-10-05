@@ -29,4 +29,5 @@ struct BodyParseInfo{
     bool m_IdentityEndsByStream=false;
     uint32_t m_FinishedAt=0;
     bool m_ValidBody=false; 
+    bool m_CopyNecessary=true;
 };

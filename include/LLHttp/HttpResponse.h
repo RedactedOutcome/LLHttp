@@ -120,12 +120,17 @@ namespace LLHttp{
         /// @return returns enum of type HttpEncodingErrorCode
         HttpEncodingErrorCode Compress() noexcept;
     public:
-        /// @brief returns the entire first part of the http response message just before the body
-        HBuffer HeadToBuffer() const noexcept;
+        /// @brief returns the entire head of the message in the desired format depending on HttpProtocol m_Protocol
+        /// @return the status on wether or not we were able to parse the response into the desired format
+        HttpParseErrorCode HeadToBuffer(HBuffer& output) const noexcept;
         std::vector<HBuffer>& GetBodyParts() const noexcept {return (std::vector<HBuffer>&)m_Body;}
-        /// @brief returns a copy of a all the body parts. Body may be merged into a single part if transfer identity encoding. Else body is split up as needed depending on transfer encoding. Data inside the copy will not be decoded or encoded.
-        std::vector<HBuffer> GetBodyPartsCopy() noexcept;
 
+        /// @brief returns a copy of all the body parts stored. Not in any specific encoding or formatting just raw copies
+        std::vector<HBuffer> GetBodyPartsCopy() const noexcept;
+
+        /// @brief Gets a copy of all the body parts in a formatted way depending on the transfer-encoding. will not encode by default
+        /// @param output 
+        /// @return if successfully formatted all body parts with a copy
         HttpEncodingErrorCode GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)noexcept;
 
         /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding

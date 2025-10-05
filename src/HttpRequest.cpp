@@ -61,14 +61,15 @@ namespace LLHttp{
         m_At = 0;
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
-
+        
         if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
             m_At = 0;
             /// @brief freeing incase data is temporary and we dont want dangling pointers
-            buff->Free();
+            m_Join.Free();
             return error;
         }
-        buff->Assign(buff->GetCopy());
+        if(info->m_CopyNecessary)
+            buff->Assign(buff->GetCopy());
         return error;
     }
     HttpParseErrorCode HttpRequest::ParseHeadCopy(HBuffer&& data, BodyParseInfo* info)noexcept{
@@ -98,13 +99,15 @@ namespace LLHttp{
 
         HttpParseErrorCode error = ParseBody(output, info);
         m_LastState = error;
-        if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
-            /// @brief freeing incase data is temporary and we dont want dangling pointers
+
+        if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
             m_At = 0;
-            buff->Free();
+            /// @brief freeing incase data is temporary and we dont want dangling pointers
+            m_Join.Free();
             return error;
         }
-        buff->Assign(buff->GetCopy());
+        if(info->m_CopyNecessary)
+            buff->Assign(buff->GetCopy());        
         return error;
     }
     HttpParseErrorCode HttpRequest::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, BodyParseInfo* info) noexcept{
@@ -739,5 +742,8 @@ namespace LLHttp{
 
         request.Clear();
         return *this;
+    }
+    void HttpRequest::CopyNecessary()noexcept{
+        
     }
 }

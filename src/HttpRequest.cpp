@@ -541,6 +541,9 @@ namespace LLHttp{
         return m_Cookies[name];
     }
 
+    void HttpRequest::SetVersion(HttpVersion version)noexcept{
+        m_Version = version;
+    }
     void HttpRequest::SetVerb(HttpVerb verb)noexcept{
         m_Verb = verb;
     }

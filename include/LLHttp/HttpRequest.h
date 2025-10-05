@@ -93,6 +93,7 @@ namespace LLHttp{
         void SetCookie(const char* name, Cookie& cookie);
         void SetCookie(const char* name, std::shared_ptr<Cookie> cookie);
 
+        void SetVersion(HttpVersion version)noexcept;
         void SetVerb(HttpVerb verb)noexcept;
 
         //Clears all data

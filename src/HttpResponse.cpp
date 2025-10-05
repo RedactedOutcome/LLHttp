@@ -975,4 +975,20 @@ namespace LLHttp{
     HttpEncodingErrorCode HttpResponse::Compress() noexcept{
         return HttpEncodingErrorCode::None;
     }
+
+    void HttpResponse::CopyNecessary()noexcept{
+        HBuffer& vec1 = m_Join.GetBuffer1();
+        HBuffer& vec2 = m_Join.GetBuffer2();
+
+        if(vec1.CanFree() && vec2.CanFree()){
+            /// @brief no need to copy since we odn te data
+            return;
+        }
+
+        if(m_At >= vec1.GetSize()){
+
+        }
+
+        
+    }
 }

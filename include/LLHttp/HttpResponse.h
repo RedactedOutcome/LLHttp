@@ -58,6 +58,8 @@ namespace LLHttp{
         
         HttpParseErrorCode ParseHead(BodyParseInfo* info) noexcept;
         HttpParseErrorCode ParseBodyTo(HBuffer& output, BodyParseInfo* parseInfo) noexcept;
+
+        void CopyNecessary()noexcept;
     public:
 
         /// @brief sets the body to a copy of the strings internals excluding null terminator

@@ -52,6 +52,8 @@ namespace LLHttp{
     
         HttpParseErrorCode ParseHead(BodyParseInfo* info) noexcept;
         HttpParseErrorCode ParseBody(HBuffer& output, BodyParseInfo* parseInfo) noexcept;
+
+        void CopyNecessary()noexcept;
     public:
         void SetPath(const HBuffer& path) noexcept;
         void SetPath(HBuffer&& path) noexcept;

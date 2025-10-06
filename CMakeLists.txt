@@ -20,7 +20,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlidec
 # Precompiled Headers
 target_precompile_headers(${PROJECT_NAME} PRIVATE "include/LLHttp/pch.h")
 if(NOT DEFINED LLHTTP_PCH_DIR)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE LLHTTP_USE_PCH LLHTTP_PCH_DIR=\"LLHttp/pch.h\")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE LLHTTP_PCH_DIR=\"LLHttp/pch.h\")
 endif()
 
 if (MSVC)

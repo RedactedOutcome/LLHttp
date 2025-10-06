@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <bitset>
+#include <cstdint>
 
 #include <HBuffer/HBuffer.hpp>
 #include <HBuffer/HBufferJoin.hpp>

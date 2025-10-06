@@ -132,7 +132,7 @@ namespace LLHttp{
         case HttpVersion::HTTP1_1:{
             /// TODO : headers/cookies
             switch(m_State){
-            case ((uint8_t)RequestReadState::HeadersAndCookies):{
+            case (RequestReadState::HeadersAndCookies):{
                 //Headers
                 while(true){
                     size_t wasAt =m_At;

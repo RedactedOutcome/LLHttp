@@ -2,11 +2,7 @@
 
 #include "Core.h"
 
-#ifdef LLHTTP_USE_PCH
 #include LLHTTP_PCH_DIR
-#else
-#include "LLHttp/pch.h"
-#endif
 
 namespace LLHttp{
     /// @brief A basic cookie representation that that contains everything but a name for the cookie. Used as a value in a dictionary primarily.

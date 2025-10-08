@@ -1,6 +1,6 @@
 #pragma once
 
-    namespace LLHttp{
+namespace LLHttp{
     class WebSocketPacket{
     public:
         WebSocketPacket();

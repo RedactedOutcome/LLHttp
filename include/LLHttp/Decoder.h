@@ -5,8 +5,7 @@
 #ifdef LLHTTP_USE_PCH
 #include LLHTTP_PCH_DIR
 #else
-#include <HBuffer/HBuffer.hpp>
-#include <vector>
+#include "LLHttp/pch.h"
 #endif
 
 #include "LLHttp.h"

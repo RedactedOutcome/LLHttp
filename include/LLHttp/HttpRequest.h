@@ -3,11 +3,7 @@
 #ifdef LLHTTP_USE_PCH
 #include LLHTTP_PCH_DIR
 #else
-#include <HBuffer/HBuffer.hpp>
-#include <HBuffer/HBufferExtras.hpp>
-#include <unordered_map>
-#include <cstdint>
-#include <vector>
+#include "LLHttp/pch.h"
 #endif
 
 #include "Cookie.h"

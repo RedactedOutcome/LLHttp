@@ -5,9 +5,7 @@
 #ifdef LLHTTP_USE_PCH
 #include LLHTTP_PCH_DIR
 #else
-#include <string>
-#include <unordered_map>
-#include <memory>
+#include "LLHttp/pch.h"
 #endif
 
 namespace LLHttp{

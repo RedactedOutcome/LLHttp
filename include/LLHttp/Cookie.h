@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Core.h"
-
-#include LLHTTP_PCH_DIR
-
+#include "pch.h"
 namespace LLHttp{
     /// @brief A basic cookie representation that that contains everything but a name for the cookie. Used as a value in a dictionary primarily.
     class Cookie{

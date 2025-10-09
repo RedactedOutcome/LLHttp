@@ -1007,6 +1007,7 @@ namespace LLHttp{
 
         bool ownVec1 = vec1.CanFree();
         bool ownVec2 = vec2.CanFree();
+        std::cout<<"Owns are " << ownVec1 << " " << ownVec2<<std::endl;
 
         if(ownVec1 && ownVec2){
             /// @brief no need to copy since we own the data

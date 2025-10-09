@@ -999,6 +999,7 @@ namespace LLHttp{
     }
 
     void HttpResponse::CopyNecessary()noexcept{
+        std::cout << "Copy necessary"<<std::endl;
         HBuffer& vec1 = m_Join.GetBuffer1();
         HBuffer& vec2 = m_Join.GetBuffer2();
 

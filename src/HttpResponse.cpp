@@ -366,6 +366,7 @@ namespace LLHttp{
                     bytes+=real;
                     m_At++;
                 }
+                std::cout<<"Size is " << bytes<<std::endl;
                 m_Metadata = reinterpret_cast<void*>(bytes);
                 status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1)return HttpParseErrorCode::InvalidChunkStart;

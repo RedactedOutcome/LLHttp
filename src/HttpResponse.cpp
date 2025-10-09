@@ -131,7 +131,10 @@ namespace LLHttp{
                         char c = m_Join.Get(m_At);
                         if(c == ':')break;
                         if(!::LLHttp::IsValidHeaderNameCharacter(c)){
-                            std::cout <<"char " << (size_t)c <<" " << c<<std::endl;
+                            if(m_At >= m_Join.GetSize()){
+                                m_At = startAt;
+                                return HttpParseErrorCode::NeedsMoreData;
+                            }
                             return HttpParseErrorCode::InvalidHeaderName;
                         }
                         m_At++;

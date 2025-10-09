@@ -156,6 +156,7 @@ namespace LLHttp{
                             int status = m_Join.StrXCmp(m_At, "\r\n");
                             if(status == 0){
                                 std::cout << "All data since :" << m_Join.SubString(0,m_At).GetCStr()<<std::endl;
+                                std::cout<<"DONE SETTING"<<std::endl;
                                 break;
                             }
                             if(status == -1){

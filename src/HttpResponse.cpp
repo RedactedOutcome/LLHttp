@@ -720,8 +720,8 @@ namespace LLHttp{
         
             //Cookies
             for (const auto &pair : m_Cookies) {
-                const HBuffer& cookieName = myPair.first;
-                const Cookie& cookie = myPair.second;
+                const HBuffer& cookieName = pair.first;
+                const Cookie& cookie = pair.second;
                 if(cookieName.GetSize() < 1 || !cookie.GetValue())continue;
                 buffer.Append(pair.first.GetCStr());
                 buffer.Append("= ", 2);

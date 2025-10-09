@@ -152,6 +152,7 @@ namespace LLHttp{
                     size_t headerValueStart = ++m_At;
                     while(true){
                         char c = m_Join.Get(m_At);
+                        std::cout<<"Char code " << (size_t)c<<std::endl;
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
                             int status = m_Join.StrXCmp(m_At, "\r\n");
                             if(status == 0){

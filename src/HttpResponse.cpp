@@ -207,7 +207,7 @@ namespace LLHttp{
             
             for(uint8_t i = 0; i < 3; i++){
                 char c = m_Join.Get(i + 9);
-                if(c == '/0'){
+                if(c == '\0'){
                     return HttpParseErrorCode::NeedsMoreData;
                 }
                 if(std::isdigit(c) == false)return HttpParseErrorCode::UnsupportedHttpProtocol;

@@ -138,27 +138,21 @@ namespace LLHttp{
                     }
 
                     size_t headerLength = m_At - startAt;
-                    char* headerName = new char[headerLength + 1];
-                    m_Join.MemcpyTo(headerName, startAt, headerLength);
-                    headerName[headerLength] = '\0';
                     
                     char c = m_Join.Get(++m_At);
                     if(c != ' '){
-                        delete headerName;
                         m_At = startAt;
                         if(m_At >= m_Join.GetSize())return HttpParseErrorCode::NeedsMoreData;
                         return HttpParseErrorCode::InvalidHeaderSplit;
                     }
 
                     m_At++;
-                    size_t startAt2 = m_At;
-                    size_t lastValueAt = m_At;
+                    size_t headerValueStart = m_At;
                     while(true){
                         int status = m_Join.StrXCmp(m_At, "\r\n");
                         if(status == 0)
                             break;
                         if(status == -1){
-                            delete headerName;
                             m_At = startAt;
                             return HttpParseErrorCode::NeedsMoreData;
                         }
@@ -166,7 +160,6 @@ namespace LLHttp{
                         /// TODO: make table
                         //if(c != '*' && c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
-                            delete headerName;
                             if(m_At >= m_Join.GetSize()){
                                 m_At = startAt;
                                 return HttpParseErrorCode::NeedsMoreData;
@@ -176,17 +169,13 @@ namespace LLHttp{
                         m_At++;
                     }
                     //Last Value
-                    size_t valueLength = m_At - lastValueAt;
-                    char* headerValue = new char[valueLength + 1];
-                    m_Join.MemcpyTo(headerValue, lastValueAt, valueLength);
-                    headerValue[valueLength] = '\0';
-
-                    HBuffer headerNameBuffer = HBuffer(headerName, headerLength, true, true);
-                    HBuffer headerValueBuffer = HBuffer(headerValue, valueLength, true, true);
+                    HBuffer headerName = m_Join.SubString(startAt, headerLength);
+                    HBuffer headerValue = m_Join.SubString(headerValueStart, m_At - headerValueStart);
 
                     HBufferLowercaseEquals equals;
+                    std::Cout << "Setting " << headerName.GetCStr() << ": "<< headerValue.GetCStr()<<std::endl;
                     if(!equals(headerNameBuffer, "Set-Cookie")){
-                        m_Headers.insert(std::make_pair(std::move(headerNameBuffer), std::move(headerValueBuffer)));
+                        m_Headers.insert(std::make_pair(std::move(headerName), std::move(headerValue)));
                     }else{
                         /// TODO: Set cookies map with key
                     }

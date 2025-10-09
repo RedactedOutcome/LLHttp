@@ -309,6 +309,7 @@ namespace LLHttp{
             case ResponseReadState::ChunkedBody:{
                 std::cout<<"Chunked"<<std::endl;
                 /// @brief used if success parsed in remaining we dont want it to go to waste
+                bool shouldReturn = false;
                 if(m_Remaining > 0){
                     std::cout<<"using remainig"<<std::endl;
                     /// @brief getting rest of chunk data
@@ -319,6 +320,7 @@ namespace LLHttp{
                         m_At+=remaining;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
+                    shouldReturn = true;
                     output = m_Join.SubBuffer(m_At, m_Remaining);
                     m_At+=m_Remaining;
                     m_Remaining=0;
@@ -339,7 +341,7 @@ namespace LLHttp{
                         return HttpParseErrorCode::NoMoreBodies;
                     }
                     m_Remaining = -1;
-                    return HttpParseErrorCode::None;
+                    if(shouldReturn)return HttpParseErrorCode::None;
                 }
                 std::cout<<"calcing"<<std::endl;
                 //Transfer Chunked Encoding

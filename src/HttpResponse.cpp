@@ -149,22 +149,14 @@ namespace LLHttp{
                         return HttpParseErrorCode::InvalidHeaderSplit;
                     }
 
-                    m_At++;
-                    size_t headerValueStart = m_At;
+                    size_t headerValueStart = ++m_At;
                     while(true){
-                        int status = m_Join.StrXCmp(m_At, "\r\n");
-                        if(status == 0)
-                            break;
-                        if(status == -1){
-                            m_At = startAt;
-                            return HttpParseErrorCode::NeedsMoreData;
-                        }
-                        char c= m_Join.Get(m_At);
-                        /// TODO: make table
-                        //if(c != '*' && c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
+                        char c = m_Join.Get(m_At);
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
-                            if(m_At >= m_Join.GetSize()){
-                                std::cout<<"Needing more ata"<<std::endl;
+                            int status = m_Join.StrXCmp(m_At, "\r\n");
+                            if(status == 0)
+                                break;
+                            if(status == -1){
                                 m_At = startAt;
                                 return HttpParseErrorCode::NeedsMoreData;
                             }

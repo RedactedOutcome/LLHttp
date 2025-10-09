@@ -243,6 +243,8 @@ namespace LLHttp{
                     m_State = ResponseReadState::IdentityBody;
                 }
                 else if(transferEncoding == "chunked"){
+                    std::cout<<"MRemaing " << m_Remaining<<std::endl;
+                    m_Remaining = -1;
                     m_State = ResponseReadState::ChunkedBody;
                 }
                 else if(transferEncoding == "gzip" || transferEncoding == "x-gzip"){

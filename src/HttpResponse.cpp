@@ -118,6 +118,8 @@ namespace LLHttp{
             case ResponseReadState::HeadersAndCookies:
                 //Get Headers
                 while(true){
+                    std::cout << "Starting with"<< m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
+                                
                     /// @brief check for double line end to stop the head phase
                     int status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == 0)

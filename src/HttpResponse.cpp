@@ -159,6 +159,7 @@ namespace LLHttp{
                             if(status == -1){
                                 m_At = startAt;
                                 std::cout<<"needsmore"<<std::endl;
+                                std::cout << "Start at is "<< m_Join.SubString(startAt, 15).GetCStr()<<std::endl;
                                 return HttpParseErrorCode::NeedsMoreData;
                             }
                             return HttpParseErrorCode::InvalidHeaderValue;

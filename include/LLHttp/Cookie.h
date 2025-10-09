@@ -38,7 +38,7 @@ namespace LLHttp{
         const HBuffer& GetValue() const noexcept{return m_Value;}
 
         /// @brief get the value and/or modify it
-        HBuffer& GetValue()const noexcept{return (HBuffer&)m_Value;}
+        HBuffer& GetOwningValue()const noexcept{return (HBuffer&)m_Value;}
     private:
         std::unordered_map<HBuffer, HBuffer> m_Headers;
         HBuffer m_Value;

@@ -121,7 +121,7 @@ namespace LLHttp{
                     /// @brief check for double line end to stop the head phase
                     int status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == 0)
-                    return HttpParseErrorCode::InvalidHeaderName;
+                        break;
                     if(status == -1){
                         return HttpParseErrorCode::NeedsMoreData;
                     }

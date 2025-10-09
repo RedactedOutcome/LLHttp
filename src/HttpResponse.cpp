@@ -157,7 +157,7 @@ namespace LLHttp{
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
                             int status = m_Join.StrXCmp(m_At, "\r\n");
                             if(status == 0){
-                                std::cout << "Breaking at " << m_Join.SubString(m_At - 4, 15).GetCStr()<<std::endl;
+                                std::cout << "Breaking at " << m_Join.SubString(m_At - std::min(m_At, 15), 50).GetCStr()<<std::endl;
                                 break;
                             }
                             if(status == -1){

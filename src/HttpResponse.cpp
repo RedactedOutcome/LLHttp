@@ -460,12 +460,6 @@ namespace LLHttp{
         m_Status = (uint16_t)HttpStatus::MovedPermanently;
         SetHeader("Location", std::move(location));
     }
-    Cookie& HttpResponse::GetCookie(const char* name)noexcept{
-        return m_Cookies[name];
-    }
-    Cookie& HttpResponse::GetCookie(const HBuffer& name)noexcept{
-        return m_Cookies[name];
-    }
     void HttpResponse::SetVersion(HttpVersion version)noexcept{
         m_Version = version;
     }

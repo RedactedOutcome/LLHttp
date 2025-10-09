@@ -484,7 +484,7 @@ namespace LLHttp{
     void HttpRequest::SetPath(HBuffer&& path) noexcept{
         m_Path.Assign(std::move(path));
     }
-    
+
     void HttpRequest::RemoveHeader(const char* header)noexcept{
         m_Headers.erase(header);
     }
@@ -505,13 +505,6 @@ namespace LLHttp{
     }
     HBuffer& HttpRequest::GetHeader(HBuffer&& name) noexcept{
         return m_Headers[std::move(name)];
-    }
-
-    std::shared_ptr<Cookie> HttpRequest::GetCookie(const char* name) noexcept{
-        return m_Cookies[name];
-    }
-    std::shared_ptr<Cookie> HttpRequest::GetCookie(const HBuffer& name) noexcept{
-        return m_Cookies[name];
     }
 
     void HttpRequest::SetVersion(HttpVersion version)noexcept{

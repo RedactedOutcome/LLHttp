@@ -127,6 +127,7 @@ namespace LLHttp{
                     }
 
                     size_t startAt = m_At;
+                    std::cout << "Header start is " << m_Join.SubString(m_At, 15)<<std::endl;
                     while(true){
                         char c = m_Join.Get(m_At);
                         if(c == ':')break;
@@ -150,6 +151,7 @@ namespace LLHttp{
                     }
 
                     size_t headerValueStart = ++m_At;
+                    std::cout << "Value Start is " << m_Join.SubString(m_At, 15)<<std::endl;
                     while(true){
                         char c = m_Join.Get(m_At);
                         std::cout<<"Char code " << (size_t)c<<std::endl;

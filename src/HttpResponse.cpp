@@ -153,12 +153,12 @@ namespace LLHttp{
                     while(true){
                         char c = m_Join.Get(m_At);
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
-                            std::cout<<"needsmore"<<std::endl;
                             int status = m_Join.StrXCmp(m_At, "\r\n");
                             if(status == 0)
                                 break;
                             if(status == -1){
                                 m_At = startAt;
+                                std::cout<<"needsmore"<<std::endl;
                                 return HttpParseErrorCode::NeedsMoreData;
                             }
                             return HttpParseErrorCode::InvalidHeaderValue;

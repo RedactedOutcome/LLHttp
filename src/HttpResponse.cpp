@@ -117,9 +117,7 @@ namespace LLHttp{
             switch(m_State){
             case ResponseReadState::HeadersAndCookies:
                 //Get Headers
-                while(true){
-                    std::cout << "Starting with"<< m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
-                                
+                while(true){ 
                     /// @brief check for double line end to stop the head phase
                     int status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == 0)
@@ -155,16 +153,13 @@ namespace LLHttp{
                     while(true){
                         char c = m_Join.Get(m_At);
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
-                            std::cout<<"C is "<<(size_t)c<<" " << c<<std::endl;
                             int status = m_Join.StrXCmp(m_At, "\r\n");
                             if(status == 0){
-                                std::cout << "Breaking at " << m_Join.SubString(m_At - std::min(m_At, 15), 50).GetCStr()<<std::endl;
+                                std::cout << "All data since :" << m_Join.SubString(0,-1).GetCStr()<<std::endl;
                                 break;
                             }
                             if(status == -1){
                                 m_At = startAt;
-                                std::cout<<" needsmore"<<std::endl;
-                                std::cout << "Start at is "<< m_Join.SubString(startAt, 15).GetCStr()<<std::endl;
                                 return HttpParseErrorCode::NeedsMoreData;
                             }
                             return HttpParseErrorCode::InvalidHeaderValue;

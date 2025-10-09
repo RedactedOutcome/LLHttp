@@ -353,7 +353,7 @@ namespace LLHttp{
                 size_t bytes = 0;
                 m_At+=2;
                 while(true){
-                    char c = m_Join.Get(m_At);
+                    char c = m_Join.Get(m_At+1);
                     char real;
                     if(c >= '0' && c <= '9')
                         real = c - '0';

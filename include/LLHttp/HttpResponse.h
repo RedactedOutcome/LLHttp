@@ -77,17 +77,17 @@ namespace LLHttp{
         
 
         template<typename... Args>
-        void SetHeader(const char* name, Args&& args)noexcept{
+        void SetHeader(const char* name, Args&&... args)noexcept{
             m_Headers[name] = HBuffer(std::forward<Args>(args)...);
         }
 
         template<typename... Args>
-        void SetHeader(const HBuffer& name, Args&& args)noexcept{
+        void SetHeader(const HBuffer& name, Args&&... args)noexcept{
             m_Headers[name] = HBuffer(std::forward<Args>(args)...);
         }
 
         template<typename... Args>
-        void SetHeader(HBuffer&& name, Args&& args)noexcept{
+        void SetHeader(HBuffer&& name, Args&&... args)noexcept{
             m_Headers[std::move(name)] = HBuffer(std::forward<Args>(args)...);
         }
 
@@ -97,15 +97,15 @@ namespace LLHttp{
         void RemoveCookie(const HBuffer& cookie) noexcept;
                 
         template<typename... Args>
-        void SetCookie(const char* name, Args&& args)noexcept{
+        void SetCookie(const char* name, Args&&... args)noexcept{
             m_Cookies[name] = Cookie(std::forward<Args>(args)...);
         }
         template<typename... Args>
-        void SetCookie(const HBuffer& name, Args&& args)noexcept{
+        void SetCookie(const HBuffer& name, Args&&... args)noexcept{
             m_Cookies[name] = Cookie(std::forward<Args>(args)...);
         }
         template<typename... Args>
-        void SetCookie(HBuffer&& name, Args&& args)noexcept{
+        void SetCookie(HBuffer&& name, Args&&... args)noexcept{
             m_Cookies[std::move(name)] = Cookie(std::forward<Args>(args)...);
         }
 

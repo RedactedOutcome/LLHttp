@@ -366,7 +366,7 @@ namespace LLHttp{
                     bytes <<=4;
                     bytes+=real;
                 }
-                m_Metadata = bytes;
+                m_Metadata = reinterpret_cast<void*>(bytes);
                 status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1)return HttpParseErrorCode::InvalidChunkStart;
                 if(status == -1){

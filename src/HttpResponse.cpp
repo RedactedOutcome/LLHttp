@@ -312,7 +312,7 @@ namespace LLHttp{
                 std::cout<<"Chunked"<<std::endl;
                 /// @brief used if success parsed in remaining we dont want it to go to waste
                 bool shouldReturn = false;
-                if(m_Remaining > 0){
+                if(m_Remaining > 0 && m_Remaining != -1){
                     std::cout<<"using remainig"<<std::endl;
                     /// @brief getting rest of chunk data
                     size_t remaining = m_Join.GetSize() - m_At;

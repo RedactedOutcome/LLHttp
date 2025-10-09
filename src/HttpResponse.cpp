@@ -141,13 +141,16 @@ namespace LLHttp{
                     char* headerName = new char[headerLength + 1];
                     m_Join.MemcpyTo(headerName, startAt, headerLength);
                     headerName[headerLength] = '\0';
-
-                    if(m_Join.Get(m_At + 1) != ' '){
+                    
+                    char c = m_Join.Get(++m_At);
+                    if(c != ' '){
                         delete headerName;
+                        m_At = startAt;
+                        if(m_At >= m_Join.GetSize())return HttpParseErrorCode::NeedsMoreData;
                         return HttpParseErrorCode::InvalidHeaderSplit;
                     }
 
-                    m_At+=2;
+                    m_At++;
                     size_t startAt2 = m_At;
                     size_t lastValueAt = m_At;
                     while(true){
@@ -243,8 +246,6 @@ namespace LLHttp{
                     m_State = ResponseReadState::IdentityBody;
                 }
                 else if(transferEncoding == "chunked"){
-                    std::cout<<"MRemaing " << m_Remaining<<std::endl;
-                    m_Remaining = -1;
                     m_State = ResponseReadState::ChunkedBody;
                 }
                 else if(transferEncoding == "gzip" || transferEncoding == "x-gzip"){
@@ -309,11 +310,9 @@ namespace LLHttp{
                 return HttpParseErrorCode::None;
             }
             case ResponseReadState::ChunkedBody:{
-                std::cout<<"Chunked"<<std::endl;
                 /// @brief used if success parsed in remaining we dont want it to go to waste
                 bool shouldReturn = false;
                 if(m_Remaining > 0 && m_Remaining != -1){
-                    std::cout<<"using remainig"<<std::endl;
                     /// @brief getting rest of chunk data
                     size_t remaining = m_Join.GetSize() - m_At;
                     if(remaining <= m_Remaining){
@@ -328,7 +327,6 @@ namespace LLHttp{
                     m_Remaining=0;
                 }
                 if(m_Remaining == 0){
-                    std::cout<<"no remaining"<<std::endl;
                     /// @brief just getting end of chunk
 
                     int status = m_Join.StrXCmp(m_At, "\r\n");
@@ -344,7 +342,6 @@ namespace LLHttp{
                     m_Remaining = -1;
                     if(shouldReturn)return HttpParseErrorCode::None;
                 }
-                std::cout<<"calcing"<<std::endl;
                 //Transfer Chunked Encoding
                 size_t before = m_At;
                 int status;
@@ -374,7 +371,6 @@ namespace LLHttp{
                     bytes+=real;
                     m_At++;
                 }
-                std::cout<<"Size is " << bytes<<std::endl;
                 m_Metadata = reinterpret_cast<void*>(bytes);
                 status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1)return HttpParseErrorCode::InvalidChunkStart;
@@ -386,12 +382,10 @@ namespace LLHttp{
                 size_t fillSize = m_Join.GetSize() - m_At;
                 m_Remaining = bytes - std::min(bytes, fillSize);
                 if(fillSize <= bytes){
-                    std::cout << "Usind gill size"<<std::endl;
                     output = m_Join.SubBuffer(m_At, fillSize);
                     m_At+=fillSize;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
-                std::cout<<"T1"<<std::endl;
                 output = m_Join.SubBuffer(m_At, bytes);
                 m_At+=bytes;
 

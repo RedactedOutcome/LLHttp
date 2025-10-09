@@ -173,7 +173,7 @@ namespace LLHttp{
                     HBuffer headerValue = m_Join.SubString(headerValueStart, m_At - headerValueStart);
 
                     HBufferLowercaseEquals equals;
-                    std::Cout << "Setting " << headerName.GetCStr() << ": "<< headerValue.GetCStr()<<std::endl;
+                    std::cout << "Setting " << headerName.GetCStr() << ": "<< headerValue.GetCStr()<<std::endl;
                     if(!equals(headerName, "Set-Cookie")){
                         m_Headers.insert(std::make_pair(std::move(headerName), std::move(headerValue)));
                     }else{

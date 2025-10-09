@@ -378,27 +378,6 @@ namespace LLHttp{
         }
         return HttpParseErrorCode::UnsupportedHttpProtocol;
     }
-    void HttpResponse::SetHeader(const char* name, const char* value) noexcept{
-        m_Headers[name] = value;
-    }
-    void HttpResponse::SetHeader(const HBuffer& name, const char* value) noexcept{
-        m_Headers[name] = value;
-    }
-    void HttpResponse::SetHeader(const HBuffer& name, const HBuffer& value) noexcept{
-        m_Headers[name] = value;
-    }
-    void HttpResponse::SetHeader(const HBuffer& name, HBuffer&& value) noexcept{
-        m_Headers[name] = std::move(value);
-    }
-    void HttpResponse::SetHeader(HBuffer&& name, const char* value) noexcept{
-        m_Headers[std::move(name)] = value;
-    }
-    void HttpResponse::SetHeader(HBuffer&& name, const HBuffer& value) noexcept{
-        m_Headers[std::move(name)] = value;
-    }
-    void HttpResponse::SetHeader(HBuffer&& name, HBuffer&& value) noexcept{
-        m_Headers[std::move(name)] = std::move(value);
-    }
     void HttpResponse::RemoveHeader(const char* header)noexcept{
         m_Headers.erase(header);
     }
@@ -481,13 +460,10 @@ namespace LLHttp{
         m_Status = (uint16_t)HttpStatus::MovedPermanently;
         SetHeader("Location", std::move(location));
     }
-    void HttpResponse::SetCookie(const char* name, Cookie& cookie){
-        m_Cookies[name] = std::shared_ptr<Cookie>(&cookie);
+    Cookie& HttpResponse::GetCookie(const char* name)noexcept{
+        return m_Cookies[name];
     }
-    void HttpResponse::SetCookie(const char* name, std::shared_ptr<Cookie> cookie){
-        m_Cookies[name] = cookie;
-    }
-    std::shared_ptr<Cookie> HttpResponse::GetCookie(const char* name)noexcept{
+    Cookie& HttpResponse::GetCookie(const HBuffer& name)noexcept{
         return m_Cookies[name];
     }
     void HttpResponse::SetVersion(HttpVersion version)noexcept{

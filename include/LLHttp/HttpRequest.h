@@ -48,7 +48,7 @@ namespace LLHttp{
     public:
         void SetPath(const HBuffer& path) noexcept;
         void SetPath(HBuffer&& path) noexcept;
-
+        
         /// @brief copies the null terminated string passed
         void SetBodyAsCopy(const char* data) noexcept;
         /// @brief copies the string passed
@@ -69,19 +69,39 @@ namespace LLHttp{
         void AddBodyReference(const HBuffer& buffer)noexcept;
         /// @brief Appends a new buffer to the body list
         void AddBody(HBuffer&& buffer)noexcept;
-        
-        void SetHeader(const char* name, const char* value) noexcept;
-        void SetHeader(const HBuffer& name, const char* value) noexcept;
-        void SetHeader(const HBuffer& name, const HBuffer& value) noexcept;
-        void SetHeader(const HBuffer& name, HBuffer&& value) noexcept;
-        void SetHeader(HBuffer&& name, const char* value) noexcept;
-        void SetHeader(HBuffer&& name, const HBuffer& value) noexcept;
-        void SetHeader(HBuffer&& name, HBuffer&& value) noexcept;
+
+        template<typename... Args>
+        void SetHeader(const char* name, Args&& args)noexcept{
+            m_Headers[name] = HBuffer(std::forward(args));
+        }
+
+        template<typename... Args>
+        void SetHeader(const HBuffer& name, Args&& args)noexcept{
+            m_Headers[name] = HBuffer(std::forward<Args>(Args)...);
+        }
+
+        template<typename... Args>
+        void SetHeader(HBuffer&& name, Args&& args)noexcept{
+            m_Headers[std::move(name)] = HBuffer(std::forward<Args>(Args)...);
+        }
+
         void RemoveHeader(const char* header) noexcept;
         void RemoveHeader(const HBuffer& header) noexcept;
-        
-        void SetCookie(const char* name, Cookie& cookie);
-        void SetCookie(const char* name, std::shared_ptr<Cookie> cookie);
+        void RemoveCookie(const char* cookie) noexcept;
+        void RemoveCookie(const HBuffer& cookie) noexcept;
+                
+        template<typename... Args>
+        void SetCookie(const char* name, Args&& args)noexcept{
+            m_Cookies[name] = Cookie(std::forward<Args>(Args)...);
+        }
+        template<typename... Args>
+        void SetCookie(const HBuffer& name, Args&& args)noexcept{
+            m_Cookies[name] = Cookie(std::forward<Args>(Args)...);
+        }
+        template<typename... Args>
+        void SetCookie(HBuffer&& name, Args&& args)noexcept{
+            m_Cookies[std::move(name)] = Cookie(std::forward<Args>(Args)...);
+        }
 
         void SetVersion(HttpVersion version)noexcept;
         void SetVerb(HttpVerb verb)noexcept;
@@ -110,8 +130,8 @@ namespace LLHttp{
         HBuffer& GetHeader(const HBuffer& name) noexcept;
         HBuffer& GetHeader(HBuffer&& name) noexcept;
     public:
-        std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
-        std::shared_ptr<Cookie> GetCookie(const HBuffer& name) noexcept;
+        Cookie& GetCookie(const char* name) noexcept;
+        Cookie& GetCookie(const HBuffer& name) noexcept;
 
         HBuffer& GetPath() const noexcept{return (HBuffer&)m_Path;}
         HttpVerb GetVerb() const noexcept{return m_Verb;}
@@ -119,13 +139,13 @@ namespace LLHttp{
 
         //const std::unordered_map<std::string, std::string> GetHeaders() const noexcept{return m_Headers;}
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
-        std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
+        std::unordered_map<HBuffer, Cookie>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
     private:
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
         HBuffer m_Path;
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals> m_Headers;
-        std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
+        std::unordered_map<HBuffer, Cookie> m_Cookies;
         bool m_IsBodyEncoded=false;
         std::vector<HBuffer> m_Body;
         

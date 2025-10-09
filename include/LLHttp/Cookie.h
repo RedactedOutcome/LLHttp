@@ -34,12 +34,13 @@ namespace LLHttp{
         HBuffer& GetHeader(const HBuffer& name) noexcept;
     public:
         const std::unordered_map<HBuffer, HBuffer>& GetHeaderMap() const noexcept{return m_Headers;}
+        /// @brief Get Value without needing to modify
         const HBuffer& GetValue() const noexcept{return m_Value;}
+
+        /// @brief get the value and/or modify it
+        HBuffer& GetValue()const noexcept{return (HBuffer&)m_Value;}
     private:
         std::unordered_map<HBuffer, HBuffer> m_Headers;
         HBuffer m_Value;
     };
-
-    /// TODO: remember why they are shared_ptrs
-    #define CreateCookie(...) std::make_shared<Cookie>(__VA_ARGS__)
 }

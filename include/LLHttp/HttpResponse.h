@@ -74,20 +74,41 @@ namespace LLHttp{
         /// @brief appends a new buffer to the body list
         void AddBody(const HBuffer& buffer) noexcept;
         void AddBody(HBuffer&& buffer)noexcept;
-    
-        void SetHeader(const char* name, const char* value) noexcept;
-        void SetHeader(const HBuffer& name, const char* value) noexcept;
-        void SetHeader(const HBuffer& name, const HBuffer& value) noexcept;
-        void SetHeader(const HBuffer& name, HBuffer&& value) noexcept;
-        void SetHeader(HBuffer&& name, const char* value) noexcept;
-        void SetHeader(HBuffer&& name, const HBuffer& value) noexcept;
-        void SetHeader(HBuffer&& name, HBuffer&& value) noexcept;
+        
+
+        template<typename... Args>
+        void SetHeader(const char* name, Args&& args)noexcept{
+            m_Headers[name] = HBuffer(std::forward(args));
+        }
+
+        template<typename... Args>
+        void SetHeader(const HBuffer& name, Args&& args)noexcept{
+            m_Headers[name] = HBuffer(std::forward<Args>(Args)...);
+        }
+
+        template<typename... Args>
+        void SetHeader(HBuffer&& name, Args&& args)noexcept{
+            m_Headers[std::move(name)] = HBuffer(std::forward<Args>(Args)...);
+        }
+
         void RemoveHeader(const char* header) noexcept;
         void RemoveHeader(const HBuffer& header) noexcept;
+        void RemoveCookie(const char* cookie) noexcept;
+        void RemoveCookie(const HBuffer& cookie) noexcept;
+                
+        template<typename... Args>
+        void SetCookie(const char* name, Args&& args)noexcept{
+            m_Cookies[name] = Cookie(std::forward<Args>(Args)...);
+        }
+        template<typename... Args>
+        void SetCookie(const HBuffer& name, Args&& args)noexcept{
+            m_Cookies[name] = Cookie(std::forward<Args>(Args)...);
+        }
+        template<typename... Args>
+        void SetCookie(HBuffer&& name, Args&& args)noexcept{
+            m_Cookies[std::move(name)] = Cookie(std::forward<Args>(Args)...);
+        }
 
-        void SetCookie(const char* name, Cookie& cookie);
-        void SetCookie(const char* name, std::shared_ptr<Cookie> cookie);
-        
         void SetVersion(HttpVersion version)noexcept;
         void SetStatus(uint16_t status)noexcept;
         void SetStatus(HttpStatus status)noexcept;
@@ -142,12 +163,13 @@ namespace LLHttp{
         HBuffer& GetHeader(const HBuffer& name) noexcept;
         HBuffer& GetHeader(HBuffer&& name) noexcept;
     public:
-        std::shared_ptr<Cookie> GetCookie(const char* name) noexcept;
+        Cookie& GetCookie(const char* name) noexcept;
+        Cookie& GetCookie(const HBuffer& name) noexcept;
         
         uint16_t GetStatus() const noexcept{return m_Status;}
         HttpVersion GetVersion() const noexcept{return m_Version;}
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
-        std::unordered_map<HBuffer, std::shared_ptr<Cookie>>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, std::shared_ptr<Cookie>>&)m_Cookies;}
+        std::unordered_map<HBuffer, Cookie>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
     public:
         /// @brief returns the current position in the joined buffer that we are using to pase data for the current state
@@ -160,7 +182,7 @@ namespace LLHttp{
         /// TODO: Case insensitive
         /// @brief a map of headers. When accessed directly the keys are case insensitive. Only through the get functions will be using lowercase functions
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals> m_Headers;
-        std::unordered_map<HBuffer, std::shared_ptr<Cookie>> m_Cookies;
+        std::unordered_map<HBuffer, Cookie> m_Cookies;
         bool m_IsBodyCompressed=false;
         std::vector<HBuffer> m_Body;
     public:

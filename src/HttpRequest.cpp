@@ -484,42 +484,19 @@ namespace LLHttp{
     void HttpRequest::SetPath(HBuffer&& path) noexcept{
         m_Path.Assign(std::move(path));
     }
-
-    void HttpRequest::SetHeader(const char* name, const char* value) noexcept{
-        m_Headers[name] = value;
-    }
-    void HttpRequest::SetHeader(const HBuffer& name, const char* value) noexcept{
-        m_Headers[name] = value;
-    }
-    void HttpRequest::SetHeader(const HBuffer& name, const HBuffer& value) noexcept{
-        m_Headers[name] = value;
-    }
-    void HttpRequest::SetHeader(const HBuffer& name, HBuffer&& value) noexcept{
-        m_Headers[name] = std::move(value);
-    }
-    void HttpRequest::SetHeader(HBuffer&& name, const char* value) noexcept{
-        m_Headers[std::move(name)] = value;
-    }
-    void HttpRequest::SetHeader(HBuffer&& name, const HBuffer& value) noexcept{
-        m_Headers[std::move(name)] = value;
-    }
-    void HttpRequest::SetHeader(HBuffer&& name, HBuffer&& value) noexcept{
-        m_Headers[std::move(name)] = std::move(value);
-    }
+    
     void HttpRequest::RemoveHeader(const char* header)noexcept{
         m_Headers.erase(header);
     }
     void HttpRequest::RemoveHeader(const HBuffer& header)noexcept{
         m_Headers.erase(header);
     }
-
-    void HttpRequest::SetCookie(const char* name, Cookie& cookie){
-        m_Cookies[name] = std::shared_ptr<Cookie>(&cookie);
+    void HttpRequest::RemoveCookie(const char* cookie)noexcept{
+        m_Cookies.erase(cookie);
     }
-    void HttpRequest::SetCookie(const char* name, std::shared_ptr<Cookie> cookie){
-        m_Cookies[name] = cookie;
+    void HttpRequest::RemoveCookie(const HBuffer& cookie)noexcept{
+        m_Cookies.erase(cookie);
     }
-
     HBuffer& HttpRequest::GetHeader(const char* name) noexcept{
         return m_Headers[name];
     }

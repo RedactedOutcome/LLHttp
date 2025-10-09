@@ -118,17 +118,17 @@ namespace LLHttp{
             case ResponseReadState::HeadersAndCookies:
                 //Get Headers
                 while(true){
+                    /// @brief check for double line end to stop the head phase
+                    int status = m_Join.StrXCmp(m_At, "\r\n");
+                    if(status == 0)
+                    return HttpParseErrorCode::InvalidHeaderName;
+                    if(status == -1){
+                        m_At = startAt;
+                        return HttpParseErrorCode::NeedsMoreData;
+                    }
+                    
                     size_t startAt = m_At;
-
                     while(true){
-                        /// @brief check for double line end to stop the head phase
-                        int status = m_Join.StrXCmp(m_At, "\r\n");
-                        if(status == 0)
-                            return HttpParseErrorCode::InvalidHeaderName;
-                        if(status == -1){
-                            m_At = startAt;
-                            return HttpParseErrorCode::NeedsMoreData;
-                        }
                         char c = m_Join.Get(m_At);
                         if(c == ':')break;
                         if(!std::isdigit(c) && !std::isalpha(c) && c!= '-' && c!='_'){

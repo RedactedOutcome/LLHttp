@@ -363,7 +363,7 @@ namespace LLHttp{
                         real = c - ('a' - 10);
                     else
                         break;
-                    byte <<=4;
+                    bytes <<=4;
                     bytes+=real;
                 }
                 m_Metadata = bytes;

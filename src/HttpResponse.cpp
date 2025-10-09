@@ -1041,6 +1041,7 @@ namespace LLHttp{
         buff.Reserve(newSize);
         buff.Append(vec1.SubPointer(m_At, -1));
         buff.Append(vec2);
+        vec1 = std::move(buff);
         vec2.Free();
         std::cout<<"New buff is " << buff.SubString(0,-1).GetCStr()<<std::endl;
         m_At = 0;

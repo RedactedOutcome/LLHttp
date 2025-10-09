@@ -330,14 +330,13 @@ namespace LLHttp{
                 if(m_Remaining == 0){
                     std::cout<<"no remaining"<<std::endl;
                     /// @brief just getting end of chunk
-                    size_t before = m_At;
-                    uint8_t state = 0;
 
                     int status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == 1)
                         return HttpParseErrorCode::InvalidChunkEnd;
                     if(status == -1)
                         return HttpParseErrorCode::NeedsMoreData;
+                    m_At+=2;
                     /// @brief m_Metadata is treated as size of chunk
                     if(reinterpret_cast<uint64_t>(m_Metadata) == 0){
                         return HttpParseErrorCode::NoMoreBodies;
@@ -348,7 +347,6 @@ namespace LLHttp{
                 std::cout<<"calcing"<<std::endl;
                 //Transfer Chunked Encoding
                 size_t before = m_At;
-                uint8_t state = 0;
                 int status;
                 std::cout << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
                 /*
@@ -400,6 +398,7 @@ namespace LLHttp{
                 status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1)return HttpParseErrorCode::InvalidChunkEnd;
                 if(status == -1)return HttpParseErrorCode::NeedsMoreData;
+                m_At+=2;
 
                 if(bytes == 0){
                     m_State = ResponseReadState::Finished;

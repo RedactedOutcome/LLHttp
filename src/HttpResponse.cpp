@@ -164,6 +164,7 @@ namespace LLHttp{
                         //if(c != '*' && c != '+' && c != '\'' && c!= ' ' && c != '"' && c != ';' && c!= ',' && c!= '&' && c != '=' && c != '?' && c != ':' && c != '/' && c != '-' && c != '_' && c != '.' && c != '~' && c != '%' && !std::isalpha(c) && !std::isdigit(c)){
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
                             if(m_At >= m_Join.GetSize()){
+                                std::cout<<"Needing more ata"<<std::endl;
                                 m_At = startAt;
                                 return HttpParseErrorCode::NeedsMoreData;
                             }

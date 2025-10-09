@@ -53,7 +53,7 @@ namespace LLHttp{
             buff->Free();
             return error;
         }
-        buff->Assign(buff->GetCopy());
+        if(info->m_CopyNecessary)buff->Assign(buff->GetCopy());
         return error;
     }
     
@@ -91,7 +91,7 @@ namespace LLHttp{
             buff->Free();
             return error;
         }
-        buff->Assign(buff->GetCopy());
+        if(info->m_CopyNecessary)buff->Assign(buff->GetCopy());
         return error;
     }
 

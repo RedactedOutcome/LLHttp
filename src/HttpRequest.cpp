@@ -400,7 +400,7 @@ namespace LLHttp{
                         c-=87;
                     else{
                         //INVALID CHARACTER;
-                        return HttpParseErrorCode::InvalidChunkSize;
+                        return HttpParseErrorCode::InvalidChunkStart;
                     }
                     bytes <<= 4;
                     bytes+= c;
@@ -506,7 +506,7 @@ namespace LLHttp{
     HBuffer& HttpRequest::GetHeader(HBuffer&& name) noexcept{
         return m_Headers[std::move(name)];
     }
-    
+
     void HttpRequest::SetVersion(HttpVersion version)noexcept{
         m_Version = version;
     }

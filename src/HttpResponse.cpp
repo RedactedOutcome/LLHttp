@@ -350,6 +350,7 @@ namespace LLHttp{
                 size_t before = m_At;
                 uint8_t state = 0;
                 std::cout << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
+                /*
                 int status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1)
                     return HttpParseErrorCode::InvalidChunkStart;
@@ -357,6 +358,7 @@ namespace LLHttp{
                     return HttpParseErrorCode::NeedsMoreData;
                 std::cout<<"done"<<std::endl;
                 m_At+=2;
+                */
                 size_t bytes = 0;
                 while(true){
                     char c = m_Join.Get(m_At);

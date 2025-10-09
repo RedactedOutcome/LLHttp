@@ -17,9 +17,13 @@ namespace LLHttp{
     extern bool IsValidPathCharacter(char c)noexcept;
 
     /// @brief returns if a character is a valid http header value character.
+    extern bool IsValidHeaderNameCharacter(char c)noexcept;
+
+    /// @brief returns if a character is a valid http header value character.
     extern bool IsValidHeaderValueCharacter(char c)noexcept;
 
     /// @brief a collection of all allowed ASCII characters inside a http path
     static std::bitset<128> s_LLHttpPathAllowedCharacters;
+    static std::bitset<128> s_LLHttpHeaderNameAllowedCharacters;
     static std::bitset<128> s_LLHttpHeaderValueAllowedCharacters;
 }

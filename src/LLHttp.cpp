@@ -26,12 +26,22 @@ namespace LLHttp{
             s_LLHttpHeaderValueAllowedCharacters.set(i);
         }
         s_LLHttpHeaderValueAllowedCharacters.set(' ');
+
+        for(size_t c = 'a'; c <= 'z'; c++)s_LLHttpHeaderNameAllowedCharacters.set(c);
+        for(size_t c = 'A'; c <= 'Z'; c++)s_LLHttpHeaderNameAllowedCharacters.set(c);
+        for(size_t c = '0'; c <= '9'; c++)s_LLHttpHeaderNameAllowedCharacters.set(c);
+        s_LLHttpHeaderNameAllowedCharacters.set('-');
+        s_LLHttpHeaderNameAllowedCharacters.set('_');
+        s_LLHttpHeaderNameAllowedCharacters.set('.');
     }
     bool IsValidPathCharacter(char c)noexcept{
         return s_LLHttpPathAllowedCharacters.test(c);
     }
 
     bool IsValidHeaderValueCharacter(char c)noexcept{
+        return s_LLHttpHeaderValueAllowedCharacters.test(c);
+    }
+    bool IsValidHeaderNameCharacter(char c)noexcept{
         return s_LLHttpHeaderValueAllowedCharacters.test(c);
     }
 }

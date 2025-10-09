@@ -130,7 +130,7 @@ namespace LLHttp{
                     while(true){
                         char c = m_Join.Get(m_At);
                         if(c == ':')break;
-                        if(!std::isdigit(c) && !std::isalpha(c) && c!= '-' && c!='_'){
+                        if(::LLHttp::IsValidHeaderNameCharacter(c)){
                             std::cout <<"char " << (size_t)c <<" " << c<<std::endl;
                             return HttpParseErrorCode::InvalidHeaderName;
                         }

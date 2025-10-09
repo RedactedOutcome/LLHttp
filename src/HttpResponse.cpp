@@ -1016,6 +1016,7 @@ namespace LLHttp{
         }
 
         if(m_At >= vec1Size){
+            std::cout<<"Grate"<<std::endl;
             /// Only worrying about second buffer atp
             if(ownVec2){
                 /// @brief we own the second buffer
@@ -1040,6 +1041,7 @@ namespace LLHttp{
         buff.Reserve(newSize);
         buff.Append(vec1.SubPointer(m_At, -1));
         buff.Append(vec2);
+        std::cout<<"New buff is " << buff.GetSubString(0,-1).GetCStr()<<std::endl;
         m_At = 0;
     }
 }

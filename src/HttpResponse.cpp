@@ -1031,6 +1031,15 @@ namespace LLHttp{
         }
 
         if(ownVec1){
+            vec1.Append(vec2);
+            vec2.Free();
+            return;
         }
+        size_t newSize = (vec1Size - m_At) + vec2Size;
+        HBuffer buff;
+        buff.Reserve(newSize);
+        buff.Append(vec1.SubPointer(m_At, -1));
+        buff.Append(vec2);
+        m_At = 0;
     }
 }

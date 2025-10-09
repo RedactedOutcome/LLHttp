@@ -42,6 +42,6 @@ namespace LLHttp{
         return s_LLHttpHeaderValueAllowedCharacters.test(c);
     }
     bool IsValidHeaderNameCharacter(char c)noexcept{
-        return s_LLHttpHeaderValueAllowedCharacters.test(c);
+        return s_LLHttpHeaderNameAllowedCharacters.test(c);
     }
 }

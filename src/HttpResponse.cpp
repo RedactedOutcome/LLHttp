@@ -174,7 +174,7 @@ namespace LLHttp{
 
                     HBufferLowercaseEquals equals;
                     std::Cout << "Setting " << headerName.GetCStr() << ": "<< headerValue.GetCStr()<<std::endl;
-                    if(!equals(headerNameBuffer, "Set-Cookie")){
+                    if(!equals(headerName, "Set-Cookie")){
                         m_Headers.insert(std::make_pair(std::move(headerName), std::move(headerValue)));
                     }else{
                         /// TODO: Set cookies map with key

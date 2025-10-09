@@ -406,7 +406,6 @@ namespace LLHttp{
                     return HttpParseErrorCode::NoMoreBodies;
                 }
                 m_Remaining = -1;
-                output = std::move(m_Join.SubBuffer(m_At, bytes));
                 return HttpParseErrorCode::None;
             }
             case ResponseReadState::GZipBody:{

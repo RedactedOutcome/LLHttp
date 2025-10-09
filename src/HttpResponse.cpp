@@ -1025,7 +1025,7 @@ namespace LLHttp{
                 return;
             }
 
-            vec1 = vec2.SubString(m_At - vec1Size, -1);
+            vec1.Copy(vec2.SubPointer(m_At - vec1Size, -1));
             vec2.Free();
             m_At = 0;
             return;

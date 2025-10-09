@@ -307,53 +307,93 @@ namespace LLHttp{
                 return HttpParseErrorCode::None;
             }
             case ResponseReadState::ChunkedBody:{
+                /// @brief used if success parsed in remaining we dont want it to go to waste
+                bool shouldReturn = false;
+                if(m_Remaining > 0){
+                    /// @brief getting rest of chunk data
+                    size_t remaining = m_Join.GetSize() - m_At;
+                    if(remaining <= m_Remaining){
+                        output = m_Join.SubBuffer(m_At, remaining);
+                        m_Remaining-=remaining;
+                        m_At+=remaining;
+                        return HttpParseErrorCode::NeedsMoreData;
+                    }
+                    shouldReturn = true;
+                    output = m_Join.SubBuffer(m_At, m_Remaining);
+                    m_At+=m_Remaining;
+                    m_Remaining=0;
+                }
+                if(m_Remaining == 0){
+                    /// @brief just getting end of chunk
+                    size_t before = m_At;
+                    uint8_t state = 0;
+
+                    int status = m_Join.StrXCmp(m_At, "\r\n");
+                    if(status == 1)
+                        return HttpParseErrorCode::InvalidChunkEnd;
+                    if(status == -1)
+                        return HttpParseErrorCode::NeedsMoreData;
+                    /// @brief m_Metadata is treated as size of chunk
+                    if(reinterpret_cast<uint64_t>(m_Metadata) == 0){
+                        return HttpParseErrorCode::NoMoreBodies;
+                    }
+                    m_Remaining = -1;
+                    if(shouldReturn)return HttpParseErrorCode::None;
+                }
                 //Transfer Chunked Encoding
                 size_t before = m_At;
                 uint8_t state = 0;
 
-                while(true){
-                    char current = m_Join.Get(m_At++);
-                    if(current == '\r'){
-                        state++;
-                        continue;
-                    }
-                    if(current == '\n'){
-                        state++;
-                        if(state == 2)break;
-                    }
-                    if(current == '\0'){
-                        m_At = before;
-                        return HttpParseErrorCode::NeedsMoreData;
-                    }
-                    state = 0;
-                }
-
+                int status = m_Join.StrXCmp(m_At, "\r\n");
+                if(status == 1)
+                    return HttpParseErrorCode::InvalidChunkStart;
+                if(status == -1)
+                    return HttpParseErrorCode::NeedsMoreData;
+                
                 size_t bytes = 0;
-                size_t dist = m_At - 2 - before - 1;
-                for(size_t i = before; i < m_At - 2; i++){
-                    uint8_t c = m_Join.At(i);
-
+                m_At+=2;
+                while(true){
+                    char c = m_Join.Get(m_At);
+                    char real;
                     if(c >= '0' && c <= '9')
-                        c -= '0';
+                        real = c - '0';
                     else if(c >= 'A' && c <= 'F')
-                        c-= 55;
+                        real = c - ('A' - 10);
                     else if(c >= 'a' && c <= 'f')
-                        c-=87;
-                    else{
-                        //INVALID CHARACTER;
-                        return HttpParseErrorCode::InvalidChunkSize;
-                    }
-                    bytes <<=4;
-                    bytes += c;
-                    dist--;
+                        real = c - ('a' - 10);
+                    else
+                        break;
+                    byte <<=4;
+                    bytes+=real;
                 }
-                if(m_Join.StartsWith(m_At + bytes, "\r\n", 2) == false)return HttpParseErrorCode::NeedsMoreData;
-                if(bytes < 1){
+                m_Metadata = bytes;
+                status = m_Join.StrXCmp(m_At, "\r\n");
+                if(status == 1)return HttpParseErrorCode::InvalidChunkStart;
+                if(status == -1){
+                    m_At = before;
+                    return HttpParseErrorCode::NeedsMoreData;
+                }
+                m_At+=2;
+                size_t fillSize = m_Join.GetSize() - m_At;
+                m_Remaining = bytes - std::min(bytes, fillSize);
+                if(fillSize <= bytes){
+                    output = m_Join.SubBuffer(m_At, fillSize);
+                    m_At+=fillSize;
+                    return HttpParseErrorCode::NeedsMoreData;
+                }
+                output = m_Join.SubBuffer(m_At, bytes);
+                m_At+=bytes;
+
+                status = m_Join.StrXCmp(m_At, "\r\n");
+                if(status == 1)return HttpParseErrorCode::InvalidChunkEnd;
+                if(status == -1)return HttpParseErrorCode::NeedsMoreData;
+
+                if(bytes == 0){
                     m_State = ResponseReadState::Finished;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
+                m_Remaining = -1;
                 output = std::move(m_Join.SubBuffer(m_At, bytes));
-                m_At+=bytes + 2;
                 return HttpParseErrorCode::None;
             }
             case ResponseReadState::GZipBody:{

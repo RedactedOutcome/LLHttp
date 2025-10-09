@@ -198,5 +198,6 @@ namespace LLHttp{
         int32_t m_At = 0;
         /// @brief used for identity encoding. If we dont have enough data we can return a body and specify that there is more data with return value of NeedsMoreData
         size_t m_Remaining=0;
+        void* m_Metadata = nullptr;
     };
 }

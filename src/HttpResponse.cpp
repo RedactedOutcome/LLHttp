@@ -155,6 +155,7 @@ namespace LLHttp{
                     while(true){
                         char c = m_Join.Get(m_At);
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
+                            std::cout<<"C is "<<(size_t)c<<" " << c<<std::endl;
                             int status = m_Join.StrXCmp(m_At, "\r\n");
                             if(status == 0){
                                 std::cout << "Breaking at " << m_Join.SubString(m_At - std::min(m_At, 15), 50).GetCStr()<<std::endl;
@@ -162,7 +163,7 @@ namespace LLHttp{
                             }
                             if(status == -1){
                                 m_At = startAt;
-                                std::cout<<"needsmore"<<std::endl;
+                                std::cout<<" needsmore"<<std::endl;
                                 std::cout << "Start at is "<< m_Join.SubString(startAt, 15).GetCStr()<<std::endl;
                                 return HttpParseErrorCode::NeedsMoreData;
                             }
@@ -175,7 +176,7 @@ namespace LLHttp{
                     HBuffer headerValue = m_Join.SubString(headerValueStart, m_At - headerValueStart);
 
                     HBufferLowercaseEquals equals;
-                    std::cout << "Setting " << headerName.GetCStr() << ": "<< headerValue.GetCStr()<<std::endl;
+                    std::cout << "Setting (" << headerName.GetCStr() << ": "<< headerValue.GetCStr()<<")"<<std::endl;
                     if(!equals(headerName, "Set-Cookie")){
                         m_Headers.insert(std::make_pair(std::move(headerName), std::move(headerValue)));
                     }else{

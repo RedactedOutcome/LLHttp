@@ -349,11 +349,10 @@ namespace LLHttp{
                     return HttpParseErrorCode::InvalidChunkStart;
                 if(status == -1)
                     return HttpParseErrorCode::NeedsMoreData;
-                
-                size_t bytes = 0;
                 m_At+=2;
+                size_t bytes = 0;
                 while(true){
-                    char c = m_Join.Get(m_At+1);
+                    char c = m_Join.Get(m_At);
                     char real;
                     if(c >= '0' && c <= '9')
                         real = c - '0';
@@ -365,6 +364,7 @@ namespace LLHttp{
                         break;
                     bytes <<=4;
                     bytes+=real;
+                    m_At++;
                 }
                 m_Metadata = reinterpret_cast<void*>(bytes);
                 status = m_Join.StrXCmp(m_At, "\r\n");

@@ -307,6 +307,7 @@ namespace LLHttp{
                 return HttpParseErrorCode::None;
             }
             case ResponseReadState::ChunkedBody:{
+                std::cout<<"Chunked"<<std::endl;
                 /// @brief used if success parsed in remaining we dont want it to go to waste
                 bool shouldReturn = false;
                 if(m_Remaining > 0){

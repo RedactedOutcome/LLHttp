@@ -178,6 +178,12 @@ namespace LLHttp{
                         m_Headers.insert(std::make_pair(std::move(headerName), std::move(headerValue)));
                     }else{
                         /// TODO: Set cookies map with key
+                        std::vector<HBuffer> parts = headerValue.SubPointerSplitByDelimiter('=', 1);
+                        if(parts.size() < 2){
+                            return HttpParseErrorCode::InvalidCookie;
+                        }
+                        std::cout << "Cookie Name " << parts[0].SubString(0,-1).GetCStr()<<std::endl;
+                        std::cout << "Cookie value " << parts[1].SubString(1,-1).GetCStr()<<std::endl;
                     }
                     std::cout<<"Done"<<std::endl;
                     

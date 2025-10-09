@@ -111,6 +111,7 @@ namespace LLHttp{
         InvalidHeaderSplit,
         InvalidHeaderValue,
         InvalidHeaderEnd,
+        InvalidCookie,
         InvalidChunkStart,
         InvalidChunkEnd,
         FailedDecodeGZip,

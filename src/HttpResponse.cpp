@@ -725,7 +725,7 @@ namespace LLHttp{
                 if(cookieName.GetSize() < 1 || !cookie.GetValue())continue;
                 buffer.Append(pair.first.GetCStr());
                 buffer.Append("= ", 2);
-                buffer.Append(pair.second->GetValue());
+                buffer.Append(pair.second.GetValue());
                 buffer.Append("\r\n", 2);
             }
             buffer.Append("\r\n", 2);

@@ -123,10 +123,9 @@ namespace LLHttp{
                     if(status == 0)
                     return HttpParseErrorCode::InvalidHeaderName;
                     if(status == -1){
-                        m_At = startAt;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
-                    
+
                     size_t startAt = m_At;
                     while(true){
                         char c = m_Join.Get(m_At);

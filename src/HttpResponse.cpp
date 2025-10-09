@@ -311,6 +311,7 @@ namespace LLHttp{
                 /// @brief used if success parsed in remaining we dont want it to go to waste
                 bool shouldReturn = false;
                 if(m_Remaining > 0){
+                    std::cout<<"using remainig"<<std::endl;
                     /// @brief getting rest of chunk data
                     size_t remaining = m_Join.GetSize() - m_At;
                     if(remaining <= m_Remaining){
@@ -325,6 +326,7 @@ namespace LLHttp{
                     m_Remaining=0;
                 }
                 if(m_Remaining == 0){
+                    std::cout<<"no remaining"<<std::endl;
                     /// @brief just getting end of chunk
                     size_t before = m_At;
                     uint8_t state = 0;
@@ -341,6 +343,7 @@ namespace LLHttp{
                     m_Remaining = -1;
                     if(shouldReturn)return HttpParseErrorCode::None;
                 }
+                std::cout<<"calcing"<<std::endl;
                 //Transfer Chunked Encoding
                 size_t before = m_At;
                 uint8_t state = 0;

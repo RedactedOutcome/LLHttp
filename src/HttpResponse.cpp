@@ -183,11 +183,6 @@ namespace LLHttp{
                     
                     //Jump past \r\n
                     m_At+=2;
-                    if(m_Join.StartsWith(m_At, "\r\n", 2)){
-                        //Check for body start
-                        m_At+=2;
-                        break;
-                    }
                 }
                 m_State = ResponseReadState::DetectBodyType;
                 return HttpParseErrorCode::None;

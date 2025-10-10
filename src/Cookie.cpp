@@ -60,8 +60,8 @@ namespace LLHttp{
         m_Data.Append(m_Value);
         m_Data.Append("; ", 2);
         for(auto it : m_Headers){
-            const name = it.first;
-            const value = it.second;
+            const HBuffer name = it.first;
+            const HBuffer value = it.second;
             if(name.GetSize() < 1 || value.GetSize() < 1)continue;
 
             m_Data.Append(name);

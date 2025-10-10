@@ -174,6 +174,7 @@ namespace LLHttp{
                     /// @brief check for double line end to stop the head phase
                     int status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == 0){
+                        std::cout << "Next data is " << m_Join.SubString(m_At, -1).GetCStr()<<std::endl;
                         m_At+=2;
                         break;
                     }

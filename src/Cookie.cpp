@@ -11,7 +11,7 @@ namespace LLHttp{
     }
     Cookie::Cookie(const Cookie& cookie)noexcept{
         m_Data = cookie.m_Data.SubString(0,-1);
-        ParseData();  
+        ParseData();
     }
     Cookie::Cookie(Cookie&& cookie)noexcept{
         m_Data = std::move(cookie.m_Data);
@@ -40,7 +40,6 @@ namespace LLHttp{
 
         m_Value = splits[0];
         for(size_t i = 1; i < splits.size(); i++){
-            /// header:value
             HBuffer& headerData = splits[i];
             if(headerData.StartsWith(" "))headerData = headerData.SubPointer(1, -1);
 
@@ -49,17 +48,20 @@ namespace LLHttp{
                 return HttpParseErrorCode::InvalidCookieHeader;
             }
 
+            /// @brief assuming headers key pair is always valid as long as m_Data is valid
             HBuffer& headerName = parts[0];
             HBuffer& headerValue = parts[1];
-            std::cout<<"Cookie Header " << headerName.SubString(0,-1).GetCStr() <<"="<<headerValue.SubString(0,-1).GetCStr()<<std::endl;
+            m_Headers[headerName] = headerValue;
         }
         return HttpParseErrorCode::None;
     }
 
     void Cookie::EvaluateData()noexcept{
+        m_Headers.clear();
         m_Data.SetSize(0);
         m_Data.Append(m_Value);
         m_Data.Append("; ", 2);
+
         for(auto it : m_Headers){
             const HBuffer name = it.first;
             const HBuffer value = it.second;

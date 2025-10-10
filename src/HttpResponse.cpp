@@ -173,8 +173,10 @@ namespace LLHttp{
                 while(true){ 
                     /// @brief check for double line end to stop the head phase
                     int status = m_Join.StrXCmp(m_At, "\r\n");
-                    if(status == 0)
+                    if(status == 0){
+                        m_At+=2;
                         break;
+                    }
                     if(status == -1){
                         return HttpParseErrorCode::NeedsMoreData;
                     }

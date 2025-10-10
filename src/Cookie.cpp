@@ -6,18 +6,18 @@ namespace LLHttp{
     Cookie::Cookie(const HBuffer& data)noexcept : m_Data(data){
         ParseData();
     }
-    Cookie(const Cookie& cookie)noexcept{
+    Cookie::CookieCookie(const Cookie& cookie)noexcept{
         m_Data = cookie.m_Data.SubString(0,-1);
         ParseData();  
     }
-    Cookie(Cookie&& cookie)noexcept{
+    Cookie::CookieCookie(Cookie&& cookie)noexcept{
         m_Data = std::move(cookie.m_Data);
         m_Value = std::move(cookie.m_Value);
     }
     Cookie::~Cookie()noexcept{
 
     }
-    
+
     HBuffer& Cookie::GetHeader(const char* name) noexcept{
         return m_Headers[name];
     }

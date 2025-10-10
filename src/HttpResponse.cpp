@@ -176,6 +176,7 @@ namespace LLHttp{
                     if(status == 0){
                         std::cout << "Next data is " << m_Join.SubString(m_At, -1).GetCStr()<<std::endl;
                         m_At+=2;
+                        std::cout << "Next data is " << m_Join.SubString(m_At, -1).GetCStr()<<std::endl;
                         break;
                     }
                     if(status == -1){

@@ -41,7 +41,17 @@ namespace LLHttp{
         m_Value = splits[0];
         for(size_t i = 1; i < splits.size(); i++){
             /// header:value
-            std::cout<<"Header data : "<< splits[i].SubString(0,-1).GetCStr()<<std::endl;
+            HBuffer& headerData = splits[i];
+            if(headerData.StartsWith(" "))headerData = headerData.SubPointer(1, -1);
+
+            std::vector<HBuffer> parts = headerData.SubPointerSplitByDelimiter('=');
+            if(parts.size() != 2){
+                return HttpParseErrorCode::InvalidCookieHeader;
+            }
+
+            HBuffer& headerName = parts[0];
+            HBuffer& headerValue = parts[1];
+            std::cout<<"Cookie Header " << headerName.SubString(0,-1).GetCStr() <<"="<<headerValue.SubString(0,-1).GetCStr()<<std::endl;
         }
         return HttpParseErrorCode::None;
     }

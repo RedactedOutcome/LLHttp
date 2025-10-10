@@ -64,7 +64,7 @@ namespace LLHttp{
             std::cout<<"setitng"<<std::endl;
             m_At = 0;
             /// @brief freeing incase data is temporary and we dont want dangling pointers
-            buff->Free();
+            m_Join.Free();
             return error;
         }
         std::cout << "checking copy necessary"<<std::endl;
@@ -128,7 +128,7 @@ namespace LLHttp{
         if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             m_At = 0;
-            buff->Free();
+            m_Join.Free();
             return error;
         }
         if(info->m_CopyNecessary)buff->Assign(buff->GetCopy());

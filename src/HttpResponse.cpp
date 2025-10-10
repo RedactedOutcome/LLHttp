@@ -38,12 +38,25 @@ namespace LLHttp{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
 
         HBuffer* buff = &m_Join.GetBuffer1();
+        if(buff->GetSize() > 0){
+            HBuffer& buff2 = m_Join.GetBuffer2();
+            if(buff2.GetSize() > 0){
+                buff->Consume(m_At, buff2);
+                m_At = 0;
+            }else{
+                buff = &buff2;
+            }
+        }
+        buff->Assign(data);
+        /*
+        HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
         buff->Assign(data);
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
+        */
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
 
@@ -61,12 +74,25 @@ namespace LLHttp{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
 
         HBuffer* buff = &m_Join.GetBuffer1();
+        if(buff->GetSize() > 0){
+            HBuffer& buff2 = m_Join.GetBuffer2();
+            if(buff2.GetSize() > 0){
+                buff->Consume(m_At, buff2);
+                m_At = 0;
+            }else{
+                buff = &buff2;
+            }
+        }
+        buff->Assign(std::move(data));
+        /*
+        HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
-        buff->Assign(std::move(data));
+        buff->Assign(data);
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
+        */
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
         return error;
@@ -75,14 +101,25 @@ namespace LLHttp{
     HttpParseErrorCode HttpResponse::ParseNextBody(const HBuffer& data, HBuffer& output, BodyParseInfo* info) noexcept{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
+        if(buff->GetSize() > 0){
+            HBuffer& buff2 = m_Join.GetBuffer2();
+            if(buff2.GetSize() > 0){
+                buff->Consume(m_At, buff2);
+                m_At = 0;
+            }else{
+                buff = &buff2;
+            }
+        }
+        buff->Assign(data);
+        /*
+        HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
-        //std::cout << "Buff siz e" << buff->GetSize()<<std::endl;
-        buff->Assign(std::move(data));
+        buff->Assign(data);
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
-
+        */
         HttpParseErrorCode error = ParseBodyTo(output, info);
         m_LastState = error;
         if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
@@ -98,12 +135,25 @@ namespace LLHttp{
     HttpParseErrorCode HttpResponse::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, BodyParseInfo* info) noexcept{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
+        if(buff->GetSize() > 0){
+            HBuffer& buff2 = m_Join.GetBuffer2();
+            if(buff2.GetSize() > 0){
+                buff->Consume(m_At, buff2);
+                m_At = 0;
+            }else{
+                buff = &buff2;
+            }
+        }
+        buff->Assign(std::move(data));
+        /*
+        HBuffer* buff = &m_Join.GetBuffer1();
         buff->Consume(m_At, m_Join.GetBuffer2());
         if(buff->GetSize() > 0)
             buff = &m_Join.GetBuffer2();
-        buff->Assign(std::move(data));
+        buff->Assign(data);
         /// TODO: fix potential bugs with reassigning m_At
         m_At = 0;
+        */
 
         HttpParseErrorCode error = ParseBodyTo(output, info);
         m_LastState = error;
@@ -1040,7 +1090,7 @@ namespace LLHttp{
                 return;
             }
             std::cout << "Case " << __LINE__<<std::endl;
-            
+
             vec1.Copy(vec2.SubPointer(m_At - vec1Size, -1));
             vec2.Free();
             m_At = 0;

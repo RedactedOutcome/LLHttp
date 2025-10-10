@@ -27,7 +27,7 @@ namespace LLHttp{
         void PrepareBodyRead() noexcept;
         
         /// @brief Starts to parse the head portion of the http response with some data. copies if needs more data
-        /// @param data the data to steal and parse into the head
+        /// @param data the data to steal and parse into the head. Always assumes data.GetSize() > 0
         /// @param finishedAt the position where the head ends. if HttpParseErrorCode != HttpParseErrorCode::None *finishedAt shall be ignored
         HttpParseErrorCode ParseHead(const HBuffer& data, BodyParseInfo* info) noexcept;
 

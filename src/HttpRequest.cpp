@@ -8,9 +8,7 @@ namespace LLHttp{
 
     }
     HttpRequest::~HttpRequest()noexcept{
-        m_Join.Free();
-        //m_Body.Free();
-        m_Body.clear();
+
     }
     
     HttpRequest::HttpRequest(HttpRequest&& request)noexcept{
@@ -49,12 +47,17 @@ namespace LLHttp{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
 
         HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
+        if(buff->GetSize() > 0){
+            HBuffer& buff2 = m_Join.GetBuffer2();
+            if(buff2.GetSize() > 0){
+                buff->Consume(m_At, buff2);
+                m_At = 0;
+            }else{
+                buff = &buff2;
+            }
+        }
         buff->Assign(data);
-        /// TODO: fix potential bugs with reassigning m_At
-        m_At = 0;
+
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
         
@@ -72,12 +75,17 @@ namespace LLHttp{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
 
         HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
-        buff->Assign(std::move(data));
-        /// TODO: fix potential bugs with reassigning m_At
-        m_At = 0;
+        if(buff->GetSize() > 0){
+            HBuffer& buff2 = m_Join.GetBuffer2();
+            if(buff2.GetSize() > 0){
+                buff->Consume(m_At, buff2);
+                m_At = 0;
+            }else{
+                buff = &buff2;
+            }
+        }
+        buff->Assign(data);
+
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
         return error;
@@ -85,13 +93,16 @@ namespace LLHttp{
     HttpParseErrorCode HttpRequest::ParseNextBody(const HBuffer& data, HBuffer& output, BodyParseInfo* info) noexcept{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
-        //std::cout << "Buff siz e" << buff->GetSize()<<std::endl;
-        buff->Assign(std::move(data));
-        /// TODO: fix potential bugs with reassigning m_At
-        m_At = 0;
+        if(buff->GetSize() > 0){
+            HBuffer& buff2 = m_Join.GetBuffer2();
+            if(buff2.GetSize() > 0){
+                buff->Consume(m_At, buff2);
+                m_At = 0;
+            }else{
+                buff = &buff2;
+            }
+        }
+        buff->Assign(data);
 
         HttpParseErrorCode error = ParseBody(output, info);
         m_LastState = error;
@@ -109,12 +120,16 @@ namespace LLHttp{
     HttpParseErrorCode HttpRequest::ParseNextBodyCopy(HBuffer&& data, HBuffer& output, BodyParseInfo* info) noexcept{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData && m_LastState != HttpParseErrorCode::None)return m_LastState;
         HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
-        buff->Assign(std::move(data));
-        /// TODO: fix potential bugs with reassigning m_At
-        m_At = 0;
+        if(buff->GetSize() > 0){
+            HBuffer& buff2 = m_Join.GetBuffer2();
+            if(buff2.GetSize() > 0){
+                buff->Consume(m_At, buff2);
+                m_At = 0;
+            }else{
+                buff = &buff2;
+            }
+        }
+        buff->Assign(data);
 
         HttpParseErrorCode error = ParseBody(output, info);
         m_LastState = error;
@@ -187,15 +202,21 @@ namespace LLHttp{
                     size_t valueLength = valueEnd - valueStart;
 
                     HBuffer headerNameBuffer = m_Join.SubString(wasAt, headerSize);
-                    HBuffer headerValueBuffer = m_Join.SubString(valueStart, valueLength);
 
                     HBufferLowercaseEquals equals;
                     if(!equals(headerNameBuffer, "Set-Cookie")){
-                        SetHeader(std::move(headerNameBuffer), std::move(headerValueBuffer));
+                        SetHeader(std::move(headerNameBuffer), m_Join.SubString(valueStart, valueLength));
                     }else{
-                        /// TODO: handle cookie
-                        //delete headerName;
-                        //delete headerValue;
+                        HBuffer value = m_Join.SubPointer(valueStart, valueLength);
+                        std::vector<HBuffer> parts = value.SubPointerSplitByDelimiter('=', 1);
+                        if(parts.size() < 2){
+                            return HttpParseErrorCode::InvalidCookie;
+                        }
+
+                        HBuffer cookieName = parts[0].SubString();
+                        HBuffer cookieValue = parts[1].SubString(0,-1);
+                        Cookie cookie(std::move(cookieValue));
+                        m_Cookies.insert(std::make_pair(std::move(cookieName), std::move(cookie)));
                     }
                     m_At = valueEnd + 2;
                     
@@ -593,16 +614,20 @@ namespace LLHttp{
                 buffer.Append(headerValue);
                 buffer.Append("\r\n", 2);
             }
-            
-            /**
-             //Cookies
-             for (const auto &pair : m_Cookies) {
-                if(pair.first.GetSize() < 1 || pair.second == nullptr)continue;
-                buffer.Append(pair.first.GetCStr());
-                buffer.Append("= ", 2);
-                buffer.Append(pair.second->GetValue());
+
+            //Cookies
+            for (const auto &pair : m_Cookies) {
+                const HBuffer cookieName = pair.first;
+                const Cookie& cookie = pair.second;
+                const HBuffer& data = cookie.GetData();
+
+                if(cookieName.GetSize() < 1 || data.GetSize() < 1)continue;
+                buffer.Append("Set-Cookie: ")
+                buffer.Append(cookieName);
+                buffer.Append('=');
+                buffer.Append(data);
                 buffer.Append("\r\n", 2);
-                }*/
+            }
                
             buffer.Append("\r\n", 2);
             output = std::move(buffer);
@@ -712,6 +737,58 @@ namespace LLHttp{
         return *this;
     }
     void HttpRequest::CopyNecessary()noexcept{
+        HBuffer& vec1 = m_Join.GetBuffer1();
+        HBuffer& vec2 = m_Join.GetBuffer2();
 
+        size_t vec1Size = vec1.GetSize();
+        size_t vec2Size = vec1.GetSize();
+
+        bool ownVec1 = vec1.CanFree();
+        bool ownVec2 = vec2.CanFree();
+
+        if(m_At >= m_Join.GetSize()){
+            /// @brief no need to copy anything
+            m_Join.Free();
+            m_At = 0;
+            return;
+        }
+        if(ownVec1 && ownVec2){
+            /// @brief no need to copy since we own the data
+            // Very rare case with servers
+            return;
+        }
+
+        if(m_At >= vec1Size){
+            /// Only worrying about second buffer atp
+            if(ownVec2){
+                /// @brief we own the second buffer
+                vec1 = std::move(vec2);
+                m_At -= vec1Size;
+                //vec1 = std::move(vec2.SubPointer(m_At - vec1Size, -1));
+                //vec2.Free()
+                return;
+            }
+
+            vec1.Copy(vec2.SubPointer(m_At - vec1Size, -1));
+            vec2.Free();
+            m_At = 0;
+            return;
+        }
+
+        if(ownVec1){
+            vec1.Copy(vec1.SubPointer(m_At, -1));
+            vec1.Append(vec2);
+            vec2.Free();
+            m_At = 0;
+            return;
+        }
+        size_t newSize = (vec1Size - m_At) + vec2Size;
+        HBuffer buff;
+        buff.Reserve(newSize);
+        buff.Append(vec1.SubPointer(m_At, -1));
+        buff.Append(vec2);
+        vec1 = std::move(buff);
+        vec2.Free();
+        m_At = 0;
     }
 }

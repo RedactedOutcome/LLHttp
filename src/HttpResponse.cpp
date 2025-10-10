@@ -5,13 +5,10 @@
 
 namespace LLHttp{
     HttpResponse::HttpResponse(){
-        //memset(&m_Stream, 0, sizeof(z_stream));
     }
     HttpResponse::HttpResponse(uint16_t status){
-        //memset(&m_Stream, 0, sizeof(z_stream));
     }
     HttpResponse::~HttpResponse(){
-        //m_Body.Free();
     }
     
     void HttpResponse::PrepareBodyRead() noexcept{
@@ -48,15 +45,7 @@ namespace LLHttp{
             }
         }
         buff->Assign(data);
-        /*
-        HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
-        /// TODO: fix potential bugs with reassigning m_At
-        m_At = 0;
-        */
+
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
 
@@ -84,15 +73,7 @@ namespace LLHttp{
             }
         }
         buff->Assign(std::move(data));
-        /*
-        HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
-        /// TODO: fix potential bugs with reassigning m_At
-        m_At = 0;
-        */
+
         HttpParseErrorCode error = ParseHead(info);
         m_LastState = error;
         return error;
@@ -111,15 +92,7 @@ namespace LLHttp{
             }
         }
         buff->Assign(data);
-        /*
-        HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
-        /// TODO: fix potential bugs with reassigning m_At
-        m_At = 0;
-        */
+
         HttpParseErrorCode error = ParseBodyTo(output, info);
         m_LastState = error;
         if((error == HttpParseErrorCode::None || error == HttpParseErrorCode::NoMoreBodies) && m_At >= m_Join.GetSize()){
@@ -145,15 +118,6 @@ namespace LLHttp{
             }
         }
         buff->Assign(std::move(data));
-        /*
-        HBuffer* buff = &m_Join.GetBuffer1();
-        buff->Consume(m_At, m_Join.GetBuffer2());
-        if(buff->GetSize() > 0)
-            buff = &m_Join.GetBuffer2();
-        buff->Assign(data);
-        /// TODO: fix potential bugs with reassigning m_At
-        m_At = 0;
-        */
 
         HttpParseErrorCode error = ParseBodyTo(output, info);
         m_LastState = error;
@@ -193,7 +157,8 @@ namespace LLHttp{
                     }
 
                     size_t headerLength = m_At - startAt;
-                    
+
+                    /// TODO: RFC allows optional white spaces around colons
                     char c = m_Join.Get(++m_At);
                     if(c != ' '){
                         m_At = startAt;
@@ -220,20 +185,22 @@ namespace LLHttp{
                     }
                     //Last Value
                     HBuffer headerName = m_Join.SubString(startAt, headerLength);
-                    HBuffer headerValue = m_Join.SubString(headerValueStart, m_At - headerValueStart);
-                    m_At+=2; // \r\n ending header
                     HBufferLowercaseEquals equals;
                     if(!equals(headerName, "Set-Cookie")){
-                        m_Headers.insert(std::make_pair(std::move(headerName), std::move(headerValue)));
+                        m_Headers.insert(std::make_pair(std::move(headerName), m_Join.SubString(headerValueStart, m_At - headerValueStart)));
                     }else{
-                        /// TODO: Set cookies map with key
-                        std::vector<HBuffer> parts = headerValue.SubPointerSplitByDelimiter('=', 1);
+                        HBuffer value = m_Join.SubString(headerValueStart, m_At - headerValueStart);
+                        std::vector<HBuffer> parts = value.SubPointerSplitByDelimiter('=', 1);
                         if(parts.size() < 2){
                             return HttpParseErrorCode::InvalidCookie;
                         }
-                        std::cout << "Cookie Name " << parts[0].SubString(0,-1).GetCStr()<<std::endl;
-                        std::cout << "Cookie value " << parts[1].SubString(1,-1).GetCStr()<<std::endl;
+                        
+                        HBuffer cookieName = parts[0].SubString(0,-1);
+                        HBuffer cookieValue = parts[1].SubString(0,-1);
+                        Cookie cookie(std::move(cookieValue));
+                        m_Cookies.insert(std::make_pair(std::move(cookieName), std::move(cookie)));
                     }
+                    m_At+=2; // \r\n ending header
                 }
                 m_State = ResponseReadState::DetectBodyType;
                 return HttpParseErrorCode::None;
@@ -822,15 +789,18 @@ namespace LLHttp{
                 buffer.Append(headerValue);
                 buffer.Append("\r\n", 2);
             }
-        
+
             //Cookies
             for (const auto &pair : m_Cookies) {
-                const HBuffer& cookieName = pair.first;
+                const HBuffer cookieName = pair.first;
                 const Cookie& cookie = pair.second;
-                if(cookieName.GetSize() < 1 || !cookie.GetValue())continue;
-                buffer.Append(pair.first.GetCStr());
-                buffer.Append("= ", 2);
-                buffer.Append(pair.second.GetValue());
+                const HBuffer& data = cookie.GetData();
+
+                if(cookieName.GetSize() < 1 || data.GetSize() < 1)continue;
+                buffer.Append("Set-Cookie: ")
+                buffer.Append(cookieName);
+                buffer.Append('=');
+                buffer.Append(data);
                 buffer.Append("\r\n", 2);
             }
             buffer.Append("\r\n", 2);

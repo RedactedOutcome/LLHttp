@@ -9,11 +9,11 @@ namespace LLHttp{
     class Cookie{
     public:
         Cookie()noexcept;
-        ~Cookie()noexcept;
         Cookie(const Cookie& cookie)noexcept;
         Cookie(Cookie&& cookie)noexcept;
         Cookie(const HBuffer& data)noexcept;
-
+        ~Cookie()noexcept;
+        
         /// @brief The data of the cookie, value, headers, etc. If we were to have a cookie "testcookie=test; Expires=67" then data is "test; Expires=67"
         template<typename... Args>
         void SetData(Args&&... args)noexcept{

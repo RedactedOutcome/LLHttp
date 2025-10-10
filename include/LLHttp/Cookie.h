@@ -65,8 +65,8 @@ namespace LLHttp{
         const std::unordered_map<HBuffer, HBuffer>& GetHeaderMap() const noexcept{return m_Headers;}
 
         /// @brief Get Value without needing to modify
-        HBuffer& GetData() const noexcept{return m_Data;}
-        HBuffer& GetValue() const noexcept{return m_Value;}
+        HBuffer& GetData() const noexcept{return (HBuffer&)m_Data;}
+        HBuffer& GetValue() const noexcept{return (HBuffer&)m_Value;}
     private:
         std::unordered_map<HBuffer, HBuffer> m_Headers;
         HBuffer m_Data;

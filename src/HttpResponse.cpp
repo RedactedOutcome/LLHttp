@@ -1029,16 +1029,18 @@ namespace LLHttp{
         }
 
         if(m_At >= vec1Size){
-            std::cout << "Case " << __LINE__<<std::endl;
             /// Only worrying about second buffer atp
             if(ownVec2){
+                std::cout << "Case " << __LINE__<<std::endl;
                 /// @brief we own the second buffer
-                vec1 = std::move(vec2.SubPointer(m_At - vec1Size, -1));
-                vec2.Free();
-                m_At = 0;
+                vec1 = std::move(vec2);
+                m_At -= vec1Size;
+                //vec1 = std::move(vec2.SubPointer(m_At - vec1Size, -1));
+                //vec2.Free()
                 return;
             }
-
+            std::cout << "Case " << __LINE__<<std::endl;
+            
             vec1.Copy(vec2.SubPointer(m_At - vec1Size, -1));
             vec2.Free();
             m_At = 0;

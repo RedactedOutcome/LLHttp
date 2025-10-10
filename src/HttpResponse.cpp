@@ -61,14 +61,11 @@ namespace LLHttp{
         m_LastState = error;
 
         if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
-            std::cout<<"setitng"<<std::endl;
             m_At = 0;
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             m_Join.Free();
             return error;
         }
-        std::cout << "checking copy necessary"<<std::endl;
-        std::cout << "M_At " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
         if(info->m_CopyNecessary)buff->Assign(buff->GetCopy());
         return error;
     }
@@ -174,9 +171,7 @@ namespace LLHttp{
                     /// @brief check for double line end to stop the head phase
                     int status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == 0){
-                        std::cout << "Next data is " << m_Join.SubString(m_At, -1).GetCStr()<<std::endl;
                         m_At+=2;
-                        std::cout << "Next data is " << m_Join.SubString(m_At, -1).GetCStr()<<std::endl;
                         break;
                     }
                     if(status == -1){
@@ -184,7 +179,6 @@ namespace LLHttp{
                     }
 
                     size_t startAt = m_At;
-                    std::cout << "Header start is " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
                     while(true){
                         char c = m_Join.Get(m_At);
                         if(c == ':')break;
@@ -208,16 +202,12 @@ namespace LLHttp{
                     }
 
                     size_t headerValueStart = ++m_At;
-                    std::cout << "Value Start is " << m_Join.SubString(m_At, 15).GetCStr() <<std::endl;
                     while(true){
                         char c = m_Join.Get(m_At);
                         //std::cout<<"Char code " << (size_t)c << " " << c<<std::endl;
                         if(!::LLHttp::IsValidHeaderValueCharacter(c)){
                             int status = m_Join.StrXCmp(m_At, "\r\n");
                             if(status == 0){
-                                std::cout << "All data since :" << m_Join.SubString(0,m_At).GetCStr()<<std::endl;
-                                std::cout<<std::endl<<std::endl<<std::endl;
-                                std::cout<<"DONE SETTING"<<std::endl;
                                 break;
                             }
                             if(status == -1){
@@ -233,7 +223,6 @@ namespace LLHttp{
                     HBuffer headerValue = m_Join.SubString(headerValueStart, m_At - headerValueStart);
                     m_At+=2; // \r\n ending header
                     HBufferLowercaseEquals equals;
-                    std::cout << "Setting (" << headerName.GetCStr() << ": "<< headerValue.GetCStr()<<")"<<std::endl;
                     if(!equals(headerName, "Set-Cookie")){
                         m_Headers.insert(std::make_pair(std::move(headerName), std::move(headerValue)));
                     }else{
@@ -245,7 +234,6 @@ namespace LLHttp{
                         std::cout << "Cookie Name " << parts[0].SubString(0,-1).GetCStr()<<std::endl;
                         std::cout << "Cookie value " << parts[1].SubString(1,-1).GetCStr()<<std::endl;
                     }
-                    std::cout<<"Done"<<std::endl;
                 }
                 m_State = ResponseReadState::DetectBodyType;
                 return HttpParseErrorCode::None;
@@ -371,14 +359,12 @@ namespace LLHttp{
                         output = m_Join.SubBuffer(m_At, remaining);
                         m_Remaining-=remaining;
                         m_At+=remaining;
-                        std::cout<<"case 1using remaining"<<std::endl;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
                     shouldReturn = true;
                     output = m_Join.SubBuffer(m_At, m_Remaining);
                     m_At+=m_Remaining;
                     m_Remaining=0;
-                    std::cout<<"case 2 used remaining"<<std::endl;
                 }
                 if(m_Remaining == 0){
                     /// @brief just getting end of chunk
@@ -399,16 +385,10 @@ namespace LLHttp{
                     m_Remaining = -1;
                     if(shouldReturn)return HttpParseErrorCode::None;
                 }
-                std::cout<<"calcing"<<std::endl;
 
                 //Transfer Chunked Encoding
                 size_t before = m_At;
                 int status;
-                std::cout << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
-
-                for(size_t i = 0; i < 15; i++){
-                    std::cout << m_Join.Get(i)<<std::endl;
-                }
                 /*
                 int status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1)
@@ -459,7 +439,6 @@ namespace LLHttp{
                 size_t fillSize = m_Join.GetSize() - m_At;
                 if(fillSize < bytes){
                     m_Remaining = bytes - fillSize;
-                    std::cout << "Using fillsize"<<std::endl;
                     output = m_Join.SubBuffer(m_At, fillSize);
                     m_At+=fillSize;
                     return HttpParseErrorCode::NeedsMoreData;
@@ -467,21 +446,18 @@ namespace LLHttp{
                 m_Remaining = 0;
                 output = m_Join.SubBuffer(m_At, bytes);
                 m_At+=bytes;
-                // std::cout<<"end t1"<<std::endl;
                 status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1){
                     // std::cout << "2"<<std::endl;
                     return HttpParseErrorCode::InvalidChunkEnd;
                 }
                 if(status == -1)return HttpParseErrorCode::NeedsMoreData;
-                // std::cout << "3"<<std::endl;
                 m_At+=2;
                 
                 if(bytes == 0){
                     m_State = ResponseReadState::Finished;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-                // std::cout << "4"<<std::endl;
                 m_Remaining = -1;
                 return HttpParseErrorCode::None;
             }
@@ -1090,7 +1066,6 @@ namespace LLHttp{
     }
 
     void HttpResponse::CopyNecessary()noexcept{
-        std::cout << "Copy necessary"<<std::endl;
         HBuffer& vec1 = m_Join.GetBuffer1();
         HBuffer& vec2 = m_Join.GetBuffer2();
 
@@ -1099,7 +1074,6 @@ namespace LLHttp{
 
         bool ownVec1 = vec1.CanFree();
         bool ownVec2 = vec2.CanFree();
-        std::cout<<"Owns are " << ownVec1 << " " << ownVec2<<std::endl;
 
         if(m_At >= m_Join.GetSize()){
             /// @brief no need to copy anything
@@ -1108,7 +1082,6 @@ namespace LLHttp{
             return;
         }
         if(ownVec1 && ownVec2){
-            std::cout << "Case " << __LINE__<<std::endl;
             /// @brief no need to copy since we own the data
             // Very rare case with servers
             return;
@@ -1117,7 +1090,6 @@ namespace LLHttp{
         if(m_At >= vec1Size){
             /// Only worrying about second buffer atp
             if(ownVec2){
-                std::cout << "Case " << __LINE__<<std::endl;
                 /// @brief we own the second buffer
                 vec1 = std::move(vec2);
                 m_At -= vec1Size;
@@ -1125,7 +1097,6 @@ namespace LLHttp{
                 //vec2.Free()
                 return;
             }
-            std::cout << "Case " << __LINE__<<std::endl;
 
             vec1.Copy(vec2.SubPointer(m_At - vec1Size, -1));
             vec2.Free();
@@ -1134,14 +1105,12 @@ namespace LLHttp{
         }
 
         if(ownVec1){
-            std::cout << "Case " << __LINE__<<std::endl;
             vec1.Copy(vec1.SubPointer(m_At, -1));
             vec1.Append(vec2);
             vec2.Free();
             m_At = 0;
             return;
         }
-        std::cout << "Case " << __LINE__<<std::endl;
         size_t newSize = (vec1Size - m_At) + vec2Size;
         HBuffer buff;
         buff.Reserve(newSize);
@@ -1149,7 +1118,6 @@ namespace LLHttp{
         buff.Append(vec2);
         vec1 = std::move(buff);
         vec2.Free();
-        std::cout<<"New buff is " << buff.SubString(0,-1).GetCStr()<<std::endl;
         m_At = 0;
     }
 }

@@ -797,7 +797,7 @@ namespace LLHttp{
                 const HBuffer& data = cookie.GetData();
 
                 if(cookieName.GetSize() < 1 || data.GetSize() < 1)continue;
-                buffer.Append("Set-Cookie: ")
+                buffer.Append("Set-Cookie: ");
                 buffer.Append(cookieName);
                 buffer.Append('=');
                 buffer.Append(data);

@@ -322,4 +322,23 @@ namespace LLHttp{
         output.Append('\n');
         output = std::move(output);
     }
+
+    static HttpEncodingErrorCode Decoder::GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept{
+        std::vector<HttpContentEncoding> encodings;
+        encodings.reserve(3);
+
+        auto fn = [input, encodings](size_t at){
+
+        };
+
+        size_t lastAt = 0;
+        for(size_t i = 0; i < input.GetSize(); i++){
+            char c = input.At(i);
+            if(c == ',')
+        }
+        output.reserve(encodings);
+        for(size_t i = encodings.size(); i > 0; --i){
+            output.emplace_back(encodings[i - 1]);
+        }
+    }
 }

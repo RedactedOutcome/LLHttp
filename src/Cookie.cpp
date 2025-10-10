@@ -54,7 +54,7 @@ namespace LLHttp{
 
             m_Data.Append(name);
             m_Data.Append('=');
-            m_Data.Apend(value);
+            m_Data.Append(value);
             m_Data.Append("; ", 2);
         }
     }

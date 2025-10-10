@@ -68,6 +68,7 @@ namespace LLHttp{
             return error;
         }
         std::cout << "checking copy necessary"<<std::endl;
+        std::cout << "M_At " << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
         if(info->m_CopyNecessary)buff->Assign(buff->GetCopy());
         return error;
     }

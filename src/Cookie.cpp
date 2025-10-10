@@ -54,4 +54,20 @@ namespace LLHttp{
         }
         return HttpParseErrorCode::None;
     }
+
+    void Cookie::EvaluateData()noexcept{
+        m_Data.SetSize(0);
+        m_Data.Append(m_Value);
+        m_Data.Append("; ", 2);
+        for(auto it : m_Headers){
+            const name = it.first;
+            const value = it.second;
+            if(name.GetSize() < 1 || value.GetSize() < 1)continue;
+
+            m_Data.Append(name);
+            m_Data.Append('=');
+            m_Data.Apend(value);
+            m_Data.Append("; ", 2);
+        }
+    }
 }

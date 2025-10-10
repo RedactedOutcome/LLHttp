@@ -58,6 +58,9 @@ namespace LLHttp{
     public:
         /// @brief Evaluates the m_Data and deduces the headers and values off of it
         HttpParseErrorCode ParseData()noexcept;
+
+        /// @brief Reevaluates the m_Data string.
+        void EvaluateData()noexcept;
     public:
         const std::unordered_map<HBuffer, HBuffer>& GetHeaderMap() const noexcept{return m_Headers;}
 

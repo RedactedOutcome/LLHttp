@@ -6,6 +6,9 @@ namespace LLHttp{
     Cookie::Cookie(const HBuffer& data)noexcept : m_Data(data){
         ParseData();
     }
+    Cookie::Cookie(HBuffer&& data)noexcept : m_Data(std::move(data)){
+        ParseData();
+    }
     Cookie::Cookie(const Cookie& cookie)noexcept{
         m_Data = cookie.m_Data.SubString(0,-1);
         ParseData();  

@@ -1038,6 +1038,7 @@ namespace LLHttp{
         }
 
         if(ownVec1){
+            vec1.Copy(vec1.SubPointer(m_At, -1));
             vec1.Append(vec2);
             vec2.Free();
             return;

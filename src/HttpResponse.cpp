@@ -429,7 +429,7 @@ namespace LLHttp{
                 }
                 size_t stringLen = stringStart - m_At;
                 if(stringLen < 1){
-                    status = m_Join.StrXCmp("\r\n");
+                    status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == -1){
                         m_At = before;
                         return HttpParseErrorCode::NeedsMoreData;

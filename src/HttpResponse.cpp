@@ -429,8 +429,13 @@ namespace LLHttp{
                 }
                 size_t stringLen = stringStart - m_At;
                 if(stringLen < 1){
+                    status = m_Join.StrXCmp("\r\n");
+                    if(status == -1){
+                        m_At = before;
+                        return HttpParseErrorCode::NeedsMoreData;
+                    }
                     std::cout << "m_At " << m_At<<std::endl;
-
+                    
                     return HttpParseErrorCode::InvalidChunkStart;
                 }
                 std::cout << "bytes are " << bytes << " string is " << m_Join.SubString(stringStart, m_At - stringStart).GetCStr()<<std::endl;

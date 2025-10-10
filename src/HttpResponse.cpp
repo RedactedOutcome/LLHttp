@@ -411,6 +411,7 @@ namespace LLHttp{
                 m_At+=2;
                 */
                 size_t bytes = 0;
+                size_t st1 = m_At;
                 while(true){
                     char c = m_Join.Get(m_At);
                     char real;
@@ -426,6 +427,7 @@ namespace LLHttp{
                     bytes+=real;
                     m_At++;
                 }
+                std::cout << "bytes are " << bytes << " string is " << m_Join.SubString(st1, m_At - st1).GetCStr()<<std::endl;
                 m_Metadata = reinterpret_cast<void*>(bytes);
                 status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1)return HttpParseErrorCode::InvalidChunkStart;
@@ -435,13 +437,14 @@ namespace LLHttp{
                 }
                 m_At+=2;
                 size_t fillSize = m_Join.GetSize() - m_At;
-                m_Remaining = bytes - std::min(bytes, fillSize);
-                if(fillSize <= bytes){
+                if(fillSize < bytes){
+                    m_Remaining = bytes - fillSize;
                     std::cout << "Using fillsize"<<std::endl;
                     output = m_Join.SubBuffer(m_At, fillSize);
                     m_At+=fillSize;
                     return HttpParseErrorCode::NeedsMoreData;
                 }
+                m_Remaining = 0;
                 output = m_Join.SubBuffer(m_At, bytes);
                 m_At+=bytes;
                 std::cout<<"end t1"<<std::endl;

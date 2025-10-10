@@ -242,9 +242,6 @@ namespace LLHttp{
                         std::cout << "Cookie value " << parts[1].SubString(1,-1).GetCStr()<<std::endl;
                     }
                     std::cout<<"Done"<<std::endl;
-                    
-                    //Jump past \r\n
-                    m_At+=2;
                 }
                 m_State = ResponseReadState::DetectBodyType;
                 return HttpParseErrorCode::None;

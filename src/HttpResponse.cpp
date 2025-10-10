@@ -378,8 +378,10 @@ namespace LLHttp{
                     /// @brief just getting end of chunk
 
                     int status = m_Join.StrXCmp(m_At, "\r\n");
-                    if(status == 1)
+                    if(status == 1){
+                        std::cout <<"Case 1" <<std::endl;
                         return HttpParseErrorCode::InvalidChunkEnd;
+                    }
                     if(status == -1)
                         return HttpParseErrorCode::NeedsMoreData;
                     m_At+=2;
@@ -438,7 +440,10 @@ namespace LLHttp{
                 m_At+=bytes;
 
                 status = m_Join.StrXCmp(m_At, "\r\n");
-                if(status == 1)return HttpParseErrorCode::InvalidChunkEnd;
+                if(status == 1){
+                    std::cout << "2"<<std::endl;
+                    return HttpParseErrorCode::InvalidChunkEnd;
+                }
                 if(status == -1)return HttpParseErrorCode::NeedsMoreData;
                 m_At+=2;
 

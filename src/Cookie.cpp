@@ -17,18 +17,6 @@ namespace LLHttp{
     Cookie::~Cookie()noexcept{
 
     }
-
-    void Cookie::SetValue(const char* value, bool reevaluateData) noexcept{
-        m_Value = value;
-    }
-
-    void Cookie::SetValue(const HBuffer& value, bool reevaluateData) noexcept{
-        m_Value = value;
-    }
-
-    void Cookie::SetValue(HBuffer&& value, ) noexcept{
-        m_Value = std::move(value);
-    }
     
     HBuffer& Cookie::GetHeader(const char* name) noexcept{
         return m_Headers[name];

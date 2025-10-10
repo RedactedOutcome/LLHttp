@@ -1015,6 +1015,12 @@ namespace LLHttp{
         bool ownVec2 = vec2.CanFree();
         std::cout<<"Owns are " << ownVec1 << " " << ownVec2<<std::endl;
 
+        if(m_At >= m_Join.GetSize()){
+            /// @brief no need to copy anything
+            m_Join.Free();
+            m_At = 0;
+            return;
+        }
         if(ownVec1 && ownVec2){
             std::cout << "Case " << __LINE__<<std::endl;
             /// @brief no need to copy since we own the data
@@ -1027,8 +1033,9 @@ namespace LLHttp{
             /// Only worrying about second buffer atp
             if(ownVec2){
                 /// @brief we own the second buffer
-                m_At -= vec1Size;
-                vec1 = std::move(vec2);
+                vec1 = std::move(vec2.SubPointer(m_At - vec1Size, -1));
+                vec2.Free();
+                m_At = 0;
                 return;
             }
 

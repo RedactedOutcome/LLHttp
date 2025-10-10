@@ -207,13 +207,14 @@ namespace LLHttp{
                     if(!equals(headerNameBuffer, "Set-Cookie")){
                         SetHeader(std::move(headerNameBuffer), m_Join.SubString(valueStart, valueLength));
                     }else{
-                        std::vector<HBuffer> parts = m_Join.SubPointerSplitByDelimiter(valueStart, valueLength, '=', 1);
+                        HBuffer value = m_Join.SubBuffer(valueStart, valueLength);
+                        std::vector<HBuffer> parts = value.SubPointerSplitByDelimiter('=', 1);
                         if(parts.size() < 2){
                             return HttpParseErrorCode::InvalidCookie;
                         }
 
-                        HBuffer cookieName = parts[0].SubString(0, -1);
-                        HBuffer cookieValue = parts[1].SubString(0, -1);
+                        HBuffer cookieName = parts[0].SubString();
+                        HBuffer cookieValue = parts[1].SubString(0,-1);
                         Cookie cookie(std::move(cookieValue));
                         m_Cookies.insert(std::make_pair(std::move(cookieName), std::move(cookie)));
                     }

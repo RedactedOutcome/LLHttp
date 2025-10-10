@@ -189,8 +189,8 @@ namespace LLHttp{
                     if(!equals(headerName, "Set-Cookie")){
                         m_Headers.insert(std::make_pair(std::move(headerName), m_Join.SubString(headerValueStart, m_At - headerValueStart)));
                     }else{
-                        // HBuffer value = m_Join.SubString(headerValueStart, m_At - headerValueStart);
-                        std::vector<HBuffer> parts = m_Join.SubPointerSplitByDelimiter(headerValueStart, m_At - headerValueStart, '=', 1);
+                        HBuffer value = m_Join.SubString(headerValueStart, m_At - headerValueStart);
+                        std::vector<HBuffer> parts = value.SubPointerSplitByDelimiter('=', 1);
                         if(parts.size() < 2){
                             return HttpParseErrorCode::InvalidCookie;
                         }

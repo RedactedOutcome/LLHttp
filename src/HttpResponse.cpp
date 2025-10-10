@@ -405,8 +405,9 @@ namespace LLHttp{
                 size_t before = m_At;
                 int status;
                 std::cout << m_Join.SubString(m_At, 15).GetCStr()<<std::endl;
+
                 for(size_t i = 0; i < 15; i++){
-                    std::cout << m_Join.At(i)<<std::endl;
+                    std::cout << m_Join.Get(i)<<std::endl;
                 }
                 /*
                 int status = m_Join.StrXCmp(m_At, "\r\n");

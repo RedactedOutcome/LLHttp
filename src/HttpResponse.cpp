@@ -61,11 +61,13 @@ namespace LLHttp{
         m_LastState = error;
 
         if(error == HttpParseErrorCode::None && m_At >= m_Join.GetSize()){
+            std::cout<<"setitng"<<std::endl;
             m_At = 0;
             /// @brief freeing incase data is temporary and we dont want dangling pointers
             buff->Free();
             return error;
         }
+        std::cout << "checking copy necessary"<<std::endl;
         if(info->m_CopyNecessary)buff->Assign(buff->GetCopy());
         return error;
     }
@@ -381,8 +383,8 @@ namespace LLHttp{
 
                     int status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == 1){
-                        std::cout <<"Case 1" <<std::endl;
-                        std::cout << "Data : " << m_Join.SubString(0,-1).GetCStr()<<std::endl;
+                        // std::cout <<"Case 1" <<std::endl;
+                        // std::cout << "Data : " << m_Join.SubString(0,-1).GetCStr()<<std::endl;
                         return HttpParseErrorCode::InvalidChunkEnd;
                     }
                     if(status == -1)
@@ -437,11 +439,11 @@ namespace LLHttp{
                         m_At = before;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
-                    std::cout << "m_At " << m_At<<std::endl;
+                    // std::cout << "m_At " << m_At<<std::endl;
                     
                     return HttpParseErrorCode::InvalidChunkStart;
                 }
-                std::cout << "bytes are " << bytes << " string is " << m_Join.SubString(stringStart, m_At - stringStart).GetCStr()<<std::endl;
+                // std::cout << "bytes are " << bytes << " string is " << m_Join.SubString(stringStart, m_At - stringStart).GetCStr()<<std::endl;
                 
                 m_Metadata = reinterpret_cast<void*>(bytes);
                 status = m_Join.StrXCmp(m_At, "\r\n");
@@ -462,21 +464,21 @@ namespace LLHttp{
                 m_Remaining = 0;
                 output = m_Join.SubBuffer(m_At, bytes);
                 m_At+=bytes;
-                std::cout<<"end t1"<<std::endl;
+                // std::cout<<"end t1"<<std::endl;
                 status = m_Join.StrXCmp(m_At, "\r\n");
                 if(status == 1){
-                    std::cout << "2"<<std::endl;
+                    // std::cout << "2"<<std::endl;
                     return HttpParseErrorCode::InvalidChunkEnd;
                 }
                 if(status == -1)return HttpParseErrorCode::NeedsMoreData;
-                std::cout << "3"<<std::endl;
+                // std::cout << "3"<<std::endl;
                 m_At+=2;
                 
                 if(bytes == 0){
                     m_State = ResponseReadState::Finished;
                     return HttpParseErrorCode::NoMoreBodies;
                 }
-                std::cout << "4"<<std::endl;
+                // std::cout << "4"<<std::endl;
                 m_Remaining = -1;
                 return HttpParseErrorCode::None;
             }

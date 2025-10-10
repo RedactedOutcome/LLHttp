@@ -367,12 +367,14 @@ namespace LLHttp{
                         output = m_Join.SubBuffer(m_At, remaining);
                         m_Remaining-=remaining;
                         m_At+=remaining;
+                        std::cout<<"case 1using remaining"<<std::endl;
                         return HttpParseErrorCode::NeedsMoreData;
                     }
                     shouldReturn = true;
                     output = m_Join.SubBuffer(m_At, m_Remaining);
                     m_At+=m_Remaining;
                     m_Remaining=0;
+                    std::cout<<"case 2 used remaining"<<std::endl;
                 }
                 if(m_Remaining == 0){
                     /// @brief just getting end of chunk
@@ -393,6 +395,8 @@ namespace LLHttp{
                     m_Remaining = -1;
                     if(shouldReturn)return HttpParseErrorCode::None;
                 }
+                std::cout<<"calcing"<<std::endl;
+                
                 //Transfer Chunked Encoding
                 size_t before = m_At;
                 int status;

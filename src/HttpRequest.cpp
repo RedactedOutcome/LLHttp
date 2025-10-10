@@ -213,7 +213,7 @@ namespace LLHttp{
                             return HttpParseErrorCode::InvalidCookie;
                         }
 
-                        HBuffer cookieName = parts[0].SubString();
+                        HBuffer cookieName = parts[0].SubString(0, -1);
                         HBuffer cookieValue = parts[1].SubString(0,-1);
                         Cookie cookie(std::move(cookieValue));
                         m_Cookies.insert(std::make_pair(std::move(cookieName), std::move(cookie)));

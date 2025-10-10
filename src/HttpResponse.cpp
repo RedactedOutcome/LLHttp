@@ -380,6 +380,7 @@ namespace LLHttp{
                     int status = m_Join.StrXCmp(m_At, "\r\n");
                     if(status == 1){
                         std::cout <<"Case 1" <<std::endl;
+                        std::cout << "Data : " << m_Join.SubString(0,-1).GetCStr()<<std::endl;
                         return HttpParseErrorCode::InvalidChunkEnd;
                     }
                     if(status == -1)

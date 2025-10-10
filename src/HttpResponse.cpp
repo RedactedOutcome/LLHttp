@@ -1016,14 +1016,14 @@ namespace LLHttp{
         std::cout<<"Owns are " << ownVec1 << " " << ownVec2<<std::endl;
 
         if(ownVec1 && ownVec2){
-            std::cout << "Case " << __LINE<<std::endl;
+            std::cout << "Case " << __LINE__<<std::endl;
             /// @brief no need to copy since we own the data
             // Very rare case with servers
             return;
         }
 
         if(m_At >= vec1Size){
-            std::cout << "Case " << __LINE<<std::endl;
+            std::cout << "Case " << __LINE__<<std::endl;
             /// Only worrying about second buffer atp
             if(ownVec2){
                 /// @brief we own the second buffer
@@ -1039,14 +1039,14 @@ namespace LLHttp{
         }
 
         if(ownVec1){
-            std::cout << "Case " << __LINE<<std::endl;
+            std::cout << "Case " << __LINE__<<std::endl;
             vec1.Copy(vec1.SubPointer(m_At, -1));
             vec1.Append(vec2);
             vec2.Free();
             m_At = 0;
             return;
         }
-        std::cout << "Case " << __LINE<<std::endl;
+        std::cout << "Case " << __LINE__<<std::endl;
         size_t newSize = (vec1Size - m_At) + vec2Size;
         HBuffer buff;
         buff.Reserve(newSize);

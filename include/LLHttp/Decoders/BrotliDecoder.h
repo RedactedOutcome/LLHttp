@@ -40,6 +40,7 @@ namespace LLHttp{
                     if(result == BROTLI_DECODER_RESULT_ERROR)return HttpEncodingErrorCode::FailedDecodeBrotli;
 
                     size_t produced = outputSize - availableOut;
+                    std::cout<<produced<<std::endl;
                     HBuffer outputData = HBuffer(reinterpret_cast<char*>(output), produced, false, false).SubBuffer(0,-1);
                     outputVector.emplace_back(std::move(outputData));
 

@@ -324,31 +324,31 @@ namespace LLHttp{
     }
 
     static HttpParseErrorCode Decoder::GetEncodingFromString(const HBuffer& input, HttpContentEncoding& output)noexcept{
-        if(encoding == "identity"){      
+        if(input == "identity"){      
             output = HttpContentEncoding::Identity;
             return HttpParseErrorCode::None;
         }
-        else if(encoding == "gzip"){     
+        else if(input == "gzip"){     
             output = HttpContentEncoding::GZip;
             return HttpParseErrorCode::None;
         }
-        else if(encoding == "deflate"){  
+        else if(input == "deflate"){  
             output = HttpContentEncoding::Deflate;
             return HttpParseErrorCode::None;
         }
-        else if(encoding == "br"){       
+        else if(input == "br"){       
             output = HttpContentEncoding::Brotli;
             return HttpParseErrorCode::None;
         }
-        else if(encoding == "zstd"){     
+        else if(input == "zstd"){     
             output = HttpContentEncoding::ZStd;
             return HttpParseErrorCode::None;
         }
-        else if(encoding == "dcb"){      
+        else if(input == "dcb"){      
             output = HttpContentEncoding::DCB;
             return HttpParseErrorCode::None;
         }
-        else if(encoding == "dcz"){
+        else if(input == "dcz"){
             output = HttpContentEncoding::DCZ;
             return HttpParseErrorCode::None;
         }

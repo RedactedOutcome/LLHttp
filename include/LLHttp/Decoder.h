@@ -30,10 +30,11 @@ namespace LLHttp{
 
         static void ConvertToChunkedEncoding(const HBuffer&, HBuffer& output)noexcept;
 
+        static HttpParseErrorCode GetEncodingFromString(const HBuffer& input, HttpContentEncoding& output)noexcept;
         /// @brief Takes in a encoding or list of content-encodings and returns the order in which to decode it.
         /// @param input the Content-Encoding header value string. eg Content-Encoding:identity. ContentEncoding: gzip, br.
         /// @param output the order of encodings to decode with
         /// @return 
-        static HttpEncodingErrorCode GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept;
+        static HttpParseErrorCode GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept;
     };
 }

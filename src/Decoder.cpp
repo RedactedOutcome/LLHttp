@@ -323,34 +323,68 @@ namespace LLHttp{
         output = std::move(output);
     }
 
-    static HttpEncodingErrorCode Decoder::GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept{
+    static HttpParseErrorCode Decoder::GetEncodingFromString(const HBuffer& input, HttpContentEncoding& output)noexcept{
+        HBuffer encoding = input.SubPointer(lastAt, at - lastAt);
+        if(encoding.Get(0) == ' ')encoding = encoding.SubPointer(1, -1);
+
+        if(encoding == "identity"){      
+            output = HttpContentEncoding::Identity;
+            return HttpParseErrorCode::None;
+        }
+        else if(encoding == "gzip"){     
+            output = HttpContentEncoding::GZip;
+            return HttpParseErrorCode::None;
+        }
+        else if(encoding == "deflate"){  
+            output = HttpContentEncoding::Deflate;
+            return HttpParseErrorCode::None;
+        }
+        else if(encoding == "br"){       
+            output = HttpContentEncoding::Brotli;
+            return HttpParseErrorCode::None;
+        }
+        else if(encoding == "zstd"){     
+            output = HttpContentEncoding::ZStd;
+            return HttpParseErrorCode::None;
+        }
+        else if(encoding == "dcb"){      
+            output = HttpContentEncoding::DCB;
+            return HttpParseErrorCode::None;
+        }
+        else if(encoding == "dcz"){
+            output = HttpContentEncoding::DCZ;
+            return HttpParseErrorCode::None;
+        }
+        return HttpParseErrorCode::UnsupportedContentEncoding;
+    }
+    static HttpParseErrorCode Decoder::GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept{
         std::vector<HttpContentEncoding> encodings;
         encodings.reserve(3);
 
-        auto GetEncoding = [&, input, encodings](size_t lastAt, size_t at){
-            HBuffer encoding = input.SubPointer(lastAt, at - lastAt);
-            if(encoding.Get(0) == ' ')encoding = encoding.SubPointer(1, -1);
-
-            if(encoding == "identity")encodings.emplace_back(HttpContentEncoding::Identity);
-            else if(encoding == "gzip")encodings.emplace_back(HttpContentEncoding::GZip);
-            else if(encoding == "deflate")encodings.emplace_back(HttpContentEncoding::Deflate);
-            else if(encoding == "br")encodings.emplace_back(HttpContentEncoding::Brotli);
-            else if(encoding == "zstd")encodings.emplace_back(HttpContentEncoding::ZStd);
-            else if(encoding == "dcb")encodings.emplace_back(HttpContentEncoding::DCB);
-            else if(encoding == "dcz")encodings.emplace_back(HttpContentEncoding::DCZ);
-        };
-        
         size_t lastAt = 0;
         size_t i;
         for(i = 0; i < input.GetSize(); i++){
             char c = input.At(i);
             if(c == ','){
-                GetEncoding(lastAt, i);
+                HBuffer buffer = input.SubPointer(lastAt, at - lastAt);
+                if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
+
+                HttpContentEncoding encoding;
+                HttpParseErrorCode errorCode = GetEncodingFromString(buffer, encoding);
+                if(errorCode != HttpParseErrorCode::None)return errorCode;
+                encodings.emplace_back(encoding);
                 lastAt = i + 1;
             }
         }
-        if(lastAt < i)
-            GetEncoding(lastAt,i);
+        if(lastAt < i){
+            HBuffer buffer = input.SubPointer(lastAt, at - lastAt);
+            if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
+
+            HttpContentEncoding encoding;
+            HttpParseErrorCode errorCode = GetEncodingFromString(buffer, encoding);
+            if(errorCode != HttpParseErrorCode::None)return errorCode;
+            encodings.emplace_back(encoding);
+        }
         
         output.reserve(encodings);
         for(size_t i = encodings.size(); i > 0; --i){

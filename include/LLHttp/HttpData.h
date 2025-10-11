@@ -109,6 +109,7 @@ namespace LLHttp{
         UnsupportedHttpProtocol,
         UnsupportedHttpVerb,
         UnsupportedTransferEncoding,
+        UnsupportedContentEncoding,
         InvalidPath,
         InvalidHeaderName,
         InvalidHeaderSplit,

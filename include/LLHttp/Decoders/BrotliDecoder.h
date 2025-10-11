@@ -22,16 +22,16 @@ namespace LLHttp{
             m_Input.emplace_back(std::move(data));
 
             constexpr int outputSize = 3200;
-            char output[outputSize];
+            uint8_t output[outputSize];
 
             for(auto it = m_Input.begin(); it != m_Input.end(); it++){
                 const HBuffer& input = *it;
 
-                const char* inputData = reinterpret_cast<const char*>(input.GetData());
+                const uint8_t* inputData = reinterpret_cast<const uint8_t*>(input.GetData());
                 size_t availableInput = input.GetSize();
 
                 size_t availableOut = outputSize;
-                char* outputBuffer = output;
+                uint8_t* outputBuffer = output;
                 size_t totalOut;
 
                 while(availableInput > 0){

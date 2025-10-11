@@ -44,8 +44,8 @@ namespace LLHttp{
                     outputVector.emplace_back(std::move(outputData));
 
                     if(result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT){
-                        outputBuffer = outputSize;
-                        availableOut = output;
+                        outputBuffer = output;
+                        availableOut = outputSize;
                         continue;
                     }
                     if(result == BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT){

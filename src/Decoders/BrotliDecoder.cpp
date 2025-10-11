@@ -12,6 +12,7 @@ namespace LLHttp{
 
     void BrotliDecoder::Reset()noexcept{
         m_Input.clear();
-        BrotliDecoderReset(m_State);
+        if(m_State)BrotliDecoderDestroyInstance(m_State);
+        m_State = BrotliDecoderCreateInstance(nullptr, nullptr, nullptr);
     }
 }

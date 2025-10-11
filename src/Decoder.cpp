@@ -328,6 +328,10 @@ namespace LLHttp{
             output = HttpContentEncoding::Identity;
             return HttpParseErrorCode::None;
         }
+        else if(input == "compress"){     
+            output = HttpContentEncoding::Compress;
+            return HttpParseErrorCode::None;
+        }
         else if(input == "gzip"){     
             output = HttpContentEncoding::GZip;
             return HttpParseErrorCode::None;

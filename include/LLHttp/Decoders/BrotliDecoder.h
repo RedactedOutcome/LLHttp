@@ -18,7 +18,7 @@ namespace LLHttp{
         /// @param output 
         /// @return 
         template <typename Alloc=std::allocator<HBuffer>>
-        HttpEncodingErrorCode DecodeBrotli(HBuffer&& data, std::vector<HBuffer, Alloc> outputVector)noexcept{
+        HttpEncodingErrorCode DecodeBrotli(HBuffer&& data, std::vector<HBuffer, Alloc>& outputVector)noexcept{
             m_Input.emplace_back(std::move(data));
 
             constexpr int outputSize = 3200;

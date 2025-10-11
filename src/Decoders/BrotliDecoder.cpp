@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Decoders/BrotliDecoder.h"
 
 namespace LLHttp{
     BrotliDecoder::BrotliDecoder()noexcept:

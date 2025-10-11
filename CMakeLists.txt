@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Ensure the compiler supports the chosen standard
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 # Brotli Decoding

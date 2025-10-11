@@ -327,7 +327,7 @@ namespace LLHttp{
         std::vector<HttpContentEncoding> encodings;
         encodings.reserve(3);
 
-        auto GetEncoding = [input, encodings](size_t lastAt, size_t at){
+        auto GetEncoding = [&, input, encodings](size_t lastAt, size_t at){
             HBuffer encoding = input.SubPointer(lastAt, at - lastAt);
             if(encoding.Get(0) == ' ')encoding = encoding.SubPointer(1, -1);
 

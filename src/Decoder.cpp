@@ -392,7 +392,7 @@ namespace LLHttp{
             output.emplace_back(encodings[i - 1]);
         }
 
-        if(encodings.size() == 0)encodings.emplace_back(HttpContentEncoding::Identity);
+        if(output.size() == 0)output.emplace_back(HttpContentEncoding::Identity);
         return HttpParseErrorCode::None;
     }
 }

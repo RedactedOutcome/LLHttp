@@ -383,7 +383,7 @@ namespace LLHttp{
             encodings.emplace_back(encoding);
         }
 
-        output.reserve(encodings);
+        output.reserve(encodings.size());
         for(size_t i = encodings.size(); i > 0; --i){
             output.emplace_back(encodings[i - 1]);
         }

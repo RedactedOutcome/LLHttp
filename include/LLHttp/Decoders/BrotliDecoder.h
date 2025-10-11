@@ -41,7 +41,7 @@ namespace LLHttp{
 
                     size_t produced = outputSize - availableOut;
                     std::cout<<produced<<std::endl;
-                    HBuffer outputData = HBuffer(reinterpret_cast<char*>(output), produced, false, false).SubBuffer(0,-1);
+                    HBuffer outputData = HBuffer(reinterpret_cast<char*>(outputBuffer), produced, false, false).SubBuffer(0,-1);
                     outputVector.emplace_back(std::move(outputData));
 
                     if(result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT){

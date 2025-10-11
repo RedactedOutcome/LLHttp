@@ -324,9 +324,6 @@ namespace LLHttp{
     }
 
     static HttpParseErrorCode Decoder::GetEncodingFromString(const HBuffer& input, HttpContentEncoding& output)noexcept{
-        HBuffer encoding = input.SubPointer(lastAt, at - lastAt);
-        if(encoding.Get(0) == ' ')encoding = encoding.SubPointer(1, -1);
-
         if(encoding == "identity"){      
             output = HttpContentEncoding::Identity;
             return HttpParseErrorCode::None;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "HttpData.h"
+#include "../HttpData.h"
 
 namespace LLHttp{
     class BrotliDecoder{

@@ -323,7 +323,7 @@ namespace LLHttp{
         output = std::move(output);
     }
 
-    static HttpParseErrorCode Decoder::GetEncodingFromString(const HBuffer& input, HttpContentEncoding& output)noexcept{
+    HttpParseErrorCode Decoder::GetEncodingFromString(const HBuffer& input, HttpContentEncoding& output)noexcept{
         if(input == "identity"){      
             output = HttpContentEncoding::Identity;
             return HttpParseErrorCode::None;
@@ -354,7 +354,7 @@ namespace LLHttp{
         }
         return HttpParseErrorCode::UnsupportedContentEncoding;
     }
-    static HttpParseErrorCode Decoder::GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept{
+    HttpParseErrorCode Decoder::GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept{
         std::vector<HttpContentEncoding> encodings;
         encodings.reserve(3);
 

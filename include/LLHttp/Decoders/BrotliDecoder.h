@@ -7,8 +7,8 @@ namespace LLHttp{
     public:
         BrotliDecoder()noexcept;
         ~BrotliDecoder()noexcept;
-        
+
     private:
-        BortliDecoderState* m_State = nullptr;
+        BrotliDecoderState* m_State = nullptr;
     };
 }

@@ -366,7 +366,7 @@ namespace LLHttp{
         for(i = 0; i < input.GetSize(); i++){
             char c = input.At(i);
             if(c == ','){
-                HBuffer buffer = input.SubPointer(lastAt, at - lastAt);
+                HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
                 if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
 
                 HttpContentEncoding encoding;
@@ -377,7 +377,7 @@ namespace LLHttp{
             }
         }
         if(lastAt < i){
-            HBuffer buffer = input.SubPointer(lastAt, at - lastAt);
+            HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
             if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
 
             HttpContentEncoding encoding;
@@ -385,7 +385,7 @@ namespace LLHttp{
             if(errorCode != HttpParseErrorCode::None)return errorCode;
             encodings.emplace_back(encoding);
         }
-        
+
         output.reserve(encodings);
         for(size_t i = encodings.size(); i > 0; --i){
             output.emplace_back(encodings[i - 1]);

@@ -327,15 +327,31 @@ namespace LLHttp{
         std::vector<HttpContentEncoding> encodings;
         encodings.reserve(3);
 
-        auto fn = [input, encodings](size_t at){
+        auto GetEncoding = [input, encodings](size_t lastAt, size_t at){
+            HBuffer encoding = input.SubPointer(lastAt, at - lastAt);
+            if(encoding.StartsWith(' '))encoding = encoding.SubPointer(1, -1);
 
+            if(encoding == "identity")encodings.emplace_back(HttpContentEncoding::Identity);
+            else if(encoding == "gzip")encodings.emplace_back(HttpContentEncoding::GZip);
+            else if(encoding == "deflate")encodings.emplace_back(HttpContentEncoding::Deflate);
+            else if(encoding == "br")encodings.emplace_back(HttpContentEncoding::Brotli);
+            else if(encoding == "zstd")encodings.emplace_back(HttpContentEncoding::ZStd);
+            else if(encoding == "dcb")encodings.emplace_back(HttpContentEncoding::DCB);
+            else if(encoding == "dcz")encodings.emplace_back(HttpContentEncoding::DCZ);
         };
-
+        
         size_t lastAt = 0;
-        for(size_t i = 0; i < input.GetSize(); i++){
+        size_t i;
+        for(i = 0; i < input.GetSize(); i++){
             char c = input.At(i);
-            if(c == ',')
+            if(c == ','){
+                GetEncoding(lastAt, i);
+                lastAt = i + 1;
+            }
         }
+        if(lastAt < i)
+            GetEncoding(lastAt,i);
+        
         output.reserve(encodings);
         for(size_t i = encodings.size(); i > 0; --i){
             output.emplace_back(encodings[i - 1]);

@@ -93,7 +93,10 @@ namespace LLHttp{
         GZip,
         Deflate,
         Brotli,
-        Compress
+        Compress,
+        ZStd,
+        DCB,
+        DCZ
     };
 
 

@@ -23,7 +23,7 @@ namespace LLHttp{
 
             constexpr int outputSize = 3200;
             uint8_t output[outputSize];
-
+            
             for(auto it = m_Input.begin(); it != m_Input.end(); it++){
                 const HBuffer& input = *it;
 
@@ -39,12 +39,10 @@ namespace LLHttp{
 
                     if(result == BROTLI_DECODER_RESULT_ERROR)return HttpEncodingErrorCode::FailedDecodeBrotli;
 
-                    size_t produced = outputSize - availableOut;
-                    std::cout<<produced<<std::endl;
-                    HBuffer outputData = HBuffer(reinterpret_cast<char*>(outputBuffer), produced, false, false).SubBuffer(0,-1);
-                    outputVector.emplace_back(std::move(outputData));
-
                     if(result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT){
+                        size_t produced = outputSize - availableOut;
+                        HBuffer outputData = HBuffer(reinterpret_cast<char*>(output), produced, false, false).SubBuffer(0,-1);
+                        outputVector.emplace_back(std::move(outputData));
                         outputBuffer = output;
                         availableOut = outputSize;
                         continue;
@@ -57,6 +55,11 @@ namespace LLHttp{
                         break;
                     }
                 }
+                size_t produced = outputSize - availableOut;
+                if(produced == 0)continue;
+                
+                HBuffer outputData = HBuffer(reinterpret_cast<char*>(output), produced, false, false).SubBuffer(0,-1);
+                outputVector.emplace_back(std::move(outputData));
             }
             m_Input.clear();
             return HttpEncodingErrorCode::None;

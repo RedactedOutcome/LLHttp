@@ -329,7 +329,7 @@ namespace LLHttp{
 
         auto GetEncoding = [input, encodings](size_t lastAt, size_t at){
             HBuffer encoding = input.SubPointer(lastAt, at - lastAt);
-            if(encoding.StartsWith(' '))encoding = encoding.SubPointer(1, -1);
+            if(encoding.Get(0) == ' ')encoding = encoding.SubPointer(1, -1);
 
             if(encoding == "identity")encodings.emplace_back(HttpContentEncoding::Identity);
             else if(encoding == "gzip")encodings.emplace_back(HttpContentEncoding::GZip);

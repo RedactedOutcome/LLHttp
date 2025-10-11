@@ -387,5 +387,7 @@ namespace LLHttp{
         for(size_t i = encodings.size(); i > 0; --i){
             output.emplace_back(encodings[i - 1]);
         }
+
+        return HttpParseErrorCode::None;
     }
 }

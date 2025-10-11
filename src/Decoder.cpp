@@ -3,6 +3,7 @@
 #include "HttpData.h"
 
 namespace LLHttp{
+#pragma region GZIP
     HttpEncodingErrorCode Decoder::DecodeGZip(HBuffer& data, std::vector<HBuffer>& output){
         z_stream stream;
         memset(&stream, 0, sizeof(z_stream));
@@ -78,6 +79,7 @@ namespace LLHttp{
 
         return HttpEncodingErrorCode::None;
     }
+#pragma endregion
     HttpEncodingErrorCode Decoder::DecodeData(HttpContentEncoding encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept{
         switch(encoding){
         case HttpContentEncoding::GZip:{
@@ -89,8 +91,11 @@ namespace LLHttp{
             return HttpEncodingErrorCode::UnsupportedContentEncoding;
         }
     }
-
-
+#pragma region Brotli
+    HttpEncodingErrorCode Decoder::DecodeBrotli(const HBuffer& input, std::vector<HBuffer>& output)noexcept{
+        
+    }
+#pragma endregion
     HttpEncodingErrorCode Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer& output) noexcept{
         size_t size = input.GetSize();
         output.Reserve(size);

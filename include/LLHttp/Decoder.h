@@ -13,6 +13,8 @@ namespace LLHttp{
         /// @return type of HttpEncodingErrorCode
         static HttpEncodingErrorCode EncodeGZip(HBuffer& input, std::vector<HBuffer>& output);
 
+        static HttpEncodingErrorCode DecodeBrotli(const HBuffer& input, std::vector<HBuffer>& output)noexcept;
+        
         /// @brief returns a new buffer that is the decoded form of a percent encoded url. Only contains a subset of percent encoding without control characters.
         /// @return type of HttpEncodingErrorCode
         static HttpEncodingErrorCode GetFromPercentEncoding(const HBuffer& input, HBuffer& output) noexcept;

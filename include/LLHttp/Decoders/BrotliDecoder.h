@@ -25,6 +25,7 @@ namespace LLHttp{
             uint8_t output[outputSize];
             
             for(auto it = m_Input.begin(); it != m_Input.end(); it++){
+                std::cout << "Iterating" <<std::endl;
                 const HBuffer& input = *it;
 
                 const uint8_t* inputData = reinterpret_cast<const uint8_t*>(input.GetData());
@@ -35,12 +36,14 @@ namespace LLHttp{
                 size_t totalOut;
 
                 while(availableInput > 0){
+                    std::cout << "Decoding" <<std::endl;
                     BrotliDecoderResult result = BrotliDecoderDecompressStream(m_State, &availableInput, &inputData, &availableOut, &outputBuffer, nullptr);
 
                     if(result == BROTLI_DECODER_RESULT_ERROR)return HttpEncodingErrorCode::FailedDecodeBrotli;
 
                     if(result == BROTLI_DECODER_RESULT_NEEDS_MORE_OUTPUT){
                         size_t produced = outputSize - availableOut;
+                        std::cout << produced <<std::endl;
                         HBuffer outputData = HBuffer(reinterpret_cast<char*>(output), produced, false, false).SubBuffer(0,-1);
                         outputVector.emplace_back(std::move(outputData));
                         outputBuffer = output;
@@ -56,8 +59,9 @@ namespace LLHttp{
                     }
                 }
                 size_t produced = outputSize - availableOut;
+                std::cout << produced <<std::endl;
                 if(produced == 0)continue;
-                
+
                 HBuffer outputData = HBuffer(reinterpret_cast<char*>(output), produced, false, false).SubBuffer(0,-1);
                 outputVector.emplace_back(std::move(outputData));
             }

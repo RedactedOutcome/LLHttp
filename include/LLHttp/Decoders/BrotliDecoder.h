@@ -24,7 +24,9 @@ namespace LLHttp{
             constexpr int outputSize = 3200;
             uint8_t output[outputSize];
 
-            for(auto input : m_Input){
+            for(auto it = m_Input.begin(); it != m_Input.end(); it++){
+                const HBuffer& input = it.second;
+
                 uint8_t* inputData = reinterpret_cast<uint8_t*>(input.GetData());
                 size_t availableInput = input.GetSize();
 

@@ -18,9 +18,24 @@ namespace LLHttp{
         /// @param output 
         /// @return 
         template <typename Alloc=std::allocator<HBuffer>>
+        HttpEncodingErrorCode DecodeBrotli(std::vector<HBuffer>&& data, std::vector<HBuffer, Alloc>& outputVector)noexcept{
+            for(auto& buffer : data)m_Input.emplace_back(std::move(buffer));
+            return DecodeAll<Alloc>(outputVector);
+        }
+
+        /// @brief Incrementally Parses Brotli data.
+        /// @tparam Alloc 
+        /// @param data 
+        /// @param output 
+        /// @return 
+        template <typename Alloc=std::allocator<HBuffer>>
         HttpEncodingErrorCode DecodeBrotli(HBuffer&& data, std::vector<HBuffer, Alloc>& outputVector)noexcept{
             m_Input.emplace_back(std::move(data));
+            return DecodeAll<Alloc>(outputVector);
+        }
 
+        template<typename Alloc=std::vector<HBuffer>>
+        HttpEncodingErrorCode DecodeAll(std::vector<HBuffer, Alloc>& outputBuffer)noexcept{
             constexpr int outputSize = 3200;
             uint8_t output[outputSize];
             

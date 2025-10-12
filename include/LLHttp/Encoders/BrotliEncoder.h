@@ -11,7 +11,7 @@ namespace LLHttp{
 
         void Reset()noexcept;
         
-        HttpEncodingErrorCode EncodeBrotli(HBuffer&& data, HBuffer& outputVector)noexcept{
+        HttpEncodingErrorCode EncodeBrotli(HBuffer&& data, std::vector<HBuffer>& outputVector)noexcept{
             m_Input.emplace_back(std::move(data));
 
             constexpr int outputSize = 3200;

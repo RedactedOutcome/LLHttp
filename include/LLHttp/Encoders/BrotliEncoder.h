@@ -52,7 +52,7 @@ namespace LLHttp{
             return HttpEncodingErrorCode::None;
         }
     private:
-        BrotliEncoderState& m_State = nullptr;
+        BrotliEncoderState* m_State = nullptr;
         std::vector<HBuffer> m_Input;
     };
 }

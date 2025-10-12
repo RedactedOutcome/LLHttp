@@ -402,7 +402,7 @@ namespace LLHttp{
                 AcceptEncoding acceptEncoding;
                 HBuffer encodingString(splits[0]);
                 if(splits.size() == 2){
-                    HBuffer priorityString = splits[2];
+                    HBuffer priorityString = splits[1];
                     if(!priorityString.StartsWith("q=")){
                         return HttpParseErrorCode::InvalidAcceptEncoding;
                     }

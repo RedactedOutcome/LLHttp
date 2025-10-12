@@ -429,7 +429,6 @@ namespace LLHttp{
             }
         }
         output.emplace_back(acceptEncoding);
-        lastAt = i + 1;
         return HttpParseErrorCode::None;
     }
     HttpParseErrorCode Decoder::GetEncodingOrder(const HBuffer& input, std::vector<AcceptEncoding>& output)noexcept{
@@ -445,6 +444,8 @@ namespace LLHttp{
 
                 HttpParseErrorCode errorCode = GetAcceptEncoding(buffer, output);
                 if(errorCode != HttpParseErrorCode::None)return errorCode;
+                
+                lastAt = i + 1;
             }
         }
         if(lastAt < i){

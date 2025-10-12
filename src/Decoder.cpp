@@ -408,6 +408,7 @@ namespace LLHttp{
                     }
                     std::cout<<"Getting priority "<<std::endl;
                     if(!priorityString.SubString(2, -1).ToFloat(acceptEncoding.m_Priority)){
+                        std::cout<<"Priority"<<priorityString.SubString(2, -1).GetCStr()<<std::endl;
                         return HttpParseErrorCode::InvalidPriority;
                     }
                     std::cout<<"done getting priority "<<std::endl;

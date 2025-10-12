@@ -386,7 +386,7 @@ namespace LLHttp{
         return HttpParseErrorCode::None;
     }
 
-    HttpParseErrorCode GetAcceptEncoding(const HBuffer& string, std::vector<AcceptEncoding>& output)noexcept{
+    HttpParseErrorCode Decoder::GetAcceptEncoding(const HBuffer& string, std::vector<AcceptEncoding>& output)noexcept{
         std::vector<HBuffer> splits = string.SubPointerSplitByDelimiter(';');
         AcceptEncoding acceptEncoding;
         HBuffer encodingString(splits[0]);

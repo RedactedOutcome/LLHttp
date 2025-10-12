@@ -410,7 +410,7 @@ namespace LLHttp{
                 for(type j = 1; j < (type)HttpContentEncoding::__COUNT__; i++){
                     acceptEncoding.m_Encoding = (HttpContentEncoding)j;
                     bool alreadyListed = false;
-                    for(size_t k = 0; k < output.size(); i++){
+                    for(size_t k = 0; k < output.size(); k++){
                         AcceptEncoding kEncoding = output[k];
                         if(kEncoding.m_Encoding == (HttpContentEncoding)j){
                             alreadyListed=true;
@@ -450,7 +450,7 @@ namespace LLHttp{
         if(lastAt < i){
             HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
             if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
-            
+
             HttpParseErrorCode errorCode = GetAcceptEncoding(buffer, output);
             if(errorCode != HttpParseErrorCode::None)return errorCode;
         }

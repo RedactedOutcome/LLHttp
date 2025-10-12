@@ -979,55 +979,6 @@ namespace LLHttp{
     }
 
     HttpEncodingErrorCode HttpResponse::Decompress() noexcept{
-        HBuffer& contentEncoding = GetHeader("Content-Encoding");
-
-        if(!contentEncoding)return HttpEncodingErrorCode::None;
-        std::vector<HttpContentEncoding> encodings;
-        size_t at = 0;
-
-        while(at < contentEncoding.GetSize()){
-            bool valid = false;
-            if(contentEncoding.StartsWith(at, "identity", 8)){
-                encodings.push_back(HttpContentEncoding::Identity);
-                at+=8;
-                valid = true;
-            }
-            else if(contentEncoding.StartsWith(at, "br", 2)){
-                encodings.push_back(HttpContentEncoding::Brotli);
-                at+=2;
-                valid = true;
-            }
-            else if(contentEncoding.StartsWith(at, "gzip", 4)){
-                encodings.push_back(HttpContentEncoding::GZip);
-                at+=4;
-                valid = true;
-            }
-            else if(contentEncoding.StartsWith(at, "compress", 8)){
-                encodings.push_back(HttpContentEncoding::Compress);
-                at+=8;
-                valid = true;
-            }
-
-            if(!valid) return HttpEncodingErrorCode::UnsupportedContentEncoding;
-        }
-        std::vector<HBuffer> newBodies;
-        if(encodings.size() == 1)
-            if(encodings[0] == HttpContentEncoding::Identity)return HttpEncodingErrorCode::None;
-        
-        for(int i = encodings.size(); i > 0; --i){
-            HttpContentEncoding encoding = encodings[i];
-            //newBodies.emplace_back(HBuffer)
-            /// TODO: call a function to decode data and append to newBodies
-            for(size_t j = 0; j < m_Body.size(); j++){
-                /// TODO: Catch unsupported encodings
-                Decoder::DecodeData(encoding, m_Body[i], newBodies);
-            }
-        }
-        
-        /// TODO: might just clear the body and use the move constructor to reassign m_Body to newBodies
-        for(size_t i = 0; i < newBodies.size(); i++)
-            m_Body[i].Assign(std::move(newBodies[i]));
-        
         return HttpEncodingErrorCode::None;
     }
 

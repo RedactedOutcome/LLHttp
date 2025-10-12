@@ -442,7 +442,11 @@ namespace LLHttp{
             output.emplace_back(acceptEncoding);
             lastAt = i + 1;
         }
-        if(output.size() == 0)output.emplace_back({HttpContentEncoding::Identity, 0});
+        if(output.size() == 0){
+            AcceptEncoding encoding;
+            encoding.m_Encoding = HttpContentEncoding::Identity;
+            output.emplace_back(encoding);
+        }
         return HttpParseErrorCode::None;
     }
 }

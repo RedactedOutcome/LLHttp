@@ -386,6 +386,52 @@ namespace LLHttp{
         return HttpParseErrorCode::None;
     }
 
+    HttpParseErrorCode GetAcceptEncoding(const HBuffer& string, std::vector<AcceptEncoding>& output)noexcept{
+        std::vector<HBuffer> splits = buffer.SubPointerSplitByDelimiter(';');
+        AcceptEncoding acceptEncoding;
+        HBuffer encodingString(splits[0]);
+        if(splits.size() == 2){
+            HBuffer priorityString = splits[1];
+            if(!priorityString.StartsWith("q=")){
+                return HttpParseErrorCode::InvalidAcceptEncoding;
+            }
+            if(!priorityString.SubString(2, -1).ToFloat(acceptEncoding.m_Priority)){
+                return HttpParseErrorCode::InvalidPriority;
+            }
+        }
+        else if(splits.size() > 2){
+            return HttpParseErrorCode::InvalidAcceptEncoding;
+        }
+        HttpParseErrorCode errorCode = GetEncodingFromString(encodingString, acceptEncoding.m_Encoding);
+        if(errorCode != HttpParseErrorCode::None){
+            if(encodingString == "*"){
+                using type = std::underlying_type<HttpContentEncoding>::type;
+
+                for(type j = 1; j < (type)HttpContentEncoding::__COUNT__; i++){
+                    acceptEncoding.m_Encoding = (HttpContentEncoding)j;
+                    bool alreadyListed = false;
+                    for(size_t k = 0; k < output.size(); i++){
+                        AcceptEncoding kEncoding = output[k];
+                        if(kEncoding.m_Encoding == (HttpContentEncoding)j){
+                            alreadyListed=true;
+                            break;
+                        }
+                    }
+                    if(!alreadyListed){
+                        output.emplace_back(acceptEncoding);
+                    }
+                }
+
+                continue;
+            }
+            else{
+                return errorCode;
+            }
+        }
+        output.emplace_back(acceptEncoding);
+        lastAt = i + 1;
+        return HttpParseErrorCode::None;
+    }
     HttpParseErrorCode Decoder::GetEncodingOrder(const HBuffer& input, std::vector<AcceptEncoding>& output)noexcept{
         output.reserve(3);
 
@@ -397,75 +443,16 @@ namespace LLHttp{
                 HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
                 if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
 
-                std::vector<HBuffer> splits = buffer.SubPointerSplitByDelimiter(';');
-                AcceptEncoding acceptEncoding;
-                HBuffer encodingString(splits[0]);
-                if(splits.size() == 2){
-                    HBuffer priorityString = splits[1];
-                    if(!priorityString.StartsWith("q=")){
-                        return HttpParseErrorCode::InvalidAcceptEncoding;
-                    }
-                    if(!priorityString.SubString(2, -1).ToFloat(acceptEncoding.m_Priority)){
-                        return HttpParseErrorCode::InvalidPriority;
-                    }
-                }
-                else if(splits.size() > 2){
-                    return HttpParseErrorCode::InvalidAcceptEncoding;
-                }
-                HttpParseErrorCode errorCode = GetEncodingFromString(encodingString, acceptEncoding.m_Encoding);
-                if(errorCode != HttpParseErrorCode::None){
-                    std::cout<<"encoding string"<< encodingString.SubString(0,-1).GetCStr()<<std::endl;
-                    if(encodingString == "*"){
-                        using type = std::underlying_type<HttpContentEncoding>::type;
-
-                        for(type j = 1; j < (type)HttpContentEncoding::__COUNT__; i++){
-                            acceptEncoding.m_Encoding = (HttpContentEncoding)j;
-                            bool alreadyListed = false;
-                            for(size_t k = 0; k < output.size(); i++){
-                                AcceptEncoding kEncoding = output[k];
-                                if(kEncoding.m_Encoding == (HttpContentEncoding)j){
-                                    alreadyListed=true;
-                                    break;
-                                }
-                            }
-                            if(!alreadyListed){
-                                output.emplace_back(acceptEncoding);
-                            }
-                        }
-
-                        continue;
-                    }
-                    else{
-                        return errorCode;
-                    }
-                }
-                output.emplace_back(acceptEncoding);
-                lastAt = i + 1;
+                HttpParseErrorCode errorCode = GetAcceptEncoding(buffer, output);
+                if(errorCode != HttpParseErrorCode::None)return errorCode;
             }
         }
         if(lastAt < i){
             HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
             if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
-
-            std::vector<HBuffer> splits = buffer.SubPointerSplitByDelimiter(';');
-            AcceptEncoding acceptEncoding;
-            HBuffer encodingString(splits[0]);
-            if(splits.size() == 2){
-                HBuffer priorityString = splits[1];
-                if(!priorityString.StartsWith("q=")){
-                    return HttpParseErrorCode::InvalidAcceptEncoding;
-                }
-                if(!priorityString.SubString(2, -1).ToFloat(acceptEncoding.m_Priority)){
-                    return HttpParseErrorCode::InvalidPriority;
-                }
-            }
-            else if(splits.size() > 2){
-                return HttpParseErrorCode::InvalidAcceptEncoding;
-            }
-            HttpParseErrorCode errorCode = GetEncodingFromString(encodingString, acceptEncoding.m_Encoding);
+            
+            HttpParseErrorCode errorCode = GetAcceptEncoding(buffer, output);
             if(errorCode != HttpParseErrorCode::None)return errorCode;
-            output.emplace_back(acceptEncoding);
-            lastAt = i + 1;
         }
         if(output.size() == 0){
             AcceptEncoding encoding;

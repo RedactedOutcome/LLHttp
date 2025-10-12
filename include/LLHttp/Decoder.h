@@ -38,7 +38,7 @@ namespace LLHttp{
         /// @param input the single accept encoding
         /// @param output the order of encodings to encode with
         /// @return 
-        static HttpParseErrorCode GetAcceptEncoding(const HBuffer& input, std::vector<AcceptEncoding>& output)noexcept;
+        static HttpParseErrorCode GetEncodingFromString(const HBuffer& input, std::vector<AcceptEncoding>& output)noexcept;
 
         /// @brief Takes in a encoding or list of content-encodings and returns the order in which to encode it in order from highest to lowest priority.
         /// @param input the Accept-Encoding header value string

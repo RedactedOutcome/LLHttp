@@ -6,6 +6,10 @@
 #include "LLHttp.h"
 
 namespace LLHttp{
+    struct AcceptEncoding{
+        HttpContentEncoding m_Encoding = HttpContentEncoding::Unsupported;
+        float m_Priority = 1.0f;
+    };
     class Decoder{
     public:
         /// @return type of HttpEncodingErrorCode
@@ -38,11 +42,11 @@ namespace LLHttp{
         /// @param output the order of encodings to decode with
         /// @return 
         static HttpParseErrorCode GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept;
-        
+
         /// @brief Takes in a encoding or list of content-encodings and returns the order in which to encode it.
-        /// @param input the Content-Encoding header value string
+        /// @param input the Accept-Encoding header value string
         /// @param output the order of encodings to encode with
         /// @return 
-        static HttpParseErrorCode GetEncodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept;
+        static HttpParseErrorCode GetEncodingOrder(const HBuffer& input, std::vector<AcceptEncoding& output)noexcept;
     };
 }

@@ -400,8 +400,8 @@ namespace LLHttp{
         if(output.size() == 0)output.emplace_back(HttpContentEncoding::Identity);
         return HttpParseErrorCode::None;
     }
-    
-    HttpParseErrorCode Decoder::GetEncodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept{
+
+    HttpParseErrorCode Decoder::GetEncodingOrder(const HBuffer& input, std::vector<AcceptEncoding>& output)noexcept{
         output.reserve(3);
 
         size_t lastAt = 0;
@@ -412,8 +412,22 @@ namespace LLHttp{
                 HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
                 if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
 
-                HttpContentEncoding encoding;
-                HttpParseErrorCode errorCode = GetEncodingFromString(buffer, encoding);
+                std::vector<HBuffer> splits = buffer.SubPointerSplitByDelimiter(';');
+                AcceptEncoding acceptEncoding;
+                HBuffer encodingString(splits[0]);
+                if(splits.size() == 2){
+                    HBuffer priorityString = splits[2];
+                    if(!priorityString.StartsWith("q=")){
+                        return HttpParseErrorCode::InvalidAcceptEncoding;
+                    }
+                    if(!priorityString.SubString(2, -1).ToFloat(acceptEncoding.m_Priority)){
+                        return HttpParseErrorCode::InvalidPriority;
+                    }
+                }
+                else if(splits.size() > 2){
+                    return HttpParseErrorCode::InvalidAcceptEncoding;
+                }
+                HttpParseErrorCode errorCode = GetEncodingFromString(encodingString, acceptEncoding.m_Encoding);
                 if(errorCode != HttpParseErrorCode::None)return errorCode;
                 output.emplace_back(encoding);
                 lastAt = i + 1;

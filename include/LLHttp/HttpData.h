@@ -68,7 +68,7 @@ namespace LLHttp{
         NetworkAuthenticationRequired=511
 
     };
-
+    
     /// @brief For determining how a packet is parsed and sent
     enum class HttpVersion{
         Unsupported=0,
@@ -110,6 +110,8 @@ namespace LLHttp{
         UnsupportedHttpVerb,
         UnsupportedTransferEncoding,
         UnsupportedContentEncoding,
+        InvalidAcceptEncoding,
+        InvalidPriority,
         InvalidPath,
         InvalidHeaderName,
         InvalidHeaderSplit,

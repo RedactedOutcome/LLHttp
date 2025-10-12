@@ -8,7 +8,7 @@
 namespace LLHttp{
     struct AcceptEncoding{
         HttpContentEncoding m_Encoding = HttpContentEncoding::Unsupported;
-        float m_Priority = 1.0f;
+        float m_Priority = 0.0f;
     };
     class Decoder{
     public:
@@ -24,7 +24,7 @@ namespace LLHttp{
         /// @brief returns a new buffer that is the encoded form of a url. Only contains a subset of percent encoding without control characters.
         /// @return type of HttpEncodingErrorCode
         static HttpEncodingErrorCode ToPercentEncoding(const HBuffer& input, HBuffer& output) noexcept;
-        
+
         static void ConvertToChunkedEncoding(const HBuffer&, HBuffer& output)noexcept;
 
         static HttpParseErrorCode GetEncodingFromString(const HBuffer& input, HttpContentEncoding& output)noexcept;

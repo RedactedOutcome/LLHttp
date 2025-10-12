@@ -398,7 +398,6 @@ namespace LLHttp{
                 if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
 
                 std::vector<HBuffer> splits = buffer.SubPointerSplitByDelimiter(';');
-                std::cout<<"splits count "<< splits.size()<<std::endl;
                 AcceptEncoding acceptEncoding;
                 HBuffer encodingString(splits[0]);
                 if(splits.size() == 2){
@@ -406,19 +405,15 @@ namespace LLHttp{
                     if(!priorityString.StartsWith("q=")){
                         return HttpParseErrorCode::InvalidAcceptEncoding;
                     }
-                    std::cout<<"Getting priority "<<std::endl;
                     if(!priorityString.SubString(2, -1).ToFloat(acceptEncoding.m_Priority)){
-                        std::cout<<"Priority"<<priorityString.SubString(2, -1).GetCStr()<<std::endl;
                         return HttpParseErrorCode::InvalidPriority;
                     }
-                    std::cout<<"done getting priority "<<std::endl;
                 }
                 else if(splits.size() > 2){
                     return HttpParseErrorCode::InvalidAcceptEncoding;
                 }
                 HttpParseErrorCode errorCode = GetEncodingFromString(encodingString, acceptEncoding.m_Encoding);
                 if(errorCode != HttpParseErrorCode::None){
-                    std::cout<<"error "<<std::endl;
                     if(encodingString == "*"){
                         using type = std::underlying_type<HttpContentEncoding>::type;
 
@@ -447,7 +442,6 @@ namespace LLHttp{
                 lastAt = i + 1;
             }
         }
-        std::cout<<"Done loop "<<std::endl;
         if(lastAt < i){
             HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
             if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
@@ -456,7 +450,7 @@ namespace LLHttp{
             AcceptEncoding acceptEncoding;
             HBuffer encodingString(splits[0]);
             if(splits.size() == 2){
-                HBuffer priorityString = splits[2];
+                HBuffer priorityString = splits[1];
                 if(!priorityString.StartsWith("q=")){
                     return HttpParseErrorCode::InvalidAcceptEncoding;
                 }

@@ -34,7 +34,7 @@ namespace LLHttp{
             return DecodeAll<Alloc>(outputVector);
         }
 
-        template<typename Alloc=std::vector<HBuffer>>
+        template<typename Alloc=std::allocator<HBuffer>>
         HttpEncodingErrorCode DecodeAll(std::vector<HBuffer, Alloc>& outputVector)noexcept{
             constexpr int outputSize = 3200;
             uint8_t output[outputSize];

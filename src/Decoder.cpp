@@ -407,7 +407,7 @@ namespace LLHttp{
             if(encodingString == "*"){
                 using type = std::underlying_type<HttpContentEncoding>::type;
 
-                for(type j = 1; j < (type)HttpContentEncoding::__COUNT__; i++){
+                for(type j = 1; j < (type)HttpContentEncoding::__COUNT__; j++){
                     acceptEncoding.m_Encoding = (HttpContentEncoding)j;
                     bool alreadyListed = false;
                     for(size_t k = 0; k < output.size(); k++){

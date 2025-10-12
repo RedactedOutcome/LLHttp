@@ -30,7 +30,7 @@ namespace LLHttp{
 
                 while(availableInput > 0){
                     BrotliEncoderOperation op = ((it == lastChunk) ? BROTLI_OPERATION_FINISH : BROTLI_OPERATION_PROCESS);
-                    if(BrotliEncoderCompressStream(m_State, op, BROTLI_OPERATION_PROCESS, &availableInput, &inputData, &availableOut, &outputBuffer, nullptr) == BROTLI_FALSE){
+                    if(BrotliEncoderCompressStream(m_State, op, &availableInput, &inputData, &availableOut, &outputBuffer, nullptr) == BROTLI_FALSE){
                         BrotliEncoderDestroyInstance(m_State);
                         m_State = nullptr;
                     }

@@ -400,4 +400,35 @@ namespace LLHttp{
         if(output.size() == 0)output.emplace_back(HttpContentEncoding::Identity);
         return HttpParseErrorCode::None;
     }
+    
+    HttpParseErrorCode Decoder::GetEncodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept{
+        output.reserve(3);
+
+        size_t lastAt = 0;
+        size_t i;
+        for(i = 0; i < input.GetSize(); i++){
+            char c = input.At(i);
+            if(c == ','){
+                HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
+                if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
+
+                HttpContentEncoding encoding;
+                HttpParseErrorCode errorCode = GetEncodingFromString(buffer, encoding);
+                if(errorCode != HttpParseErrorCode::None)return errorCode;
+                output.emplace_back(encoding);
+                lastAt = i + 1;
+            }
+        }
+        if(lastAt < i){
+            HBuffer buffer = input.SubPointer(lastAt, i - lastAt);
+            if(buffer.Get(0) == ' ')buffer = buffer.SubPointer(1, -1);
+
+            HttpContentEncoding encoding;
+            HttpParseErrorCode errorCode = GetEncodingFromString(buffer, encoding);
+            if(errorCode != HttpParseErrorCode::None)return errorCode;
+            output.emplace_back(encoding);
+        }
+        if(output.size() == 0)output.emplace_back(HttpContentEncoding::Identity);
+        return HttpParseErrorCode::None;
+    }
 }

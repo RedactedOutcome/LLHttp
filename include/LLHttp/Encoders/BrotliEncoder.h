@@ -11,7 +11,6 @@ namespace LLHttp{
 
         void Reset()noexcept;
         
-        
         HttpEncodingErrorCode EncodeBrotli(HBuffer&& input, HBuffer& output)noexcept{
             m_Input.emplace_back(std::move(data));
 

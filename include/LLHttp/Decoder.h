@@ -38,5 +38,11 @@ namespace LLHttp{
         /// @param output the order of encodings to decode with
         /// @return 
         static HttpParseErrorCode GetDecodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept;
+        
+        /// @brief Takes in a encoding or list of content-encodings and returns the order in which to encode it.
+        /// @param input the Content-Encoding header value string
+        /// @param output the order of encodings to encode with
+        /// @return 
+        static HttpParseErrorCode GetEncodingOrder(const HBuffer& input, std::vector<HttpContentEncoding>& output)noexcept;
     };
 }

@@ -8,7 +8,7 @@
 namespace LLHttp{
     struct AcceptEncoding{
         HttpContentEncoding m_Encoding = HttpContentEncoding::Unsupported;
-        float m_Priority = 0.0f;
+        float m_Priority = 1.0f;
     };
     class Decoder{
     public:

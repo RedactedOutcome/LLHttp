@@ -17,6 +17,10 @@ find_package(unofficial-brotli CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::brotli::brotlidec)
 target_include_directories(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlidec ${CMAKE_CURRENT_SOURCE_DIR}/include/LLHttp/ PUBLIC ${CMAKE_SOURCE_DIR}/libs/HBuffer/include/ ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
+# Brotli Encoding
+target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::brotli::brotlienc)
+target_include_directories(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlienc)
+
 # Precompiled Headers
 target_precompile_headers(${PROJECT_NAME} PRIVATE "include/LLHttp/pch.h")
 

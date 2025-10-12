@@ -414,6 +414,7 @@ namespace LLHttp{
                 }
                 HttpParseErrorCode errorCode = GetEncodingFromString(encodingString, acceptEncoding.m_Encoding);
                 if(errorCode != HttpParseErrorCode::None){
+                    std::cout<<"encoding string"<< encodingString.SubString(0,-1).GetCStr()<<std::endl;
                     if(encodingString == "*"){
                         using type = std::underlying_type<HttpContentEncoding>::type;
 

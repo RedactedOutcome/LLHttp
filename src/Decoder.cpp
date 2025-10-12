@@ -415,12 +415,14 @@ namespace LLHttp{
                 HttpParseErrorCode errorCode = GetEncodingFromString(encodingString, acceptEncoding.m_Encoding);
                 if(errorCode != HttpParseErrorCode::None){
                     if(encodingString == "*"){
-                        for(size_t j = 1; j < HttpContentEncoding::__COUNT__; i++){
+                        using type = std::underlying_type<HttpContentEncoding>::type;
+
+                        for(type j = 1; j < (type)HttpContentEncoding::__COUNT__; i++){
                             acceptEncoding.m_Encoding = (HttpContentEncoding)j;
                             bool alreadyListed = false;
                             for(size_t k = 0; k < output.size(); i++){
                                 AcceptEncoding kEncoding = output[k];
-                                if(kEncoding.m_Encoding == acceptEncoding.m_Encoding){
+                                if(kEncoding.m_Encoding == (HttpContentEncoding)j){
                                     alreadyListed=true;
                                     break;
                                 }

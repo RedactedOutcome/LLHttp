@@ -422,7 +422,7 @@ namespace LLHttp{
                     }
                 }
 
-                continue;
+                return HttpParseErrorCode::None;
             }
             else{
                 return errorCode;

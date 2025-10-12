@@ -80,22 +80,7 @@ namespace LLHttp{
         return HttpEncodingErrorCode::None;
     }
 #pragma endregion
-    HttpEncodingErrorCode Decoder::DecodeData(HttpContentEncoding encoding, HBuffer& input, std::vector<HBuffer>& output) noexcept{
-        switch(encoding){
-        case HttpContentEncoding::GZip:{
-            return HttpEncodingErrorCode::UnsupportedContentEncoding;
-        }
-        case HttpContentEncoding::Identity:
-            return HttpEncodingErrorCode::None;
-        default:
-            return HttpEncodingErrorCode::UnsupportedContentEncoding;
-        }
-    }
-#pragma region Brotli
-    HttpEncodingErrorCode Decoder::DecodeBrotli(const HBuffer& input, std::vector<HBuffer>& output)noexcept{
-        
-    }
-#pragma endregion
+
     HttpEncodingErrorCode Decoder::GetFromPercentEncoding(const HBuffer& input, HBuffer& output) noexcept{
         size_t size = input.GetSize();
         output.Reserve(size);

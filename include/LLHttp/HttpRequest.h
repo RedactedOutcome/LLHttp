@@ -2,10 +2,13 @@
 #include "HttpMessage.h"
 
 namespace LLHttp{
-    template<typename T>
-    class FutureRequest : public HttpMessage<T>{
+    template<typename BodyAlloc>
+    class FutureRequest : public HttpMessage<BodyAlloc>{
+    public:
+        FutureRequest()noexcept : HttpMessage<BodyAlloc>(){}
+        ~FutureRequest()noexcept{}
 
-    }
+    };
     enum class RequestReadState : uint8_t{
         Unknown=0,
         HeadersAndCookies,

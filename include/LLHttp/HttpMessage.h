@@ -92,7 +92,7 @@ namespace LLHttp{
         const HBufferJoin& GetJoin()const noexcept{return m_Join;}
         size_t GetParseAt()const noexcept{return m_At;}
         size_t GetRemaining()const noexcept{return m_Remaining;}
-        HBufferJoin& GetJoinRef() noexcept{return m_Join;}
+        HBufferJoin& GetJoinRef() noexcept{return (HBufferJoin&)m_Join;}
     protected:
         HttpVersion m_Version = HttpVersion::HTTP1_1;
         std::vector<HBuffer, BodyAlloc> m_Body;

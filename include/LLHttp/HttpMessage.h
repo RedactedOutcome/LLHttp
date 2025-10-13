@@ -21,7 +21,7 @@ namespace LLHttp{
     struct ParseInfo{
         bool m_CopyNecessary=true;
     };
-    
+
     template<typename BodyAlloc=std::allocator<HBuffer>>
     class HttpMessage{
     public:
@@ -92,7 +92,7 @@ namespace LLHttp{
         const HBufferJoin& GetJoin()const noexcept{return m_Join;}
         HBufferJoin& GetJoinRef()const noexcept{return m_Join;}
         size_t GetParseAt()const noexcept{return m_At;}
-        size_T GetRemaining()const noexcept{return m_Remaining;}
+        size_t GetRemaining()const noexcept{return m_Remaining;}
     protected:
         HttpVersion m_Version = HttpVersion::HTTP1_1;
         std::vector<HBuffer, BodyAlloc> m_Body;

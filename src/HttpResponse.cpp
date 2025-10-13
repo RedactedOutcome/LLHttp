@@ -535,7 +535,7 @@ namespace LLHttp{
     void HttpResponse::SetVersion(HttpVersion version)noexcept{
         m_Version = version;
     }
-
+    
     void HttpResponse::SetReadState(ResponseReadState state)noexcept{
         m_State = state;
     }

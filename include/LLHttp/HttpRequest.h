@@ -13,6 +13,7 @@ namespace LLHttp{
         EndOfBodies,
         Finished
     };
+    
     class HttpRequest{
     public:
         HttpRequest()noexcept;

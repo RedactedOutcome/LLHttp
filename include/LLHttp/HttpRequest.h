@@ -140,6 +140,12 @@ namespace LLHttp{
         //const std::unordered_map<std::string, std::string> GetHeaders() const noexcept{return m_Headers;}
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
         std::unordered_map<HBuffer, Cookie>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
+    public:
+        HttpVersion GetVersion()const noexcept{return m_Version;}
+        RequestReadState GetReadState()const noexcept{return m_State;}
+        HBufferJoin& GetJoin()const noexcept{return (HBufferJoin&)m_Join;}
+        size_t GetAt() const noexcept{return m_At;}
+        size_t GetRemaining()const noexcept{return m_Remaining;}
     private:
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
@@ -148,12 +154,7 @@ namespace LLHttp{
         std::unordered_map<HBuffer, Cookie> m_Cookies;
         bool m_IsBodyEncoded=false;
         std::vector<HBuffer> m_Body;
-        
-        std::vector<HttpContentEncoding> m_AcceptEncodings;
-        uint32_t m_ParsePosition = 0;
     public:
-        bool m_MidwayParsing = false;
-        
         /* PARSE STATES
         0 - Hasnt attempted parse
         */

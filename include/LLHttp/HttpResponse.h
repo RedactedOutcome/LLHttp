@@ -173,9 +173,11 @@ namespace LLHttp{
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
     public:
         /// @brief returns the current position in the joined buffer that we are using to pase data for the current state
-        int32_t GetCurrentAt() const noexcept{return m_At;}
         ResponseReadState GetState() const noexcept{return m_State;}
         const HBufferJoin& GetBufferJoin() const noexcept{return m_Join;}
+        size_t GetAt() const noexcept{return m_At;}
+        size_t GetRemaining()const noexcept{return m_Remaining;}
+        void* GetMetadata()const noexcept{return m_Metadata;}
     private:
         uint16_t m_Status = 0;
         HttpVersion m_Version = HttpVersion::Unsupported;
@@ -186,8 +188,6 @@ namespace LLHttp{
         bool m_IsBodyCompressed=false;
         std::vector<HBuffer> m_Body;
     public:
-        bool m_MidwayParsing = false;
-
         /// @brief State of last parse. Wether it was a success, needed data, or an error
         HttpParseErrorCode m_LastState = HttpParseErrorCode::NeedsMoreData;
         /// @brief State inside the current parse state
@@ -195,7 +195,7 @@ namespace LLHttp{
 
         /// @brief first string is the last copy of a "read" buffer if there is one. Right is a view of the new read buffer data
         HBufferJoin m_Join;
-        int32_t m_At = 0;
+        size_t m_At = 0;
         /// @brief used for identity encoding. If we dont have enough data we can return a body and specify that there is more data with return value of NeedsMoreData
         size_t m_Remaining=-1;
         void* m_Metadata = nullptr;

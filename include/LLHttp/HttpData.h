@@ -97,7 +97,6 @@ namespace LLHttp{
         ZStd,
         DCB,
         DCZ,
-
         __COUNT__
     };
 

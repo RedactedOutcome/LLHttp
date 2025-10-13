@@ -40,7 +40,7 @@ namespace LLHttp{
             m_At = 0;
             m_Join.Free();
             m_ReadState = MessageReadState::DetectHttpVersion;
-            m_LastState = HttpParseErrorCode::NeedsMoreData
+            m_LastState = HttpParseErrorCode::NeedsMoreData;
         }
     public:
         void SetVersion(HttpVersion version)noexcept{

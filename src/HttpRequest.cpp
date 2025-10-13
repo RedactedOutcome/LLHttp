@@ -18,7 +18,6 @@ namespace LLHttp{
         m_LastState = request.m_LastState;
         m_Remaining = request.m_Remaining;
         m_At = request.m_At;
-        m_MidwayParsing = request.m_MidwayParsing;
         m_Body = std::move(request.m_Body);
         m_Cookies = std::move(request.m_Cookies);
         m_Headers = std::move(request.m_Headers);
@@ -36,7 +35,6 @@ namespace LLHttp{
         m_Headers.clear();
         m_Cookies.clear();
         m_Body.clear();
-        m_MidwayParsing = false;
 
         m_At = 0;
         m_Remaining = -1;
@@ -727,7 +725,6 @@ namespace LLHttp{
         m_State = request.m_State;
         m_LastState = request.m_LastState;
         m_At = request.m_At;
-        m_MidwayParsing = request.m_MidwayParsing;
         m_Body = std::move(request.m_Body);
         m_Cookies = std::move(request.m_Cookies);
         m_Headers = std::move(request.m_Headers);

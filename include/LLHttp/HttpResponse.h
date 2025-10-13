@@ -123,6 +123,8 @@ namespace LLHttp{
         void PrepareRead()noexcept;
         void Clear()noexcept;
 
+        void SetReadState(ResponseReadState state)noexcept;
+    public:
         /// @brief Attempts to decompress the body data depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
         HttpEncodingErrorCode Decompress() noexcept;

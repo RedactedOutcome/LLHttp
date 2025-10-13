@@ -533,6 +533,10 @@ namespace LLHttp{
     void HttpRequest::SetVerb(HttpVerb verb)noexcept{
         m_Verb = verb;
     }
+
+    void HttpRequest::SetReadState(RequestReadState state)noexcept{
+        m_State = state;
+    }
     void HttpRequest::PreparePayload(){
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
 

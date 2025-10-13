@@ -106,6 +106,8 @@ namespace LLHttp{
         void SetVersion(HttpVersion version)noexcept;
         void SetVerb(HttpVerb verb)noexcept;
 
+        void SetReadState(RequestReadState state)noexcept;
+    public:
         //Clears all data
         void Clear();
         void PreparePayload();

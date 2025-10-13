@@ -1,9 +1,11 @@
 #pragma once
-#include "pch.h"
-#include "Cookie.h"
-#include "HttpData.h"
+#include "HttpMessage.h"
 
 namespace LLHttp{
+    template<typename T>
+    class FutureRequest : public HttpMessage<T>{
+
+    }
     enum class RequestReadState : uint8_t{
         Unknown=0,
         HeadersAndCookies,

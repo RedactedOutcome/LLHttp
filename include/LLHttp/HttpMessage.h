@@ -1,7 +1,7 @@
 #pragma once
 
 #include "HttpData.h"
-#include "pch.h"
+#include "Cookie.h"
 
 namespace LLHttp{
     enum class MessageReadState : uint8_t{
@@ -17,6 +17,11 @@ namespace LLHttp{
         Finished,
         Unknown
     };
+
+    struct ParseInfo{
+        bool m_CopyNecessary=true;
+    };
+    
     template<typename BodyAlloc=std::allocator<HBuffer>>
     class HttpMessage{
     public:
@@ -46,6 +51,12 @@ namespace LLHttp{
         void SetBody(T&&... t)noexcept{
             m_Body.clear();
             m_Body.emplace_back(std::forward<T>(t)...);
+        }
+
+        /// @brief Sets the stream id for parsing 
+        /// @param id a 31 bit http stream id. the last bit is assumed 0
+        void SetStreamId(uint32_t id)noexcept{
+            m_StreamId = id;
         }
     public:
         template<typename... T>
@@ -88,6 +99,8 @@ namespace LLHttp{
         HeaderMapType m_Headers;
         std::unordered_map<HBuffer, Cookie> m_Cookies;
     protected:
+        /// @brief stream id for http 2 responses. Defaults to an invalid value
+        uint32_t m_StreamId=(1<<31);
         MessageReadState m_ReadState = MessageReadState::DetectHttpVersion;
         HttpParseErrorCode m_LastState = HttpParseErrorCode::NeedsMoreData;
         HBufferJoin m_Join;

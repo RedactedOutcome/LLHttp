@@ -15,7 +15,7 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES})
 # Brotli Decoding
 find_package(unofficial-brotli CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::brotli::brotlidec)
-target_include_directories(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlidec /include/LLHttp/ PUBLIC ${CMAKE_SOURCE_DIR}/libs/HBuffer/include/ ${CMAKE_CURRENT_SOURCE_DIR}/include/)
+target_include_directories(${PROJECT_NAME} PRIVATE unofficial::brotli::brotlidec ${CMAKE_SOURCE_DIR}/include/LLHttp/ PUBLIC ${CMAKE_SOURCE_DIR}/libs/HBuffer/include/ ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 # Brotli Encoding
 target_link_libraries(${PROJECT_NAME} PUBLIC unofficial::brotli::brotlienc)

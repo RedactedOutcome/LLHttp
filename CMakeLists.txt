@@ -31,7 +31,7 @@ endif()
 if(DEFINED LLHTTP_INCLUDE_DIR)
     target_include_directories(${PROJECT_NAME} PRIVATE ${LLHttpIncludeDir})
 else()
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs/HBuffer)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs/HBuffer/include)
 endif()
 
 # ZLib Decoding

@@ -174,7 +174,7 @@ namespace LLHttp{
             const it& = m_Headers.find(HBuffer(std::forward<Args>(args)...));
             if(it == m_Headers.end())
                 throw std::out_of_range("FindHeader looked for non existant header");
-            return *it;
+            return it.second;
         }
     public:
         Cookie& GetCookie(const char* name) noexcept;

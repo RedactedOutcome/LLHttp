@@ -171,7 +171,7 @@ namespace LLHttp{
     public:
         template<typename... Args>
         const HBuffer& FindHeader(Args&&... args)const {
-            const it& = m_Headers.find(HBuffer(std::forward<Args(args)...));
+            const it& = m_Headers.find(HBuffer(std::forward<Args>(args)...));
             if(it == m_Headers.end())
                 throw std::out_of_range("FindHeader looked for non existant header");
             return *it;

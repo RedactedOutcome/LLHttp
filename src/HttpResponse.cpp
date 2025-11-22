@@ -834,8 +834,8 @@ namespace LLHttp{
         return buffer;
     }
 
-    HttpEncodingErrorCode HttpResponse::GetFormattedBodyPartsCopy(std::vector<HBuffer>& output) const noexcept{
-        HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
+    HttpEncodingErrorCode HttpResponse::GetFormattedBodyPartsCopy(std::vector<HBuffer>& output) const{
+        const HBuffer& transferEncoding = FindHeader("Transfer-Encoding");
         output.reserve(m_Body.size());
 
         if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){

@@ -174,9 +174,13 @@ namespace LLHttp{
         
         uint16_t GetStatus() const noexcept{return m_Status;}
         HttpVersion GetVersion() const noexcept{return m_Version;}
-        std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
-        std::unordered_map<HBuffer, Cookie>& GetCookies() noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
-        std::vector<HBuffer>& GetBody() noexcept{return (std::vector<HBuffer>&)m_Body;}
+        const std::vector<HBuffer>& GetBody() noexcept{return m_Body;}
+        const std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() noexcept{return m_Headers;}
+        const std::unordered_map<HBuffer, Cookie>& GetCookies() noexcept{return m_Cookies;}
+
+        std::vector<HBuffer>& GetBodyRef() noexcept{return (std::vector<HBuffer>&)m_Body;}
+        std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeadersRef() noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
+        std::unordered_map<HBuffer, Cookie>& GetCookiesRef() noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
     public:
         /// @brief returns the current position in the joined buffer that we are using to pase data for the current state
         ResponseReadState GetState() const noexcept{return m_State;}

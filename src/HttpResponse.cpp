@@ -6,10 +6,10 @@
 namespace LLHttp{
     HttpResponse::HttpResponse(){
     }
-    HttpResponse::HttpResponse(uint16_t status),
+    HttpResponse::HttpResponse(uint16_t status) :
         m_Status(status){
     }
-    HttpResponse::HttpResponse(uint16_t status, uint32_t streamId),
+    HttpResponse::HttpResponse(uint16_t status, uint32_t streamId) :
         m_Status(status), m_StreamId(streamId){
     }
     HttpResponse::~HttpResponse(){

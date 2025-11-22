@@ -7,9 +7,11 @@ namespace LLHttp{
     HttpRequest::HttpRequest()noexcept{
 
     }
-    HttpRequest::~HttpRequest()noexcept{
+    HttpRequest::HttpRequest(uint32_t streamId)noexcept:
+        m_StreamId(streamId){
 
     }
+    HttpRequest::~HttpRequest()noexcept{}
     
     HttpRequest::HttpRequest(HttpRequest&& request)noexcept{
         m_Version = request.m_Version;
@@ -23,7 +25,7 @@ namespace LLHttp{
         m_Headers = std::move(request.m_Headers);
         m_Join = std::move(request.m_Join);
         m_Path = std::move(request.m_Path);
-
+        
         request.Clear();
     }
     void HttpRequest::Clear(){
@@ -35,12 +37,12 @@ namespace LLHttp{
         m_Headers.clear();
         m_Cookies.clear();
         m_Body.clear();
-
+        
         m_At = 0;
         m_Remaining = -1;
         m_Join.Free();
     }
-
+    
     HttpParseErrorCode HttpRequest::ParseHead(const HBuffer& data, BodyParseInfo* info)noexcept{
         if(m_LastState != HttpParseErrorCode::NeedsMoreData)return m_LastState;
 

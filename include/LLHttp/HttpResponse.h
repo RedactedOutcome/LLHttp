@@ -171,10 +171,10 @@ namespace LLHttp{
     public:
         template<typename... Args>
         const HBuffer& FindHeader(Args&&... args)const {
-            const iterator& = m_Headers.find(HBuffer(std::forward<Args>(args)...));
-            if(iterator== m_Headers.end())
+            const headerIterator& = m_Headers.find(HBuffer(std::forward<Args>(args)...));
+            if(headerIterator== m_Headers.end())
                 throw std::out_of_range("FindHeader looked for non existant header");
-            return *iterator;
+            return *headerIterator;
         }
     public:
         Cookie& GetCookie(const char* name) noexcept;

@@ -97,7 +97,7 @@ namespace LLHttp{
         HttpVersion m_Version = HttpVersion::HTTP1_1;
         std::vector<HBuffer, BodyAlloc> m_Body;
         HeaderMapType m_Headers;
-        std::unordered_map<HBuffer, Cookie> m_Cookies;
+        CookieMapType m_Cookies;
     protected:
         /// @brief stream id for http 2 responses. Defaults to an invalid value
         uint32_t m_StreamId=(1<<31);

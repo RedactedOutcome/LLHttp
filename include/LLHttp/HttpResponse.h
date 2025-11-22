@@ -20,6 +20,7 @@ namespace LLHttp{
     public:
         HttpResponse();
         HttpResponse(uint16_t status);
+        HttpResponse(uint16_t status, uint32_t streamId);
         ~HttpResponse();
 
         /// @brief clears the join buffer and prepares the response to be able to read and parse body parts while keeping necessary information for head, content type, transfer encoding, ect
@@ -123,6 +124,8 @@ namespace LLHttp{
         void Clear()noexcept;
 
         void SetReadState(ResponseReadState state)noexcept;
+
+        void SetStreamId(uint32_t streamId)noexcept;
     public:
         /// @brief Attempts to decompress the body data depending on the Content-Encoding header. 
         /// @return returns enum of type HttpEncodingErrorCode
@@ -143,8 +146,10 @@ namespace LLHttp{
         /// @brief Gets a copy of all the body parts in a formatted way depending on the transfer-encoding. will not encode by default
         /// @param output 
         /// @return if successfully formatted all body parts with a copy
-        HttpEncodingErrorCode GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)noexcept;
+        HttpEncodingErrorCode GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)const noexcept;
 
+        /// TODO: make a class member contain the value of Transfer-Encoding that way we can give const correctness to this
+        
         /// @brief Attempts to create a formatted copy of input depending on TransferEncoding. Independent of Content-Encoding
         HttpEncodingErrorCode BufferCopyToValidBodyPartFormat(const HBuffer& input, HBuffer& output)noexcept;
 
@@ -169,19 +174,21 @@ namespace LLHttp{
         
         uint16_t GetStatus() const noexcept{return m_Status;}
         HttpVersion GetVersion() const noexcept{return m_Version;}
-        std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
-        std::unordered_map<HBuffer, Cookie>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
-        std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
+        std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
+        std::unordered_map<HBuffer, Cookie>& GetCookies() noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
+        std::vector<HBuffer>& GetBody() noexcept{return (std::vector<HBuffer>&)m_Body;}
     public:
         /// @brief returns the current position in the joined buffer that we are using to pase data for the current state
         ResponseReadState GetState() const noexcept{return m_State;}
         const HBufferJoin& GetBufferJoin() const noexcept{return m_Join;}
+        uint32_t GetStreamId()const noexcept{return m_StreamId;}
         size_t GetAt() const noexcept{return m_At;}
         size_t GetRemaining()const noexcept{return m_Remaining;}
         void* GetMetadata()const noexcept{return m_Metadata;}
     private:
-        uint16_t m_Status = 0;
         HttpVersion m_Version = HttpVersion::Unsupported;
+        uint16_t m_Status = 0;
+        uint32_t m_StreamId = 0;
         /// TODO: Case insensitive
         /// @brief a map of headers. When accessed directly the keys are case insensitive. Only through the get functions will be using lowercase functions
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals> m_Headers;

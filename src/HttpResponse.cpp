@@ -6,7 +6,11 @@
 namespace LLHttp{
     HttpResponse::HttpResponse(){
     }
-    HttpResponse::HttpResponse(uint16_t status){
+    HttpResponse::HttpResponse(uint16_t status),
+        m_Status(status){
+    }
+    HttpResponse::HttpResponse(uint16_t status, uint32_t streamId),
+        m_Status(status), m_StreamId(streamId){
     }
     HttpResponse::~HttpResponse(){
     }
@@ -539,6 +543,10 @@ namespace LLHttp{
     void HttpResponse::SetReadState(ResponseReadState state)noexcept{
         m_State = state;
     }
+
+    void HttpResponse::SetStreamId(uint32_t streamId)noexcept{
+        m_StreamId = streamId;
+    }
     void HttpResponse::PreparePayload(size_t preferedLength)noexcept{
         /// TODO: handle multiple content encodings
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
@@ -826,19 +834,19 @@ namespace LLHttp{
         return buffer;
     }
 
-    HttpEncodingErrorCode HttpResponse::GetFormattedBodyPartsCopy(std::vector<HBuffer>& output)noexcept{
+    HttpEncodingErrorCode HttpResponse::GetFormattedBodyPartsCopy(std::vector<HBuffer>& output) const noexcept{
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
         output.reserve(m_Body.size());
 
         if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             for(size_t i = 0; i < m_Body.size(); i++){
-                output.emplace_back(m_Body[i].GetCopy());
+                output.emplace_back(m_Body.at(i).GetCopy());
             }
 
             return HttpEncodingErrorCode::None;
         }else if(transferEncoding == "chunked"){
             for(size_t i = 0; i < m_Body.size(); i++){
-                const HBuffer& input = m_Body[i];
+                const HBuffer& input = m_Body.at(i);
 
                 size_t partSize = input.GetSize();
                 HBuffer newPart;
@@ -911,7 +919,7 @@ namespace LLHttp{
     }
     HttpEncodingErrorCode HttpResponse::BufferToValidBodyPartFormat(const HBuffer& input, HBuffer& output) noexcept{ 
         HBuffer& transferEncoding = GetHeader("Transfer-Encoding");
-
+        
         if(!transferEncoding || transferEncoding == "" || transferEncoding == "identity"){
             output = input.GetCopy();
             return HttpEncodingErrorCode::None;

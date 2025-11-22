@@ -22,9 +22,10 @@ namespace LLHttp{
     class HttpRequest{
     public:
         HttpRequest()noexcept;
-        ~HttpRequest()noexcept;
+        HttpRequest(uint32_t streamId)noexcept;
         HttpRequest(const HttpRequest&)noexcept=delete;
         HttpRequest(HttpRequest&& request)noexcept;
+        ~HttpRequest()noexcept;
 
         /// @brief Starts to parse the head portion of the http request with a buffer of data. If this data does not finish all the data then we copy it
         /// @param data the data to steal and parse into the head
@@ -113,6 +114,8 @@ namespace LLHttp{
         void SetVerb(HttpVerb verb)noexcept;
 
         void SetReadState(RequestReadState state)noexcept;
+
+        void SetStreamId(uint32_t streamId)noexcept;
     public:
         //Clears all data
         void Clear();
@@ -146,18 +149,20 @@ namespace LLHttp{
         std::vector<HBuffer>& GetBody() const noexcept{return (std::vector<HBuffer>&)m_Body;}
 
         //const std::unordered_map<std::string, std::string> GetHeaders() const noexcept{return m_Headers;}
-        std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() const noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
-        std::unordered_map<HBuffer, Cookie>& GetCookies() const noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
+        std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>& GetHeaders() noexcept{return (std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals>&)m_Headers;}
+        std::unordered_map<HBuffer, Cookie>& GetCookies() noexcept{return (std::unordered_map<HBuffer, Cookie>&)m_Cookies;}
     public:
         HttpVersion GetVersion()const noexcept{return m_Version;}
         RequestReadState GetReadState()const noexcept{return m_State;}
         HBufferJoin& GetJoin()const noexcept{return (HBufferJoin&)m_Join;}
+        uint32_t GetStreamId()const noexcept{return m_StreamId;}
         size_t GetAt() const noexcept{return m_At;}
         size_t GetRemaining()const noexcept{return m_Remaining;}
     private:
         HttpVersion m_Version = HttpVersion::Unsupported;
         HttpVerb m_Verb = HttpVerb::Unknown;
         HBuffer m_Path;
+        uint32_t m_StreamId = 0;
         std::unordered_map<HBuffer, HBuffer, HBufferLowercaseHash, HBufferLowercaseEquals> m_Headers;
         std::unordered_map<HBuffer, Cookie> m_Cookies;
         bool m_IsBodyEncoded=false;
